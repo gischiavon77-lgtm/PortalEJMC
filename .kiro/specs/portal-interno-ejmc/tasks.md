@@ -59,21 +59,21 @@ graph TD
 
 ### Task 1: Setup do Projeto e Infraestrutura
 
-- [~] 1.1 Inicializar projeto Next.js 14 com App Router e TypeScript (`npx create-next-app@latest`)
-- [~] 1.2 Configurar Tailwind CSS com as variáveis CSS do design system (paleta vermelha, tipografia Playfair/DM Sans, glassmorphism)
-- [~] 1.3 Instalar dependências: `prisma`, `@prisma/client`, `next-auth@beta`, `zod`, `bcryptjs`, `resend`
-- [~] 1.4 Instalar dependências de dev: `vitest`, `@fast-check/vitest`, `@testing-library/react`, `playwright`
-- [~] 1.5 Configurar `tailwind.config.ts` com cores customizadas, fontes e breakpoints (320px, 768px, 1024px)
-- [~] 1.6 Criar `globals.css` com variáveis CSS do design system baseado no login.html existente
-- [~] 1.7 Configurar `vitest.config.ts` e `playwright.config.ts`
-- [~] 1.8 Configurar ESLint e Prettier
-- [~] 1.9 Criar estrutura de pastas conforme design (`src/app`, `src/components`, `src/lib`, `src/hooks`, `src/types`, `tests/`)
-- [~] 1.10 Configurar variáveis de ambiente (`.env.local.example`) com placeholders para DATABASE_URL, NEXTAUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, RESEND_API_KEY
+- [x] 1.1 Inicializar projeto Next.js 14 com App Router e TypeScript (`npx create-next-app@latest`)
+- [x] 1.2 Configurar Tailwind CSS com as variáveis CSS do design system (paleta vermelha, tipografia Playfair/DM Sans, glassmorphism)
+- [x] 1.3 Instalar dependências: `prisma`, `@prisma/client`, `next-auth@beta`, `zod`, `bcryptjs`, `resend`
+- [x] 1.4 Instalar dependências de dev: `vitest`, `@fast-check/vitest`, `@testing-library/react`, `playwright`
+- [x] 1.5 Configurar `tailwind.config.ts` com cores customizadas, fontes e breakpoints (320px, 768px, 1024px)
+- [x] 1.6 Criar `globals.css` com variáveis CSS do design system baseado no login.html existente
+- [x] 1.7 Configurar `vitest.config.ts` e `playwright.config.ts`
+- [x] 1.8 Configurar ESLint e Prettier
+- [x] 1.9 Criar estrutura de pastas conforme design (`src/app`, `src/components`, `src/lib`, `src/hooks`, `src/types`, `tests/`)
+- [x] 1.10 Configurar variáveis de ambiente (`.env.local.example`) com placeholders para DATABASE_URL, NEXTAUTH_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, RESEND_API_KEY
 
 ### Task 2: Schema Prisma e Banco de Dados
 
-- [~] 2.1 Criar `prisma/schema.prisma` com todos os enums (UserRole, AccountStatus, Area, ProjectStatus, InfractionType, PollStatus, GoalType, KpiUnit)
-- [~] 2.2 Criar modelo `User` com todos os campos, relações e índices
+- [x] 2.1 Criar `prisma/schema.prisma` com todos os enums (UserRole, AccountStatus, Area, ProjectStatus, InfractionType, PollStatus, GoalType, KpiUnit)
+- [-] 2.2 Criar modelo `User` com todos os campos, relações e índices
 - [~] 2.3 Criar modelos `Event`, `Goal`, `GoalUpdate`
 - [~] 2.4 Criar modelos `Kpi`, `KpiValue`
 - [~] 2.5 Criar modelos `Project`, `ProjectMember`, `ProjectStatusHistory`

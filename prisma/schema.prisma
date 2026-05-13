@@ -1,0 +1,68 @@
+// Prisma schema — Portal Interno EJMC
+// Task 2.1: Gerador, datasource e enums.
+// Modelos serão adicionados nas tasks 2.2 a 2.8.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Prisma 7+ requires the connection URL to be configured in prisma.config.ts
+  // (via `migrations.url`) instead of in the schema. See prisma.config.ts.
+}
+
+// ─── Enums ───
+
+enum UserRole {
+  ADMIN
+  DIRETOR
+  GERENTE
+  COORDENADOR
+  MEMBRO
+}
+
+enum AccountStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  REJECTED
+}
+
+enum Area {
+  VENDAS
+  PRESIDENCIA
+  PROJETOS
+  MARKETING
+  GESTAO_PESSOAS
+  ADM_FIN
+}
+
+enum ProjectStatus {
+  EM_ANDAMENTO
+  CONCLUIDO
+  CONGELADO
+  CANCELADO
+}
+
+enum InfractionType {
+  ATRASO
+  FALTA
+  DRESS_CODE
+}
+
+enum PollStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum GoalType {
+  GENERAL
+  AREA
+}
+
+enum KpiUnit {
+  PERCENTAGE
+  INTEGER
+  DECIMAL
+}
