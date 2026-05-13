@@ -20,6 +20,16 @@ export const AUTH_ERROR_CODES = {
   ACCOUNT_INACTIVE: 'AccountInactive',
   ACCOUNT_REJECTED: 'AccountRejected',
   ACCOUNT_LOCKED: 'AccountLocked',
+  /**
+   * Emitido client-side pelo `useSessionExpiredRedirect` (Task 4.6)
+   * quando o status do `useSession()` transita de `authenticated` para
+   * `unauthenticated` mid-sessão — sintoma de que o JWT callback
+   * (Task 3.4) invalidou o token por inatividade de 8h. O middleware
+   * (Task 4.3) cuida do caminho server-side para navegações novas; este
+   * código cobre o caso SPA, onde o usuário já está em uma página
+   * autenticada quando o token expira.
+   */
+  SESSION_EXPIRED: 'SessionExpired',
 } as const;
 
 export type AuthErrorCode =

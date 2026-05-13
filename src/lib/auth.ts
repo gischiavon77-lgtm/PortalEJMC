@@ -107,7 +107,7 @@ import NextAuth, { CredentialsSignin, type NextAuthConfig } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
-import type { AccountStatus, Area, UserRole } from '@prisma/client';
+import type { AccountStatus } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
 import {
@@ -117,6 +117,7 @@ import {
 } from '@/lib/rate-limit';
 import { findOrCreateGoogleUser } from '@/lib/google-auth';
 import { AUTH_ERROR_CODES } from '@/lib/auth-errors';
+import { authConfig as edgeAuthConfig } from '@/lib/auth.config';
 
 /**
  * Códigos de erro emitidos pelo Credentials Provider para sinalizar
@@ -158,38 +159,12 @@ export class AccountLockedError extends CredentialsSignin {
   code = AUTH_ERROR_CODES.ACCOUNT_LOCKED;
 }
 
-// 8 horas em segundos. Aplicado a `session.maxAge` e ao guard manual de
-// inatividade no callback `jwt` (Task 3.4 / Req 1.1, 1.3).
-const SESSION_MAX_AGE_SECONDS = 8 * 60 * 60;
-
-// Mesma janela em milissegundos, usada ao comparar `Date.now()` contra
-// `token.lastActivity` (que é registrado em ms para alinhar com a API
-// nativa do JS).
-const INACTIVITY_LIMIT_MS = SESSION_MAX_AGE_SECONDS * 1000;
-
 export const authConfig: NextAuthConfig = {
-  // NextAuth v5 lê `AUTH_SECRET` por padrão; mantemos `NEXTAUTH_SECRET`
-  // como alias para preservar compatibilidade com a documentação interna
-  // existente em `.env.local.example` (gerado na Task 1.10).
-  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
-
-  session: {
-    strategy: 'jwt',
-    // Limite máximo absoluto de uma reemissão para a próxima. Com
-    // `updateAge = 0`, a cada chamada autenticada o JWT é reemitido
-    // com `exp = agora + maxAge`, criando a janela rolante exigida pela
-    // Req 1.1 (8h de inatividade).
-    maxAge: SESSION_MAX_AGE_SECONDS,
-    // `updateAge = 0` força o NextAuth a reemitir o JWT em toda chamada
-    // ao callback `jwt`, garantindo expiração por inatividade. Sem isso,
-    // o token só seria reemitido após `updateAge` segundos, podendo
-    // expirar enquanto o usuário ainda está ativo.
-    updateAge: 0,
-  },
-
-  pages: {
-    signIn: '/login',
-  },
+  // Reaproveita session.strategy/maxAge/updateAge, secret, pages e os
+  // callbacks `jwt`/`session` definidos em `auth.config.ts` (Edge-safe).
+  // Aqui adicionamos o que depende de Node (Prisma + bcrypt + helpers
+  // de banco): a lista de providers e o callback `signIn` do Google.
+  ...edgeAuthConfig,
 
   providers: [
     // ─── Credentials: email + senha ───────────────────────────────────────
@@ -304,6 +279,11 @@ export const authConfig: NextAuthConfig = {
   ],
 
   callbacks: {
+    // Reaproveita os callbacks `jwt` e `session` da config Edge — única
+    // fonte da verdade para a política de inatividade de 8h e para o
+    // shape da Session. `signIn` é definido apenas aqui porque depende
+    // de `findOrCreateGoogleUser` (Prisma), que não pode rodar no Edge.
+    ...edgeAuthConfig.callbacks,
     /**
      * Callback `signIn` (Task 3.5).
      *
@@ -373,63 +353,6 @@ export const authConfig: NextAuthConfig = {
           return false;
         }
       }
-    },
-
-    /**
-     * Enriquecemos o JWT com `id`, `role`, `area`, `status` na primeira
-     * autenticação. Em chamadas subsequentes, atualizamos `lastActivity`
-     * e aplicamos o guard de inatividade de 8h (Task 3.4 / Req 1.1, 1.3).
-     *
-     * Retornar `null` invalida a sessão: o NextAuth descarta o cookie e
-     * o middleware (Task 4.6) redireciona para `/login`.
-     */
-    async jwt({ token, user }) {
-      const now = Date.now();
-
-      if (user) {
-        // Login recém-realizado (Credentials.authorize ou Google).
-        // Inicializa todos os campos de domínio e o marcador de atividade.
-        token.id = user.id as string;
-        token.role = (user as { role?: UserRole }).role;
-        token.area = (user as { area?: Area | null }).area ?? null;
-        token.status = (user as { status?: AccountStatus }).status;
-        token.lastActivity = now;
-        return token;
-      }
-
-      // Chamada subsequente: aplica a política de inatividade.
-      // `lastActivity` pode estar ausente em tokens emitidos antes desta
-      // task; tratamos como "sem registro" e assumimos atividade agora,
-      // evitando deslogar usuários no primeiro deploy.
-      const lastActivity =
-        typeof token.lastActivity === 'number' ? token.lastActivity : now;
-
-      if (now - lastActivity > INACTIVITY_LIMIT_MS) {
-        // 8h sem atividade → sessão expirada.
-        // Retornar `null` força o NextAuth a tratar a sessão como
-        // inválida e descartar o cookie. O middleware (Task 4.6)
-        // redireciona o usuário para `/login`.
-        return null as unknown as typeof token;
-      }
-
-      // Atividade detectada: renova o marcador. Combinado com
-      // `updateAge = 0`, o cookie será reemitido com `exp` recalculado.
-      token.lastActivity = now;
-      return token;
-    },
-
-    /**
-     * Espelhamos os campos do token na Session para que o cliente
-     * (`useSession`) e Server Components (`auth()`) tenham acesso direto.
-     */
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as UserRole;
-        session.user.area = (token.area as Area | null) ?? null;
-        session.user.status = token.status as AccountStatus;
-      }
-      return session;
     },
   },
 };

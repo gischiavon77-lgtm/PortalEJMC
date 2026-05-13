@@ -71,6 +71,7 @@ describe('resolveErrorMessage — códigos específicos não recaem no genérico
     [AUTH_ERROR_CODES.ACCOUNT_INACTIVE],
     [AUTH_ERROR_CODES.ACCOUNT_REJECTED],
     [AUTH_ERROR_CODES.ACCOUNT_LOCKED],
+    [AUTH_ERROR_CODES.SESSION_EXPIRED],
     ['AccessDenied'],
     ['OAuthCallback'],
     ['OAuthSignin'],

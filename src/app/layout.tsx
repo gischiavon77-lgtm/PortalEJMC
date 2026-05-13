@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { DM_Mono, DM_Sans, Playfair_Display } from 'next/font/google';
+
+import { SessionProvider } from '@/components/providers/SessionProvider';
 import './globals.css';
 
 /**
@@ -45,7 +47,17 @@ export default function RootLayout({
       <body
         className={`${playfairDisplay.variable} ${dmSans.variable} ${dmMono.variable} font-body antialiased`}
       >
-        {children}
+        {/*
+         * SessionProvider é um Client Component (definido em
+         * `src/components/providers/SessionProvider.tsx`) e cria a
+         * boundary "use client" necessária para `useSession()` e
+         * `usePermission()` (Task 4.5). Server Components renderizados
+         * abaixo dele continuam sendo SSR por padrão — apenas hooks que
+         * dependem do contexto da sessão exigem que seus consumidores
+         * sejam Client Components. LoginForm e demais formulários já
+         * são `'use client'`, então passam pelo provider sem alteração.
+         */}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

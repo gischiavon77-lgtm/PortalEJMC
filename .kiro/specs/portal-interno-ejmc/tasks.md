@@ -100,17 +100,17 @@ graph TD
 
 ### Task 4: RBAC e Middleware de Permissões
 
-- [-] 4.1 Criar `src/lib/permissions.ts` com enum PermissionLevel, hierarquia e matriz de permissões
-- [~] 4.2 Implementar função `hasPermission(user, action)` com suporte a verificações customizadas (ex: equipe GP)
-- [~] 4.3 Criar middleware Next.js (`src/middleware.ts`) para proteção de rotas autenticadas
-- [~] 4.4 Implementar verificação de permissão nas API Routes (decorator/wrapper)
-- [~] 4.5 Criar hook `usePermission()` para verificação client-side
-- [~] 4.6 Implementar redirecionamento para /login quando sessão expira
-- [~] 4.7 Implementar página 403 (acesso restrito) com mensagem genérica
+- [x] 4.1 Criar `src/lib/permissions.ts` com enum PermissionLevel, hierarquia e matriz de permissões
+- [x] 4.2 Implementar função `hasPermission(user, action)` com suporte a verificações customizadas (ex: equipe GP)
+- [x] 4.3 Criar middleware Next.js (`src/middleware.ts`) para proteção de rotas autenticadas
+- [x] 4.4 Implementar verificação de permissão nas API Routes (decorator/wrapper)
+- [x] 4.5 Criar hook `usePermission()` para verificação client-side
+- [x] 4.6 Implementar redirecionamento para /login quando sessão expira
+- [x] 4.7 Implementar página 403 (acesso restrito) com mensagem genérica
 
 ### Task 5: Layout Principal e Navegação
 
-- [~] 5.1 Criar componente `Sidebar` com itens filtrados por permissão do usuário
+- [-] 5.1 Criar componente `Sidebar` com itens filtrados por permissão do usuário
 - [~] 5.2 Criar layout `(portal)/layout.tsx` com sidebar + área de conteúdo
 - [~] 5.3 Implementar menu responsivo: sidebar visível em desktop/tablet, hamburger em mobile (<768px)
 - [~] 5.4 Implementar toggle do menu mobile com animação

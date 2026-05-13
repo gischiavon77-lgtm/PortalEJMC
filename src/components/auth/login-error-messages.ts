@@ -49,6 +49,8 @@ export const ERROR_MESSAGES: Readonly<Record<string, string>> = {
     'Sua solicitação de cadastro foi recusada.',
   [AUTH_ERROR_CODES.ACCOUNT_LOCKED]:
     'Conta bloqueada por excesso de tentativas. Tente novamente em alguns minutos.',
+  [AUTH_ERROR_CODES.SESSION_EXPIRED]:
+    'Sua sessão expirou por inatividade. Faça login novamente para continuar.',
   // Erros emitidos pelo NextAuth quando o callback `signIn` retorna `false`
   // ou quando o OAuth falha/é cancelado pelo usuário (Req 2.5).
   AccessDenied: 'Não foi possível concluir a autenticação com o Google.',
