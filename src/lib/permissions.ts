@@ -129,10 +129,13 @@ export type Action =
   // Metas (Req 9) — Diretor+ cria e atualiza progresso.
   | 'goal:create'
   | 'goal:updateProgress'
-  // KPIs (Req 10) — somente Admin configura indicadores;
-  // inserção de valores é coberta por checagens de área específicas
-  // a serem introduzidas na Task 9 (granularidade `kpi:writeOwnArea`).
+  // KPIs (Req 10) — `kpi:write` cobre a configuração administrativa
+  // (criação/edição de indicadores) e é exclusiva do Admin (Req 10.5).
+  // `kpi:writeValue` cobre o registro de valores por membros da área
+  // do KPI (Req 10.1, 10.2): admins via matriz, demais via predicado
+  // de mesma-área (`context.area`).
   | 'kpi:write'
+  | 'kpi:writeValue'
   // Membros (Req 11) — gestão administrativa do diretório.
   | 'member:manage'
   // Comunicados (Req 15) — Coordenador+ publica.
@@ -178,11 +181,19 @@ export const PERMISSION_MATRIX: Record<Action, UserRole[]> = {
   'goal:create': ['ADMIN', 'DIRETOR'],
   'goal:updateProgress': ['ADMIN', 'DIRETOR'],
 
-  // ─── KPIs (Admin, Req 10.5 — configuração de indicadores) ──────────
+  // ─── KPIs (Req 10) ─────────────────────────────────────────────────
+  // Configuração de indicadores — Admin apenas (Req 10.5).
   // A inserção de valores por usuário da área é uma ação derivada que
   // será modelada na Task 9 (ex.: `kpi:writeOwnArea` com predicado de
   // mesma-área). Aqui, `kpi:write` cobre operações de configuração.
   'kpi:write': ['ADMIN'],
+  // Registro de valores — Admin via matriz; demais (Diretor/Gerente/
+  // Coordenador/Membro) entram pelo predicado quando pertencem à
+  // mesma área do KPI alvo. Para KPIs globais (`area === null` no
+  // contexto), apenas Admin grava — coerente com Req 10.1 ("cada
+  // Usuário autorizado visualize e registre apenas os KPIs da sua
+  // própria Área").
+  'kpi:writeValue': ['ADMIN'],
 
   // ─── Diretório de membros (Admin, Req 4) ───────────────────────────
   'member:manage': ['ADMIN'],
@@ -254,6 +265,16 @@ export const PERMISSION_PREDICATES: Partial<
   // Req 18.7 — exclusão também é permitida a membros GP (além de
   // Diretor+ via matriz).
   'infraction:delete': (user) => user.area === 'GESTAO_PESSOAS',
+
+  // Req 10.1, 10.2 — usuários autorizados registram valores apenas
+  // dos KPIs da sua própria área. O `context.area` deve ser fornecido
+  // pelo chamador (rota `POST /api/kpis/:id/values` resolve o KPI
+  // antes de chamar `requirePermission`). KPIs globais (sem área)
+  // ficam restritos ao Admin via matriz.
+  'kpi:writeValue': (user, context) => {
+    if (!context?.area) return false;
+    return user.area === context.area;
+  },
 };
 
 /**
