@@ -2,9 +2,34 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-Copy `.env.local.example` to `.env.local` and fill in real values before running locally.
+Copy `.env.local.example` to `.env.local` and fill in real values before running locally. Detalhes completos de setup em [`docs/SETUP.md`](./docs/SETUP.md).
 
-First, run the development server:
+### Banco de dados (Prisma 7)
+
+A URL de conexão fica em `prisma.config.ts` (lendo `DATABASE_URL` de `.env.local`), conforme exigência do Prisma 7+. Após preencher `.env.local`, rode na raiz do projeto:
+
+```bash
+# 1) Gera e aplica a primeira migração (cria todas as tabelas)
+npx prisma migrate dev --name init
+
+# 2) Popula com dados iniciais (admin padrão, KPIs, infrações, 7 computadores)
+npx prisma db seed
+```
+
+Comandos úteis:
+
+```bash
+npx prisma validate   # valida o schema sem tocar no banco
+npx prisma format     # formata o schema
+npx prisma generate   # (re)gera o Prisma Client
+npx prisma studio     # GUI para inspecionar dados
+```
+
+> Pré‑visualização do SQL que a migração inicial geraria está versionada em
+> [`prisma/migration_preview.sql`](./prisma/migration_preview.sql) para
+> facilitar revisão antes de rodar `migrate dev` num banco real.
+
+### Servidor de desenvolvimento
 
 ```bash
 npm run dev

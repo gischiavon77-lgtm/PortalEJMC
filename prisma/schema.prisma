@@ -9,7 +9,8 @@ generator client {
 datasource db {
   provider = "postgresql"
   // Prisma 7+ requires the connection URL to be configured in prisma.config.ts
-  // (via `migrations.url`) instead of in the schema. See prisma.config.ts.
+  // (via `datasource.url` reading env('DATABASE_URL')) instead of here in the
+  // schema. See prisma.config.ts at the project root.
 }
 
 // ─── Enums ───
@@ -65,4 +66,310 @@ enum KpiUnit {
   PERCENTAGE
   INTEGER
   DECIMAL
+}
+
+// ─── Modelos ───
+
+// Task 2.2 — Modelo `User`.
+// As relações que apontam para modelos ainda não criados estão comentadas
+// com TODO indicando a task que criará o modelo correspondente. Cada relação
+// será reativada na task em que o modelo destino for adicionado.
+model User {
+  id             String        @id @default(cuid())
+  name           String        @db.VarChar(150)
+  email          String        @unique @db.VarChar(255)
+  passwordHash   String? // null se o login for apenas via Google
+  role           UserRole      @default(MEMBRO)
+  status         AccountStatus @default(PENDING)
+  area           Area?
+  position       String?       @db.VarChar(100) // cargo
+  phone          String?       @db.VarChar(15)
+  cpf            String?       @unique @db.VarChar(11)
+  avatarUrl      String?
+  googleId       String?       @unique
+  failedAttempts Int           @default(0)
+  lockedUntil    DateTime?
+  lastActivity   DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Relações — habilitar conforme os modelos forem criados nas tasks 2.3–2.8.
+  eventCreator         Event[]
+  goalsCreated         Goal[]
+  goalUpdates          GoalUpdate[]
+  kpiValues            KpiValue[]
+  projectMembers       ProjectMember[]
+  projectStatusChanges ProjectStatusHistory[]
+  announcements        Announcement[]
+  pollsCreated         Poll[]
+  pollVotes            PollVote[]
+  infractions          Infraction[]           @relation("InfractionTarget")
+  infractionsBy        Infraction[]           @relation("InfractionCreator")
+  reservations         Reservation[]
+
+  @@index([email])
+  @@index([status])
+  @@index([area])
+  @@index([role])
+}
+
+// Task 2.3 — Modelos `Event`, `Goal`, `GoalUpdate`.
+
+// Eventos do módulo Cronograma (sincronizados com Google Calendar).
+model Event {
+  id            String   @id @default(cuid())
+  title         String   @db.VarChar(100)
+  startsAt      DateTime
+  endsAt        DateTime
+  googleEventId String?  @unique
+  syncStatus    String   @default("pending") // synced, pending, failed
+  syncRetries   Int      @default(0)
+  createdById   String
+  createdBy     User     @relation(fields: [createdById], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([startsAt])
+  @@index([syncStatus])
+}
+
+// Metas (gerais ou por área) acompanhadas por barra de progresso.
+model Goal {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(100)
+  description String?  @db.VarChar(500)
+  type        GoalType
+  area        Area? // obrigatório quando type == AREA; null quando type == GENERAL
+  deadline    DateTime
+  progress    Int      @default(0) // 0..100
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  updates GoalUpdate[]
+
+  @@index([type])
+  @@index([area])
+  @@index([deadline])
+}
+
+// Histórico de alterações de progresso de uma meta.
+model GoalUpdate {
+  id          String   @id @default(cuid())
+  goalId      String
+  goal        Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  updatedById String
+  updatedBy   User     @relation(fields: [updatedById], references: [id])
+  oldProgress Int
+  newProgress Int
+  createdAt   DateTime @default(now())
+
+  @@index([goalId, createdAt])
+}
+
+// Task 2.4 — Modelos `Kpi`, `KpiValue`.
+
+// Indicador (KPI) por área ou global, configurável pelo Admin.
+model Kpi {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(60)
+  unit        KpiUnit
+  area        Area? // null para KPIs globais; obrigatório para KPIs por área
+  format      Float? // restrição opcional do formato/precisão do valor
+  intervalMin Float? // limite inferior (inclusive) do intervalo aceito
+  intervalMax Float? // limite superior (inclusive) do intervalo aceito
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  values KpiValue[]
+
+  @@index([area])
+}
+
+// Valor histórico de um KPI, registrado por um usuário em um momento específico.
+model KpiValue {
+  id           String   @id @default(cuid())
+  kpiId        String
+  kpi          Kpi      @relation(fields: [kpiId], references: [id], onDelete: Cascade)
+  value        Decimal  @db.Decimal(10, 2)
+  recordedAt   DateTime @default(now())
+  recordedById String
+  recordedBy   User     @relation(fields: [recordedById], references: [id])
+
+  @@index([kpiId, recordedAt])
+}
+
+// Task 2.5 — Modelos `Project`, `ProjectMember`, `ProjectStatusHistory`.
+
+// Projeto da empresa júnior, com equipe associada e histórico de status.
+model Project {
+  id          String        @id @default(cuid())
+  name        String        @db.VarChar(200)
+  description String?       @db.Text
+  status      ProjectStatus @default(EM_ANDAMENTO)
+  clientName  String?       @db.VarChar(200)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  members       ProjectMember[]
+  statusHistory ProjectStatusHistory[]
+
+  @@index([status])
+  @@index([name])
+}
+
+// Associação entre projeto e usuário membro da equipe (com papel opcional).
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  role      String?  @db.VarChar(50) // ex: "Líder", "Membro"
+  joinedAt  DateTime @default(now())
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+// Histórico de mudanças de status de um projeto, com autor e observação opcional.
+model ProjectStatusHistory {
+  id          String         @id @default(cuid())
+  projectId   String
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  oldStatus   ProjectStatus?
+  newStatus   ProjectStatus
+  changedById String
+  changedBy   User           @relation(fields: [changedById], references: [id])
+  changedAt   DateTime       @default(now())
+  notes       String?        @db.VarChar(500)
+
+  @@index([projectId, changedAt])
+}
+
+// Task 2.6 — Modelos `Announcement`, `Poll`, `PollOption`, `PollVote`.
+
+// Comunicado publicado no mural interno do portal.
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String   @db.VarChar(150)
+  content   String   @db.VarChar(5000)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// Enquete criada por Diretor/Gerente, com opções e votos identificados.
+model Poll {
+  id          String     @id @default(cuid())
+  title       String     @db.VarChar(150)
+  description String?    @db.VarChar(2000)
+  status      PollStatus @default(ACTIVE)
+  createdById String
+  createdBy   User       @relation(fields: [createdById], references: [id])
+  createdAt   DateTime   @default(now())
+  closedAt    DateTime?
+
+  options PollOption[]
+  votes   PollVote[]
+
+  @@index([status, createdAt])
+}
+
+// Opção de resposta de uma enquete (2..10 por enquete).
+model PollOption {
+  id     String @id @default(cuid())
+  pollId String
+  poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  text   String @db.VarChar(200)
+
+  votes PollVote[]
+
+  @@index([pollId])
+}
+
+// Voto identificado em uma enquete; um usuário só pode votar uma vez por enquete.
+model PollVote {
+  id       String     @id @default(cuid())
+  pollId   String
+  poll     Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  optionId String
+  option   PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User       @relation(fields: [userId], references: [id])
+  votedAt  DateTime   @default(now())
+
+  @@unique([pollId, userId])
+  @@index([optionId])
+  @@index([userId])
+}
+
+// Task 2.7 — Modelos `Infraction`, `InfractionConfig`.
+
+// Infração registrada para um membro pela equipe de Gestão de Pessoas.
+// Os pontos são capturados de `InfractionConfig` no momento da criação,
+// para que ajustes futuros na configuração não alterem o histórico.
+model Infraction {
+  id          String         @id @default(cuid())
+  type        InfractionType
+  points      Int // capturado de InfractionConfig na criação
+  userId      String
+  target      User           @relation("InfractionTarget", fields: [userId], references: [id])
+  createdById String
+  createdBy   User           @relation("InfractionCreator", fields: [createdById], references: [id])
+  notes       String?        @db.VarChar(500)
+  occurredAt  DateTime
+  createdAt   DateTime       @default(now())
+  semester    String         @db.VarChar(6) // ex: "2025-1" — agrupamento de pontos por semestre
+
+  @@index([userId, semester])
+  @@index([type])
+  @@index([occurredAt])
+}
+
+// Configuração de pontos por tipo de infração (uma linha por InfractionType).
+// Referenciada ao criar uma `Infraction` para snapshot dos pontos.
+model InfractionConfig {
+  id        String         @id @default(cuid())
+  type      InfractionType @unique
+  points    Int
+  updatedAt DateTime       @updatedAt
+}
+
+// Task 2.8 — Modelos `Reservation`, `Service`.
+
+// Reserva de computador para um dia específico.
+// O design.md modela os 7 computadores como `computerId Int (1-7)` —
+// não há tabela separada para computadores. A unicidade é garantida
+// pela combinação (computerId, date), permitindo apenas uma reserva
+// por computador por dia. Validações adicionais (data futura, max 7
+// dias, sem 3 dias consecutivos, max 1 computador/dia/usuário) são
+// aplicadas na camada de validação da API (ver Task 17).
+model Reservation {
+  id           String   @id @default(cuid())
+  computerId   Int // 1-7
+  reservedDate DateTime @db.Date
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@unique([computerId, reservedDate]) // um usuário por computador por dia
+  @@index([userId, reservedDate])
+  @@index([reservedDate])
+}
+
+// Serviço do portfólio da empresa júnior, gerenciado por Admin/Diretor.
+model Service {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(100)
+  description String   @db.VarChar(1000)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
 }

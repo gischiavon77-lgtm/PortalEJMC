@@ -73,20 +73,20 @@ graph TD
 ### Task 2: Schema Prisma e Banco de Dados
 
 - [x] 2.1 Criar `prisma/schema.prisma` com todos os enums (UserRole, AccountStatus, Area, ProjectStatus, InfractionType, PollStatus, GoalType, KpiUnit)
-- [-] 2.2 Criar modelo `User` com todos os campos, relações e índices
-- [~] 2.3 Criar modelos `Event`, `Goal`, `GoalUpdate`
-- [~] 2.4 Criar modelos `Kpi`, `KpiValue`
-- [~] 2.5 Criar modelos `Project`, `ProjectMember`, `ProjectStatusHistory`
-- [~] 2.6 Criar modelos `Announcement`, `Poll`, `PollOption`, `PollVote`
-- [~] 2.7 Criar modelos `Infraction`, `InfractionConfig`
-- [~] 2.8 Criar modelos `Reservation`, `Service`
-- [~] 2.9 Criar `prisma/seed.ts` com dados iniciais (admin padrão, KPIs pré-definidos, configuração de infrações, 7 computadores)
-- [~] 2.10 Criar `src/lib/prisma.ts` (singleton do Prisma Client)
-- [~] 2.11 Executar `prisma migrate dev` e validar schema
+- [x] 2.2 Criar modelo `User` com todos os campos, relações e índices
+- [x] 2.3 Criar modelos `Event`, `Goal`, `GoalUpdate`
+- [x] 2.4 Criar modelos `Kpi`, `KpiValue`
+- [x] 2.5 Criar modelos `Project`, `ProjectMember`, `ProjectStatusHistory`
+- [x] 2.6 Criar modelos `Announcement`, `Poll`, `PollOption`, `PollVote`
+- [x] 2.7 Criar modelos `Infraction`, `InfractionConfig`
+- [x] 2.8 Criar modelos `Reservation`, `Service`
+- [x] 2.9 Criar `prisma/seed.ts` com dados iniciais (admin padrão, KPIs pré-definidos, configuração de infrações, 7 computadores)
+- [x] 2.10 Criar `src/lib/prisma.ts` (singleton do Prisma Client)
+- [x] 2.11 Executar `prisma migrate dev` e validar schema
 
 ### Task 3: Sistema de Autenticação
 
-- [~] 3.1 Configurar NextAuth.js v5 em `src/lib/auth.ts` com Credentials Provider e Google Provider
+- [-] 3.1 Configurar NextAuth.js v5 em `src/lib/auth.ts` com Credentials Provider e Google Provider
 - [~] 3.2 Implementar lógica de login por email/senha com validação de status da conta (ACTIVE, PENDING, INACTIVE)
 - [~] 3.3 Implementar rate limiting: bloqueio após 5 tentativas em 15 minutos (campos `failedAttempts`, `lockedUntil`)
 - [~] 3.4 Implementar sessão JWT com expiração de 8 horas de inatividade
