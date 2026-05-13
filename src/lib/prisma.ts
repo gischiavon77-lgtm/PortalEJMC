@@ -1,7 +1,7 @@
 /**
  * Prisma Client singleton — Portal Interno EJMC
  *
- * Task 2.10: Cliente único do Prisma compartilhado por toda a aplicação.
+ * Task 2.10: cliente único do Prisma compartilhado por toda a aplicação.
  *
  * Por que um singleton?
  *   Em desenvolvimento, o hot reload do Next.js re-executa módulos a cada
@@ -11,6 +11,12 @@
  *   `globalThis` no ambiente de desenvolvimento. Em produção, o módulo é
  *   carregado uma única vez por processo, então basta criar a instância
  *   normalmente.
+ *
+ * Driver adapter (Prisma 7):
+ *   A partir do Prisma 7 a `PrismaClient` exige um driver adapter — não há
+ *   mais o engine binário "library" como padrão. Usamos `@prisma/adapter-pg`
+ *   sobre o driver `pg` para PostgreSQL/Supabase, lendo `DATABASE_URL` do
+ *   ambiente (definida em `.env.local`).
  *
  * Logs:
  *   - Em desenvolvimento, registramos `query`, `warn` e `error` para
@@ -25,17 +31,25 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const createPrismaClient = (): PrismaClient =>
-  new PrismaClient({
+const createPrismaClient = (): PrismaClient => {
+  const connectionString = process.env.DATABASE_URL;
+  // Não lançamos exceção se faltar — em build estático do Next.js o módulo
+  // pode ser carregado sem que conexões reais sejam executadas. Na primeira
+  // query o adapter falhará com mensagem clara caso a URL não exista.
+  const adapter = new PrismaPg({ connectionString });
+
+  return new PrismaClient({
+    adapter,
     log:
       process.env.NODE_ENV === 'production'
         ? ['error']
         : ['query', 'warn', 'error'],
   });
+};
 
 // Cache na global para sobreviver ao hot reload do Next.js em dev.
-// Tipamos explicitamente para que o TypeScript reconheça `prisma` em globalThis.
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };

@@ -75,23 +75,27 @@ enum KpiUnit {
 // com TODO indicando a task que criará o modelo correspondente. Cada relação
 // será reativada na task em que o modelo destino for adicionado.
 model User {
-  id             String        @id @default(cuid())
-  name           String        @db.VarChar(150)
-  email          String        @unique @db.VarChar(255)
-  passwordHash   String? // null se o login for apenas via Google
-  role           UserRole      @default(MEMBRO)
-  status         AccountStatus @default(PENDING)
-  area           Area?
-  position       String?       @db.VarChar(100) // cargo
-  phone          String?       @db.VarChar(15)
-  cpf            String?       @unique @db.VarChar(11)
-  avatarUrl      String?
-  googleId       String?       @unique
-  failedAttempts Int           @default(0)
-  lockedUntil    DateTime?
-  lastActivity   DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                   String        @id @default(cuid())
+  name                 String        @db.VarChar(150)
+  email                String        @unique @db.VarChar(255)
+  passwordHash         String? // null se o login for apenas via Google
+  role                 UserRole      @default(MEMBRO)
+  status               AccountStatus @default(PENDING)
+  area                 Area?
+  position             String?       @db.VarChar(100) // cargo
+  phone                String?       @db.VarChar(15)
+  cpf                  String?       @unique @db.VarChar(11)
+  avatarUrl            String?
+  googleId             String?       @unique
+  failedAttempts       Int           @default(0)
+  // Marca o início da janela deslizante de 15 min usada pelo rate limiting
+  // (Task 3.3 / Property 2 / Req 1.4). Quando uma nova falha ocorre fora
+  // dessa janela, o contador é zerado e este timestamp é redefinido.
+  firstFailedAttemptAt DateTime?
+  lockedUntil          DateTime?
+  lastActivity         DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
   // Relações — habilitar conforme os modelos forem criados nas tasks 2.3–2.8.
   eventCreator         Event[]

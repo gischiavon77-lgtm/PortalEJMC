@@ -40,6 +40,7 @@ CREATE TABLE "User" (
     "avatarUrl" TEXT,
     "googleId" TEXT,
     "failedAttempts" INTEGER NOT NULL DEFAULT 0,
+    "firstFailedAttemptAt" TIMESTAMP(3),
     "lockedUntil" TIMESTAMP(3),
     "lastActivity" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

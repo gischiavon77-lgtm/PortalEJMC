@@ -86,21 +86,21 @@ graph TD
 
 ### Task 3: Sistema de Autenticação
 
-- [-] 3.1 Configurar NextAuth.js v5 em `src/lib/auth.ts` com Credentials Provider e Google Provider
-- [~] 3.2 Implementar lógica de login por email/senha com validação de status da conta (ACTIVE, PENDING, INACTIVE)
-- [~] 3.3 Implementar rate limiting: bloqueio após 5 tentativas em 15 minutos (campos `failedAttempts`, `lockedUntil`)
-- [~] 3.4 Implementar sessão JWT com expiração de 8 horas de inatividade
-- [~] 3.5 Implementar fluxo Google OAuth: conta existente → login; conta nova → criar pendente
-- [~] 3.6 Criar API Route `POST /api/auth/register` com validação Zod (nome 3-150, email válido, senha 8+ com maiúscula/minúscula/número)
-- [~] 3.7 Implementar verificação de email duplicado no registro
-- [~] 3.8 Criar página `/login` integrando o HTML existente (login.html) como componente React com Tailwind
-- [~] 3.9 Criar página `/cadastro` com formulário de auto-registro seguindo o design system
-- [~] 3.10 Configurar serviço de email (Resend) para notificações de aprovação/rejeição
-- [~] 3.11 Implementar mensagem de erro genérica (não revelar se email existe)
+- [x] 3.1 Configurar NextAuth.js v5 em `src/lib/auth.ts` com Credentials Provider e Google Provider
+- [x] 3.2 Implementar lógica de login por email/senha com validação de status da conta (ACTIVE, PENDING, INACTIVE)
+- [x] 3.3 Implementar rate limiting: bloqueio após 5 tentativas em 15 minutos (campos `failedAttempts`, `lockedUntil`)
+- [x] 3.4 Implementar sessão JWT com expiração de 8 horas de inatividade
+- [x] 3.5 Implementar fluxo Google OAuth: conta existente → login; conta nova → criar pendente
+- [x] 3.6 Criar API Route `POST /api/auth/register` com validação Zod (nome 3-150, email válido, senha 8+ com maiúscula/minúscula/número)
+- [x] 3.7 Implementar verificação de email duplicado no registro
+- [x] 3.8 Criar página `/login` integrando o HTML existente (login.html) como componente React com Tailwind
+- [x] 3.9 Criar página `/cadastro` com formulário de auto-registro seguindo o design system
+- [x] 3.10 Configurar serviço de email (Resend) para notificações de aprovação/rejeição
+- [x] 3.11 Implementar mensagem de erro genérica (não revelar se email existe)
 
 ### Task 4: RBAC e Middleware de Permissões
 
-- [~] 4.1 Criar `src/lib/permissions.ts` com enum PermissionLevel, hierarquia e matriz de permissões
+- [-] 4.1 Criar `src/lib/permissions.ts` com enum PermissionLevel, hierarquia e matriz de permissões
 - [~] 4.2 Implementar função `hasPermission(user, action)` com suporte a verificações customizadas (ex: equipe GP)
 - [~] 4.3 Criar middleware Next.js (`src/middleware.ts`) para proteção de rotas autenticadas
 - [~] 4.4 Implementar verificação de permissão nas API Routes (decorator/wrapper)
