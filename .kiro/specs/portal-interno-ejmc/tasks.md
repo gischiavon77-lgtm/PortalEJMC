@@ -121,28 +121,28 @@ graph TD
 
 ### Task 6: Módulo Dashboard
 
-- [-] 6.1 Criar API Route `GET /api/dashboard` que retorna: membros ativos, projetos em andamento, projetos congelados, faturamento mensal, meta de faturamento, leads do mês
-- [~] 6.2 Criar API Route `GET /api/dashboard/activities` que retorna até 10 atividades do mês corrente ordenadas cronologicamente
-- [~] 6.3 Criar página `/dashboard` com cards de indicadores (KPI cards)
-- [~] 6.4 Implementar componente de lista de atividades do mês
-- [~] 6.5 Implementar fallback: valor zero para indicadores indisponíveis, lista vazia para atividades
-- [~] 6.6 Implementar layout responsivo do dashboard (grid adaptável)
+- [x] 6.1 Criar API Route `GET /api/dashboard` que retorna: membros ativos, projetos em andamento, projetos congelados, faturamento mensal, meta de faturamento, leads do mês
+- [x] 6.2 Criar API Route `GET /api/dashboard/activities` que retorna até 10 atividades do mês corrente ordenadas cronologicamente
+- [x] 6.3 Criar página `/dashboard` com cards de indicadores (KPI cards)
+- [x] 6.4 Implementar componente de lista de atividades do mês
+- [x] 6.5 Implementar fallback: valor zero para indicadores indisponíveis, lista vazia para atividades
+- [x] 6.6 Implementar layout responsivo do dashboard (grid adaptável)
 
 ### Task 7: Módulo Cronograma (Google Calendar)
 
-- [~] 7.1 Criar `src/lib/google-calendar.ts` com integração Google Calendar API v3 (criar, editar, excluir, listar eventos)
-- [~] 7.2 Criar API Routes: `GET /api/calendar/events`, `POST /api/calendar/events`, `PATCH /api/calendar/events/:id`, `DELETE /api/calendar/events/:id`
-- [~] 7.3 Implementar sincronização bidirecional com retry (3 tentativas, intervalo 60s)
-- [~] 7.4 Implementar campo `syncStatus` (synced, pending, failed) e lógica de retry automático
-- [~] 7.5 Criar página `/cronograma` com visualização de calendário mensal (somente leitura para Membros)
-- [~] 7.6 Implementar formulário de criação/edição de evento (título max 100 chars, data início, data fim)
-- [~] 7.7 Implementar controle de permissão: apenas Diretor/Gerente/Coordenador podem criar/editar/excluir
-- [~] 7.8 Implementar navegação entre meses (anterior/posterior)
-- [~] 7.9 Implementar indicador visual de falha de sincronização
+- [x] 7.1 Criar `src/lib/google-calendar.ts` com integração Google Calendar API v3 (criar, editar, excluir, listar eventos)
+- [x] 7.2 Criar API Routes: `GET /api/calendar/events`, `POST /api/calendar/events`, `PATCH /api/calendar/events/:id`, `DELETE /api/calendar/events/:id`
+- [x] 7.3 Implementar sincronização bidirecional com retry (3 tentativas, intervalo 60s)
+- [x] 7.4 Implementar campo `syncStatus` (synced, pending, failed) e lógica de retry automático
+- [x] 7.5 Criar página `/cronograma` com visualização de calendário mensal (somente leitura para Membros)
+- [x] 7.6 Implementar formulário de criação/edição de evento (título max 100 chars, data início, data fim)
+- [x] 7.7 Implementar controle de permissão: apenas Diretor/Gerente/Coordenador podem criar/editar/excluir
+- [x] 7.8 Implementar navegação entre meses (anterior/posterior)
+- [x] 7.9 Implementar indicador visual de falha de sincronização
 
 ### Task 8: Módulo Metas
 
-- [~] 8.1 Criar API Routes: `GET /api/goals`, `POST /api/goals`, `PATCH /api/goals/:id`
+- [-] 8.1 Criar API Routes: `GET /api/goals`, `POST /api/goals`, `PATCH /api/goals/:id`
 - [~] 8.2 Implementar validação Zod: nome max 100, descrição max 500, prazo futuro, progresso 0-100
 - [~] 8.3 Implementar lógica de visibilidade: metas gerais para todos, metas por área apenas para membros da área + Diretores/Admins
 - [~] 8.4 Criar página `/metas` com listagem de metas (gerais + da área do usuário)
