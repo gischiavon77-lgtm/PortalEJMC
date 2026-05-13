@@ -110,18 +110,18 @@ graph TD
 
 ### Task 5: Layout Principal e Navegação
 
-- [-] 5.1 Criar componente `Sidebar` com itens filtrados por permissão do usuário
-- [~] 5.2 Criar layout `(portal)/layout.tsx` com sidebar + área de conteúdo
-- [~] 5.3 Implementar menu responsivo: sidebar visível em desktop/tablet, hamburger em mobile (<768px)
-- [~] 5.4 Implementar toggle do menu mobile com animação
-- [~] 5.5 Implementar indicador visual do item ativo no menu
-- [~] 5.6 Criar componentes UI base: `Button`, `Card`, `Input`, `Modal`, `DataTable`, `Badge`, `Pagination`
-- [~] 5.7 Criar layout `(auth)/layout.tsx` para páginas públicas (login, cadastro) com background de blobs animados
-- [~] 5.8 Implementar breakpoints responsivos (320px min, 768px, 1024px) em todos os componentes base
+- [x] 5.1 Criar componente `Sidebar` com itens filtrados por permissão do usuário
+- [x] 5.2 Criar layout `(portal)/layout.tsx` com sidebar + área de conteúdo
+- [x] 5.3 Implementar menu responsivo: sidebar visível em desktop/tablet, hamburger em mobile (<768px)
+- [x] 5.4 Implementar toggle do menu mobile com animação
+- [x] 5.5 Implementar indicador visual do item ativo no menu
+- [x] 5.6 Criar componentes UI base: `Button`, `Card`, `Input`, `Modal`, `DataTable`, `Badge`, `Pagination`
+- [x] 5.7 Criar layout `(auth)/layout.tsx` para páginas públicas (login, cadastro) com background de blobs animados
+- [x] 5.8 Implementar breakpoints responsivos (320px min, 768px, 1024px) em todos os componentes base
 
 ### Task 6: Módulo Dashboard
 
-- [~] 6.1 Criar API Route `GET /api/dashboard` que retorna: membros ativos, projetos em andamento, projetos congelados, faturamento mensal, meta de faturamento, leads do mês
+- [-] 6.1 Criar API Route `GET /api/dashboard` que retorna: membros ativos, projetos em andamento, projetos congelados, faturamento mensal, meta de faturamento, leads do mês
 - [~] 6.2 Criar API Route `GET /api/dashboard/activities` que retorna até 10 atividades do mês corrente ordenadas cronologicamente
 - [~] 6.3 Criar página `/dashboard` com cards de indicadores (KPI cards)
 - [~] 6.4 Implementar componente de lista de atividades do mês
