@@ -163,10 +163,10 @@ graph TD
 
 ### Task 10: Módulo Membros
 
-- [-] 10.1 Criar API Route `GET /api/users/members?area=...` com filtro por área
-- [ ] 10.2 Criar página `/membros` com listagem ordenada alfabeticamente (nome, cargo, área)
-- [ ] 10.3 Implementar filtro por área (dropdown com todas as áreas + opção "Todos")
-- [ ] 10.4 Implementar mensagem quando filtro não retorna resultados
+- [x] 10.1 Criar API Route `GET /api/users/members?area=...` com filtro por área
+- [x] 10.2 Criar página `/membros` com listagem ordenada alfabeticamente (nome, cargo, área)
+- [x] 10.3 Implementar filtro por área (dropdown com todas as áreas + opção "Todos")
+- [x] 10.4 Implementar mensagem quando filtro não retorna resultados
 - [ ] 10.5 Implementar layout responsivo (cards em mobile, tabela em desktop)
 
 ### Task 11: Módulo Perfil
