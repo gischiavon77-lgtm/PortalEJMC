@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    // Tailwind CSS IntelliSense — essencial para @tailwind não aparecer como erro
+    "bradlc.vscode-tailwindcss",
+    // Prettier — formatador padrão
+    "esbenp.prettier-vscode",
+    // ESLint
+    "dbaeumer.vscode-eslint",
+    // Prisma — syntax highlighting do schema.prisma
+    "Prisma.prisma",
+    // PostCSS — syntax highlighting de CSS com diretivas PostCSS
+    "csstools.postcss"
+  ]
+}

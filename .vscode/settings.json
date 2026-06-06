@@ -1,2 +1,33 @@
 {
+  // Desabilita o validador CSS nativo que não entende @tailwind, @apply etc.
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+
+  // Tailwind CSS IntelliSense — reconhece @tailwind, @apply e classes
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "tailwindCSS.includeLanguages": {
+    "typescriptreact": "html",
+    "typescript": "html"
+  },
+
+  // Associa .css a CSS com PostCSS para o Tailwind IntelliSense funcionar
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+
+  // Formata com Prettier ao salvar
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

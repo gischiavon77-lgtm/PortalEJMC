@@ -2,537 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─────────────────────────────────────────────────────────────
-   Design System — Portal Interno EJMC
-   Tokens, animações e utilitários extraídos de `login.html`
-   (referência visual oficial do design system).
-
-   Escopo desta folha:
-     • tokens globais (cores, sombras, raios, tipografia)
-     • keyframes reutilizáveis (drift, fadeUp, shake, spin, …)
-     • utilitários globais (scene + blobs + grão + light leak +
-       partículas, botão claro, campo glass, banner de erro)
-
-   Markup específico de páginas (login, cadastro, dashboard) será
-   montado nas tasks de UI usando estas peças.
-   ───────────────────────────────────────────────────────────── */
-
-:root {
-  /* ─── Paleta vermelha ─── */
-  --red-deep: #150508;
-  --red-dark: #3d0a10;
-  --red-mid: #7a1220;
-  --red-core: #c0182e;
-  --red-vivid: #e8203a;
-  --red-bright: #ff3d54;
-  --cream: #fff8f5;
-  --white: #ffffff;
-
-  /* ─── Glassmorphism (camada escura — login/cadastro) ─── */
-  --glass-bg: rgba(255, 255, 255, 0.06);
-  --glass-border: rgba(255, 255, 255, 0.14);
-  --glass-blur: blur(32px) saturate(1.4);
-
-  /* ─── Inputs (camada escura) ─── */
-  --input-bg: rgba(255, 255, 255, 0.09);
-  --input-focus: rgba(255, 255, 255, 0.16);
-  --input-border: rgba(255, 255, 255, 0.1);
-  --input-border-hover: rgba(255, 255, 255, 0.18);
-  --input-border-focus: rgba(232, 32, 58, 0.6);
-  --input-ring-focus: 0 0 0 3px rgba(232, 32, 58, 0.15), 0 0 0 1px rgba(232, 32, 58, 0.3);
-
-  /* ─── Gradientes do design system ─── */
-  --gradient-logo-emblem: linear-gradient(135deg, var(--red-core) 0%, var(--red-vivid) 100%);
-  --gradient-blob-1: radial-gradient(circle, #7a1220 0%, #3d0a10 60%, transparent 100%);
-  --gradient-blob-2: radial-gradient(circle, #c0182e 0%, #7a1220 55%, transparent 100%);
-  --gradient-blob-3: radial-gradient(circle, #e8203a 0%, #c0182e 50%, transparent 100%);
-  --gradient-blob-4: radial-gradient(circle, #3d0a10 0%, transparent 80%);
-  --gradient-light-leak: radial-gradient(
-    ellipse at 50% 0%,
-    rgba(192, 24, 46, 0.18) 0%,
-    transparent 70%
-  );
-  --gradient-button-hover: linear-gradient(135deg, rgba(192, 24, 46, 0.06) 0%, transparent 60%);
-  --gradient-card-top: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-
-  /* ─── Sombras ─── */
-  --shadow-deep: 0 32px 80px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.2);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
-  --shadow-emblem: 0 8px 32px rgba(192, 24, 46, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-button: 0 4px 20px rgba(0, 0, 0, 0.25), 0 1px 4px rgba(0, 0, 0, 0.15);
-  --shadow-button-hover: 0 8px 30px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-button-active: 0 2px 10px rgba(0, 0, 0, 0.2);
-
-  /* ─── Tipografia ───
-     `--font-heading`, `--font-body` e `--font-mono` são preenchidas
-     pelas variáveis injetadas via `next/font` em `layout.tsx`.
-     Os fallbacks abaixo garantem a fonte correta caso `next/font`
-     não esteja disponível (ex.: testes unitários).                  */
-  --font-heading: 'Playfair Display', serif;
-  --font-body: 'DM Sans', sans-serif;
-  --font-mono: 'DM Mono', monospace;
-
-  /* ─── Bordas ─── */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-
-  /* ─── Breakpoints (referência) ─── */
-  --bp-mobile: 768px;
-  --bp-tablet: 1024px;
-
-  /* ─── Curvas de easing reutilizáveis ─── */
-  --ease-reveal: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-shake: cubic-bezier(0.36, 0.07, 0.19, 0.97);
-
-  /* ─── Superfícies do portal interno (modo claro) ─── */
-  --surface-bg: #faf8f6;
-  --surface-card: #ffffff;
-  --surface-sidebar: #1a0a0d;
-  --text-primary: #1a0a0d;
-  --text-secondary: #5c3a3f;
-  --text-muted: #9a7a7f;
-  --border-light: #f0e8e5;
-
-  /* ─── Aliases globais ─── */
-  --background: var(--surface-bg);
-  --foreground: var(--text-primary);
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* ─── Reset leve ─── */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+:root {
+  /* Paleta de cores */
+  --red-deep:    #150508;
+  --red-dark:    #3d0a10;
+  --red-mid:     #7a1220;
+  --red-core:    #c0182e;
+  --red-vivid:   #e8203a;
+  --red-bright:  #ff3d54;
+  --cream:       #fff8f5;
+  --white:       #ffffff;
+
+  /* Glassmorphism */
+  --glass-bg:     rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-blur:   blur(32px) saturate(1.4);
+
+  /* Inputs */
+  --input-bg:    rgba(255, 255, 255, 0.09);
+  --input-focus: rgba(255, 255, 255, 0.16);
+
+  /* Sombras */
+  --shadow-deep: 0 32px 80px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --shadow-sm:   0 2px 8px rgba(0, 0, 0, 0.15);
+
+  /* Tipografia */
+  --font-heading: 'Playfair Display', serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+
+  /* Bordas */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+
+  /* Breakpoints (referência) */
+  --bp-mobile:  768px;
+  --bp-tablet:  1024px;
+
+  /* Superfícies para o portal autenticado */
+  --surface-bg:      #faf8f6;
+  --surface-card:    #ffffff;
+  --surface-sidebar: #1a0a0d;
+  --text-primary:    #1a0a0d;
+  --text-secondary:  #5c3a3f;
+  --text-muted:      #9a7a7f;
+  --border-light:    #f0e8e5;
 }
 
 html,
 body {
+  width: 100%;
   height: 100%;
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: var(--font-body);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-heading);
-  letter-spacing: -0.5px;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Keyframes do design system
-   Espelhados em `tailwind.config.ts` (animações `drift-*`,
-   `card-reveal`, `fade-up`, `shake`, `spin`). Mantidos aqui
-   também para que os utilitários globais funcionem sem depender
-   das classes geradas pelo Tailwind.
-   ───────────────────────────────────────────────────────────── */
-
-@keyframes drift1 {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-  to {
-    transform: translate(60px, 40px) scale(1.1);
-  }
-}
-@keyframes drift2 {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-  to {
-    transform: translate(-50px, -30px) scale(1.08);
-  }
-}
-@keyframes drift3 {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-  to {
-    transform: translate(-40px, 50px) scale(0.92);
-  }
-}
-@keyframes drift4 {
-  from {
-    transform: translate(0, 0) scale(1);
-  }
-  to {
-    transform: translate(30px, -40px) scale(1.15);
-  }
-}
-
-@keyframes cardReveal {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes shake {
-  10%,
-  90% {
-    transform: translateX(-2px);
-  }
-  20%,
-  80% {
-    transform: translateX(4px);
-  }
-  30%,
-  50%,
-  70% {
-    transform: translateX(-4px);
-  }
-  40%,
-  60% {
-    transform: translateX(4px);
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes floatParticle {
-  from {
-    transform: translateY(110vh) rotate(0deg);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  90% {
-    opacity: 1;
-  }
-  to {
-    transform: translateY(-10vh) rotate(360deg);
-    opacity: 0;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Componentes utilitários do design system
-   Use com `className="…"` em qualquer página que herde a camada
-   escura do design system (login, cadastro, recuperação, etc).
-   ───────────────────────────────────────────────────────────── */
-@layer components {
-  /* ── Cena de fundo (camada escura — login/cadastro) ── */
-  .scene {
-    position: fixed;
-    inset: 0;
-    background: var(--red-deep);
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  /* ── Blobs animados ── */
-  .blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(72px);
-    opacity: 0.55;
-    will-change: transform;
-  }
-  .blob-1 {
-    width: 900px;
-    height: 900px;
-    top: -300px;
-    left: -200px;
-    background: var(--gradient-blob-1);
-    animation: drift1 18s ease-in-out infinite alternate;
-  }
-  .blob-2 {
-    width: 700px;
-    height: 700px;
-    bottom: -200px;
-    right: -150px;
-    background: var(--gradient-blob-2);
-    opacity: 0.45;
-    animation: drift2 22s ease-in-out infinite alternate;
-  }
-  .blob-3 {
-    width: 500px;
-    height: 500px;
-    top: 40%;
-    left: 55%;
-    background: var(--gradient-blob-3);
-    opacity: 0.25;
-    animation: drift3 14s ease-in-out infinite alternate;
-  }
-  .blob-4 {
-    width: 350px;
-    height: 350px;
-    top: 10%;
-    right: 20%;
-    background: var(--gradient-blob-4);
-    opacity: 0.6;
-    animation: drift4 20s ease-in-out infinite alternate;
-  }
-
-  /* ── Camadas decorativas que vivem dentro de `.scene` ── */
-  .organic-svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    opacity: 0.12;
-  }
-
-  .grain {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-    background-size: 200px 200px;
-  }
-
-  .light-leak {
-    position: absolute;
-    top: -10%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120%;
-    height: 50%;
-    pointer-events: none;
-    background: var(--gradient-light-leak);
-  }
-
-  /* ── Partículas flutuantes ── */
-  .particles {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-  .particle {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-    animation: floatParticle linear infinite;
-  }
-
-  /* ── Card glassmorphism (camada escura — login/cadastro) ── */
-  .glass-card {
-    position: relative;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
-    box-shadow:
-      var(--shadow-deep),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-  }
-  .glass-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--gradient-card-top);
-    pointer-events: none;
-  }
-
-  /* Variante animada: aparece com slide-up suave ao montar */
-  .glass-card--reveal {
-    opacity: 0;
-    transform: translateY(28px);
-    animation: cardReveal 0.9s var(--ease-reveal) forwards;
-  }
-
-  /* ── Input padrão sobre glassmorphism ── */
-  .glass-input {
-    background: var(--input-bg);
-    border: 1px solid var(--input-border);
-    border-radius: var(--radius-md);
-    color: var(--white);
-    transition:
-      background 0.2s,
-      border-color 0.2s,
-      box-shadow 0.2s;
-  }
-  .glass-input::placeholder {
-    color: rgba(255, 255, 255, 0.28);
-    letter-spacing: 2px;
-    font-size: 12px;
-    font-weight: 500;
-    text-transform: uppercase;
-  }
-  .glass-input:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: var(--input-border-hover);
-  }
-  .glass-input:focus {
-    background: var(--input-focus);
-    border-color: var(--input-border-focus);
-    box-shadow: var(--input-ring-focus);
-    outline: none;
-  }
-
-  /* Estado de erro consistente para inputs em formulários glass */
-  .glass-input--error,
-  .glass-input[aria-invalid='true'] {
-    border-color: rgba(232, 32, 58, 0.7);
-  }
-
-  /* ── Logo emblem (gradiente vermelho com brilho interno) ── */
-  .logo-emblem {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-xl);
-    background: var(--gradient-logo-emblem);
-    box-shadow: var(--shadow-emblem);
-  }
-  .logo-emblem::after {
-    content: '';
-    position: absolute;
-    inset: 1px;
-    border-radius: calc(var(--radius-xl) - 1px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    pointer-events: none;
-  }
-
-  /* ── Botão claro principal (branco → cream com texto vermelho) ── */
-  .btn-light {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 15px;
-    background: var(--white);
-    color: var(--red-core);
-    border: none;
-    border-radius: var(--radius-md);
-    font-family: var(--font-body);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    cursor: pointer;
-    overflow: hidden;
-    box-shadow: var(--shadow-button);
-    transition:
-      transform 0.15s,
-      box-shadow 0.2s,
-      background 0.2s;
-  }
-  .btn-light::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--gradient-button-hover);
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-  }
-  .btn-light:hover {
-    transform: translateY(-1px);
-    background: var(--cream);
-    box-shadow: var(--shadow-button-hover);
-  }
-  .btn-light:hover::before {
-    opacity: 1;
-  }
-  .btn-light:active {
-    transform: translateY(0) scale(0.985);
-    box-shadow: var(--shadow-button-active);
-  }
-  .btn-light:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
-
-  /* Spinner reutilizável (combina com `.btn-light` em estado de carregamento) */
-  .spinner-ring {
-    width: 20px;
-    height: 20px;
-    border: 2px solid rgba(192, 24, 46, 0.2);
-    border-top-color: var(--red-core);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  /* ── Banner de erro (com shake ao aparecer) ── */
-  .error-banner {
-    background: rgba(232, 32, 58, 0.15);
-    border: 1px solid rgba(232, 32, 58, 0.35);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 13px;
-    text-align: center;
-    color: rgba(255, 180, 180, 0.9);
-    animation: shake 0.4s var(--ease-shake) both;
-  }
-
-  /* ── Divisor sutil para formulários glass ── */
-  .glass-divider {
-    height: 1px;
-    background: rgba(255, 255, 255, 0.08);
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Utilitários atômicos
-   ───────────────────────────────────────────────────────────── */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  /* Atalho de tipografia para títulos com a serif do design system */
-  .font-display {
-    font-family: var(--font-heading);
-  }
-
-  /* Foco visível com a paleta vermelha (acessibilidade — Req. 22) */
-  .focus-ring-red:focus-visible {
-    outline: none;
-    box-shadow: var(--input-ring-focus);
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Acessibilidade — respeito a `prefers-reduced-motion`
-   Pausa blobs, partículas e revelações para usuários sensíveis
-   a movimento (WCAG 2.3.3).
-   ───────────────────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  .blob,
-  .particle,
-  .glass-card--reveal,
-  .error-banner,
-  .spinner-ring {
-    animation: none !important;
-  }
-  .glass-card--reveal {
-    opacity: 1;
-    transform: none;
-  }
 }
