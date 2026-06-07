@@ -260,8 +260,8 @@ graph TD
   - [x] 19.9 Implementar verificação de email duplicado na criação
 
 - [ ] 20. Testes de Propriedade (Property-Based Testing)
-  - [ ] 20.1 Configurar fast-check com Vitest (100 iterações mínimas por propriedade)
-  - [ ] 20.2 Propriedade 1: Erro genérico para credenciais inválidas — testar que mensagem é idêntica para email inexistente vs senha errada
+  - [x] 20.1 Configurar fast-check com Vitest (100 iterações mínimas por propriedade)
+  - [x] 20.2 Propriedade 1: Erro genérico para credenciais inválidas — testar que mensagem é idêntica para email inexistente vs senha errada
   - [ ] 20.3 Propriedade 2: Bloqueio por tentativas — testar sequências de login com timestamps variados
   - [ ] 20.4 Propriedade 3: Contas não-ativas negadas — testar login com status PENDING/INACTIVE/REJECTED
   - [ ] 20.5 Propriedade 4: Validação de cadastro — testar combinações de nome/email/senha válidos e inválidos
