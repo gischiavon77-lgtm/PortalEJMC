@@ -204,13 +204,13 @@ graph TD
   - [x] 13.5 Implementar alteração de status com registro no histórico (Admin apenas)
   - [x] 13.6 Implementar mensagem quando filtro não retorna resultados
 
-- [ ] 14. Módulo Comunicados
-  - [ ] 14.1 Criar API Routes: `GET /api/announcements?page=&pageSize=20`, `POST /api/announcements`
-  - [ ] 14.2 Implementar validação: título max 150 chars, conteúdo max 5000 chars
-  - [ ] 14.3 Criar página `/comunicados` com mural paginado (20 por página, mais recente primeiro)
-  - [ ] 14.4 Implementar card de comunicado (título, conteúdo, autor, data)
-  - [ ] 14.5 Implementar formulário de criação (Diretor/Gerente/Coordenador apenas)
-  - [ ] 14.6 Implementar mensagem quando não há comunicados
+- [x] 14. Módulo Comunicados
+  - [x] 14.1 Criar API Routes: `GET /api/announcements?page=&pageSize=20`, `POST /api/announcements`
+  - [x] 14.2 Implementar validação: título max 150 chars, conteúdo max 5000 chars
+  - [x] 14.3 Criar página `/comunicados` com mural paginado (20 por página, mais recente primeiro)
+  - [x] 14.4 Implementar card de comunicado (título, conteúdo, autor, data)
+  - [x] 14.5 Implementar formulário de criação (Diretor/Gerente/Coordenador apenas)
+  - [x] 14.6 Implementar mensagem quando não há comunicados
 
 - [ ] 15. Módulo Enquetes
   - [ ] 15.1 Criar API Routes: `GET /api/polls`, `POST /api/polls`, `POST /api/polls/:id/vote`, `PATCH /api/polls/:id/close`
