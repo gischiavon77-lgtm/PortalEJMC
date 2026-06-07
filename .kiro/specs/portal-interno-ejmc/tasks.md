@@ -181,13 +181,13 @@ graph TD
   - [x] 10.4 Implementar mensagem quando filtro não retorna resultados
   - [x] 10.5 Implementar layout responsivo (cards em mobile, tabela em desktop)
 
-- [ ] 11. Módulo Perfil
-  - [ ] 11.1 Criar API Routes: `GET /api/users/me`, `PATCH /api/users/me`
-  - [ ] 11.2 Implementar validação: email RFC 5322, telefone brasileiro (10-11 dígitos com DDD), CPF (11 dígitos + dígitos verificadores)
-  - [ ] 11.3 Criar página `/perfil` com exibição de dados (área e cargo somente leitura)
-  - [ ] 11.4 Implementar formulário de edição (nome, email, telefone, CPF)
-  - [ ] 11.5 Implementar mensagens de erro por campo sem descartar dados preenchidos
-  - [ ] 11.6 Implementar mensagem de confirmação ao salvar
+- [x] 11. Módulo Perfil
+  - [x] 11.1 Criar API Routes: `GET /api/users/me`, `PATCH /api/users/me`
+  - [x] 11.2 Implementar validação: email RFC 5322, telefone brasileiro (10-11 dígitos com DDD), CPF (11 dígitos + dígitos verificadores)
+  - [x] 11.3 Criar página `/perfil` com exibição de dados (área e cargo somente leitura)
+  - [x] 11.4 Implementar formulário de edição (nome, email, telefone, CPF)
+  - [x] 11.5 Implementar mensagens de erro por campo sem descartar dados preenchidos
+  - [x] 11.6 Implementar mensagem de confirmação ao salvar
 
 - [ ] 12. Módulo Portfólio de Serviços
   - [ ] 12.1 Criar API Routes: `GET /api/services`, `POST /api/services`, `PATCH /api/services/:id`
