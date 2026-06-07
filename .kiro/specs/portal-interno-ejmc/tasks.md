@@ -248,16 +248,16 @@ graph TD
   - [x] 18.4 Criar página `/configuracoes` com seções: perfil (senha, avatar) + admin (se Admin)
   - [x] 18.5 Implementar mensagens de sucesso/erro para cada operação
 
-- [ ] 19. Módulo Admin
-  - [ ] 19.1 Criar API Routes: `GET /api/users?status=`, `POST /api/users`, `PATCH /api/users/:id`, `DELETE /api/users/:id`
-  - [ ] 19.2 Implementar listagem de contas agrupadas por status (pendentes, ativas, inativas)
-  - [ ] 19.3 Implementar aprovação/rejeição de contas pendentes com envio de email
-  - [ ] 19.4 Implementar criação de conta pelo admin (nome, email, nível de permissão)
-  - [ ] 19.5 Implementar alteração de nível de permissão
-  - [ ] 19.6 Implementar desativação de conta (encerrar sessões ativas)
-  - [ ] 19.7 Implementar proteção do último administrador (não pode desativar/rebaixar)
-  - [ ] 19.8 Criar página `/admin` com tabela de usuários e ações
-  - [ ] 19.9 Implementar verificação de email duplicado na criação
+- [x] 19. Módulo Admin
+  - [x] 19.1 Criar API Routes: `GET /api/users?status=`, `POST /api/users`, `PATCH /api/users/:id`, `DELETE /api/users/:id`
+  - [x] 19.2 Implementar listagem de contas agrupadas por status (pendentes, ativas, inativas)
+  - [x] 19.3 Implementar aprovação/rejeição de contas pendentes com envio de email
+  - [x] 19.4 Implementar criação de conta pelo admin (nome, email, nível de permissão)
+  - [x] 19.5 Implementar alteração de nível de permissão
+  - [x] 19.6 Implementar desativação de conta (encerrar sessões ativas)
+  - [x] 19.7 Implementar proteção do último administrador (não pode desativar/rebaixar)
+  - [x] 19.8 Criar página `/admin` com tabela de usuários e ações
+  - [x] 19.9 Implementar verificação de email duplicado na criação
 
 - [ ] 20. Testes de Propriedade (Property-Based Testing)
   - [ ] 20.1 Configurar fast-check com Vitest (100 iterações mínimas por propriedade)
