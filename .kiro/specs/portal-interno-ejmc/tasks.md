@@ -241,12 +241,12 @@ graph TD
   - [x] 17.7 Implementar indicador visual de dias indisponíveis (todos os computadores reservados)
   - [x] 17.8 Implementar mensagens de erro específicas por regra violada
 
-- [ ] 18. Módulo Configurações
-  - [ ] 18.1 Criar API Routes: `PATCH /api/users/me/password`, `PATCH /api/users/me/avatar`
-  - [ ] 18.2 Implementar alteração de senha: validar senha atual, nova senha 8-128 chars com maiúscula/minúscula/número
-  - [ ] 18.3 Implementar upload de avatar: PNG/JPG, max 5MB, validação de tipo MIME
-  - [ ] 18.4 Criar página `/configuracoes` com seções: perfil (senha, avatar) + admin (se Admin)
-  - [ ] 18.5 Implementar mensagens de sucesso/erro para cada operação
+- [x] 18. Módulo Configurações
+  - [x] 18.1 Criar API Routes: `PATCH /api/users/me/password`, `PATCH /api/users/me/avatar`
+  - [x] 18.2 Implementar alteração de senha: validar senha atual, nova senha 8-128 chars com maiúscula/minúscula/número
+  - [x] 18.3 Implementar upload de avatar: PNG/JPG, max 5MB, validação de tipo MIME
+  - [x] 18.4 Criar página `/configuracoes` com seções: perfil (senha, avatar) + admin (se Admin)
+  - [x] 18.5 Implementar mensagens de sucesso/erro para cada operação
 
 - [ ] 19. Módulo Admin
   - [ ] 19.1 Criar API Routes: `GET /api/users?status=`, `POST /api/users`, `PATCH /api/users/:id`, `DELETE /api/users/:id`
