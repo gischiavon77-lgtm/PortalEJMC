@@ -38,4 +38,4 @@ yarn-error.log*
 next-env.d.ts
 
 # Prisma
-/prisma/migrations
+# /prisma/migrations  -- migrations precisam estar no repo para deploy

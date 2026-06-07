@@ -26,9 +26,12 @@
  */
 
 import { Area, InfractionType, KpiUnit, PrismaClient, UserRole } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
+import 'dotenv/config';
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter });
 
 const DEFAULT_ADMIN_EMAIL = 'admin@ejmc.com';
 const DEFAULT_ADMIN_PASSWORD_FALLBACK = 'Admin@123';
