@@ -14,7 +14,10 @@ Plano de implementação do Portal Interno EJMC — plataforma web full-stack pa
     { "wave": 3, "tasks": ["3"] },
     { "wave": 4, "tasks": ["4"] },
     { "wave": 5, "tasks": ["5"] },
-    { "wave": 6, "tasks": ["6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"] },
+    {
+      "wave": 6,
+      "tasks": ["6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19"]
+    },
     { "wave": 7, "tasks": ["20"] },
     { "wave": 8, "tasks": ["21"] }
   ]

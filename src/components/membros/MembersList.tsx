@@ -17,8 +17,9 @@
  * A escolha de duplicar o markup (em vez de manipular CSS via
  * grid/flex inteligente) facilita acessibilidade — o leitor de tela
  * recebe a árvore correta para cada layout sem hacks de display.
- * Usamos `mobile:hidden` / `mobile:flex` (aliases definidos em
- * `tailwind.config.ts`) para alternar.
+ * Usamos `tablet:hidden` / `hidden tablet:block` para alternar entre
+ * os dois layouts no breakpoint de 768px definido em
+ * `tailwind.config.ts` (`tablet: '768px'` é min-width).
  *
  * ─── Renderização do avatar ────────────────────────────────────────
  *
@@ -99,7 +100,7 @@ export function MembersList({ members }: MembersListProps) {
     <div role="region" aria-label="Lista de membros ativos" className="w-full">
       {/* ─── Mobile: cartões empilhados (visível apenas <768px) ─── */}
       <ul
-        className="mobile:flex hidden flex-col gap-3"
+        className="flex tablet:hidden flex-col gap-3"
         aria-label="Membros (visualização em cartões)"
       >
         {members.map((member) => (
@@ -114,9 +115,7 @@ export function MembersList({ members }: MembersListProps) {
                   {member.name}
                 </p>
                 {member.position && (
-                  <p className="truncate text-sm text-text-secondary">
-                    {member.position}
-                  </p>
+                  <p className="truncate text-sm text-text-secondary">{member.position}</p>
                 )}
                 <div className="mt-0.5">
                   <AreaBadge area={member.area} />
@@ -128,11 +127,10 @@ export function MembersList({ members }: MembersListProps) {
       </ul>
 
       {/* ─── Desktop/Tablet: tabela (escondido em <768px) ─── */}
-      <div className="mobile:hidden w-full overflow-hidden rounded-lg border border-border-light bg-surface-card shadow-sm">
+      <div className="hidden tablet:block w-full overflow-hidden rounded-lg border border-border-light bg-surface-card shadow-sm">
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">
-            Lista de membros ativos da empresa, ordenada alfabeticamente
-            por nome.
+            Lista de membros ativos da empresa, ordenada alfabeticamente por nome.
           </caption>
           <thead className="bg-surface-bg/60">
             <tr>
@@ -158,19 +156,11 @@ export function MembersList({ members }: MembersListProps) {
           </thead>
           <tbody>
             {members.map((member) => (
-              <tr
-                key={member.id}
-                className="border-b border-border-light last:border-b-0"
-              >
+              <tr key={member.id} className="border-b border-border-light last:border-b-0">
                 <td className="px-4 py-3 align-middle">
                   <div className="flex items-center gap-3">
-                    <Avatar
-                      name={member.name}
-                      avatarUrl={member.avatarUrl}
-                    />
-                    <span className="font-medium text-text-primary">
-                      {member.name}
-                    </span>
+                    <Avatar name={member.name} avatarUrl={member.avatarUrl} />
+                    <span className="font-medium text-text-primary">{member.name}</span>
                   </div>
                 </td>
                 <td className="px-4 py-3 align-middle text-text-secondary">
