@@ -272,7 +272,7 @@ model Announcement {
 model Poll {
   id          String     @id @default(cuid())
   title       String     @db.VarChar(150)
-  description String?    @db.VarChar(2000)
+  description String     @db.VarChar(2000)
   status      PollStatus @default(ACTIVE)
   createdById String
   createdBy   User       @relation(fields: [createdById], references: [id])
@@ -291,6 +291,7 @@ model PollOption {
   pollId String
   poll   Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
   text   String @db.VarChar(200)
+  order  Int
 
   votes PollVote[]
 

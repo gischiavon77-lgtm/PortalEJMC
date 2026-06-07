@@ -212,14 +212,14 @@ graph TD
   - [x] 14.5 Implementar formulário de criação (Diretor/Gerente/Coordenador apenas)
   - [x] 14.6 Implementar mensagem quando não há comunicados
 
-- [ ] 15. Módulo Enquetes
-  - [ ] 15.1 Criar API Routes: `GET /api/polls`, `POST /api/polls`, `POST /api/polls/:id/vote`, `PATCH /api/polls/:id/close`
-  - [ ] 15.2 Implementar validação: título max 150, descrição max 2000, 2-10 opções (cada max 200 chars)
-  - [ ] 15.3 Criar página `/enquetes` com listagem de enquetes (ativas e encerradas)
-  - [ ] 15.4 Implementar votação identificada com bloqueio de voto duplicado
-  - [ ] 15.5 Implementar exibição de resultados (contagem por opção + nomes dos votantes)
-  - [ ] 15.6 Implementar encerramento de enquete (Diretor/Gerente)
-  - [ ] 15.7 Implementar criação de enquete (Diretor/Gerente apenas)
+- [x] 15. Módulo Enquetes
+  - [x] 15.1 Criar API Routes: `GET /api/polls`, `POST /api/polls`, `POST /api/polls/:id/vote`, `PATCH /api/polls/:id/close`
+  - [x] 15.2 Implementar validação: título max 150, descrição max 2000, 2-10 opções (cada max 200 chars)
+  - [x] 15.3 Criar página `/enquetes` com listagem de enquetes (ativas e encerradas)
+  - [x] 15.4 Implementar votação identificada com bloqueio de voto duplicado
+  - [x] 15.5 Implementar exibição de resultados (contagem por opção + nomes dos votantes)
+  - [x] 15.6 Implementar encerramento de enquete (Diretor/Gerente)
+  - [x] 15.7 Implementar criação de enquete (Diretor/Gerente apenas)
 
 - [ ] 16. Módulo Pontuação (Infrações)
   - [ ] 16.1 Criar API Routes: `GET /api/scores?userId=&semester=`, `POST /api/scores`, `DELETE /api/scores/:id`
