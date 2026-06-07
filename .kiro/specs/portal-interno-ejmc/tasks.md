@@ -189,12 +189,12 @@ graph TD
   - [x] 11.5 Implementar mensagens de erro por campo sem descartar dados preenchidos
   - [x] 11.6 Implementar mensagem de confirmação ao salvar
 
-- [ ] 12. Módulo Portfólio de Serviços
-  - [ ] 12.1 Criar API Routes: `GET /api/services`, `POST /api/services`, `PATCH /api/services/:id`
-  - [ ] 12.2 Implementar validação: nome 3-100 chars, descrição 10-1000 chars
-  - [ ] 12.3 Criar página `/portfolio` com listagem alfabética paginada (50 por página)
-  - [ ] 12.4 Implementar formulário de adição/edição (visível apenas para Admin/Diretor)
-  - [ ] 12.5 Implementar mensagens de confirmação e erro
+- [x] 12. Módulo Portfólio de Serviços
+  - [x] 12.1 Criar API Routes: `GET /api/services`, `POST /api/services`, `PATCH /api/services/:id`
+  - [x] 12.2 Implementar validação: nome 3-100 chars, descrição 10-1000 chars
+  - [x] 12.3 Criar página `/portfolio` com listagem alfabética paginada (50 por página)
+  - [x] 12.4 Implementar formulário de adição/edição (visível apenas para Admin/Diretor)
+  - [x] 12.5 Implementar mensagens de confirmação e erro
 
 - [ ] 13. Módulo Projetos
   - [ ] 13.1 Criar API Routes: `GET /api/projects`, `GET /api/projects/:id`, `PATCH /api/projects/:id/status`

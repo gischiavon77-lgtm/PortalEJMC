@@ -1,24 +1,22 @@
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
-  content: [
-    './src/**/*.{ts,tsx}',
-  ],
+  content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        'red-deep':   '#150508',
-        'red-dark':   '#3d0a10',
-        'red-mid':    '#7a1220',
-        'red-core':   '#c0182e',
-        'red-vivid':  '#e8203a',
+        'red-deep': '#150508',
+        'red-dark': '#3d0a10',
+        'red-mid': '#7a1220',
+        'red-core': '#c0182e',
+        'red-vivid': '#e8203a',
         'red-bright': '#ff3d54',
-        'cream':      '#fff8f5',
+        cream: '#fff8f5',
       },
       fontFamily: {
         heading: ['"Playfair Display"', 'serif'],
-        body:    ['"DM Sans"', 'sans-serif'],
-        mono:    ['"DM Mono"', 'monospace'],
+        body: ['"DM Sans"', 'sans-serif'],
+        mono: ['"DM Mono"', 'monospace'],
       },
       borderRadius: {
         sm: '8px',
@@ -27,9 +25,18 @@ const config: Config = {
         xl: '24px',
       },
       screens: {
-        mobile:  '320px',
-        tablet:  '768px',
+        mobile: '320px',
+        tablet: '768px',
         desktop: '1024px',
+      },
+      keyframes: {
+        'toast-in': {
+          '0%': { opacity: '0', transform: 'translate(-50%, -8px)' },
+          '100%': { opacity: '1', transform: 'translate(-50%, 0)' },
+        },
+      },
+      animation: {
+        'toast-in': 'toast-in 0.3s ease-out forwards',
       },
     },
   },

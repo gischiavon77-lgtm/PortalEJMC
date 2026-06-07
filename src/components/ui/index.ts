@@ -11,13 +11,7 @@
 export { Button } from './Button';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './Button';
 
-export {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from './Card';
+export { Card, CardBody, CardFooter, CardHeader, CardTitle } from './Card';
 export type { CardPadding, CardProps, CardVariant } from './Card';
 
 export { Input } from './Input';
@@ -34,3 +28,6 @@ export type { BadgeProps, BadgeSize, BadgeVariant } from './Badge';
 
 export { Pagination } from './Pagination';
 export type { PaginationProps } from './Pagination';
+
+export { Toast } from './Toast';
+export type { ToastProps, ToastVariant } from './Toast';
