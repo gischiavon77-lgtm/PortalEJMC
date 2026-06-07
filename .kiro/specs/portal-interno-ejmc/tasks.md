@@ -221,15 +221,15 @@ graph TD
   - [x] 15.6 Implementar encerramento de enquete (Diretor/Gerente)
   - [x] 15.7 Implementar criação de enquete (Diretor/Gerente apenas)
 
-- [ ] 16. Módulo Pontuação (Infrações)
-  - [ ] 16.1 Criar API Routes: `GET /api/scores?userId=&semester=`, `POST /api/scores`, `DELETE /api/scores/:id`
-  - [ ] 16.2 Implementar lógica de pontuação: soma de pontos por semestre vigente, recálculo ao excluir
-  - [ ] 16.3 Implementar validação: tipo obrigatório, data <= hoje, membro infrator obrigatório
-  - [ ] 16.4 Criar página `/pontuacao` com visão diferenciada: própria pontuação (todos) vs. todos os membros (GP + Diretor)
-  - [ ] 16.5 Implementar formulário de registro de infração (equipe GP apenas)
-  - [ ] 16.6 Implementar exclusão de infração com recálculo (GP + Diretor)
-  - [ ] 16.7 Implementar histórico ordenado (mais recente primeiro)
-  - [ ] 16.8 Configurar pontos por tipo de infração via `InfractionConfig`
+- [x] 16. Módulo Pontuação (Infrações)
+  - [x] 16.1 Criar API Routes: `GET /api/scores?userId=&semester=`, `POST /api/scores`, `DELETE /api/scores/:id`
+  - [x] 16.2 Implementar lógica de pontuação: soma de pontos por semestre vigente, recálculo ao excluir
+  - [x] 16.3 Implementar validação: tipo obrigatório, data <= hoje, membro infrator obrigatório
+  - [x] 16.4 Criar página `/pontuacao` com visão diferenciada: própria pontuação (todos) vs. todos os membros (GP + Diretor)
+  - [x] 16.5 Implementar formulário de registro de infração (equipe GP apenas)
+  - [x] 16.6 Implementar exclusão de infração com recálculo (GP + Diretor)
+  - [x] 16.7 Implementar histórico ordenado (mais recente primeiro)
+  - [x] 16.8 Configurar pontos por tipo de infração via `InfractionConfig`
 
 - [ ] 17. Módulo Reserva de Computadores
   - [ ] 17.1 Criar API Routes: `GET /api/reservations?startDate=&endDate=`, `POST /api/reservations`, `DELETE /api/reservations/:id`
