@@ -259,35 +259,35 @@ graph TD
   - [x] 19.8 Criar página `/admin` com tabela de usuários e ações
   - [x] 19.9 Implementar verificação de email duplicado na criação
 
-- [ ] 20. Testes de Propriedade (Property-Based Testing)
+- [x] 20. Testes de Propriedade (Property-Based Testing)
   - [x] 20.1 Configurar fast-check com Vitest (100 iterações mínimas por propriedade)
   - [x] 20.2 Propriedade 1: Erro genérico para credenciais inválidas — testar que mensagem é idêntica para email inexistente vs senha errada
-  - [ ] 20.3 Propriedade 2: Bloqueio por tentativas — testar sequências de login com timestamps variados
-  - [ ] 20.4 Propriedade 3: Contas não-ativas negadas — testar login com status PENDING/INACTIVE/REJECTED
-  - [ ] 20.5 Propriedade 4: Validação de cadastro — testar combinações de nome/email/senha válidos e inválidos
-  - [ ] 20.6 Propriedade 5: Unicidade de email — testar criação com emails duplicados
-  - [ ] 20.7 Propriedade 6: Proteção do último admin — testar operações que removeriam o único admin
-  - [ ] 20.8 Propriedade 7: Matriz RBAC — testar todas as combinações (role, action)
-  - [ ] 20.9 Propriedade 8: Visibilidade do menu — testar itens visíveis por role
-  - [ ] 20.10 Propriedade 9: Visibilidade de metas por área — testar filtragem por área do usuário
-  - [ ] 20.11 Propriedade 10: Meta vencida — testar combinações (deadline, progress, currentDate)
-  - [ ] 20.12 Propriedade 11: Validação de metas — testar dados válidos e inválidos
-  - [ ] 20.13 Propriedade 12: Validação de CPF — testar strings de 11 dígitos com algoritmo módulo 11
-  - [ ] 20.14 Propriedade 13: Ordenação e filtragem de membros — testar listas com áreas variadas
-  - [ ] 20.15 Propriedade 14: Unicidade de voto — testar tentativas de voto duplicado
-  - [ ] 20.16 Propriedade 15: Enquete encerrada rejeita votos — testar votos em enquetes CLOSED
-  - [ ] 20.17 Propriedade 16: Cálculo de pontuação — testar soma de infrações e recálculo após exclusão
-  - [ ] 20.18 Propriedade 17: Regras de reserva — testar todas as combinações de regras de validação
+  - [x] 20.3 Propriedade 2: Bloqueio por tentativas — testar sequências de login com timestamps variados
+  - [x] 20.4 Propriedade 3: Contas não-ativas negadas — testar login com status PENDING/INACTIVE/REJECTED
+  - [x] 20.5 Propriedade 4: Validação de cadastro — testar combinações de nome/email/senha válidos e inválidos
+  - [x] 20.6 Propriedade 5: Unicidade de email — testar criação com emails duplicados
+  - [x] 20.7 Propriedade 6: Proteção do último admin — testar operações que removeriam o único admin
+  - [x] 20.8 Propriedade 7: Matriz RBAC — testar todas as combinações (role, action)
+  - [x] 20.9 Propriedade 8: Visibilidade do menu — testar itens visíveis por role
+  - [x] 20.10 Propriedade 9: Visibilidade de metas por área — testar filtragem por área do usuário
+  - [x] 20.11 Propriedade 10: Meta vencida — testar combinações (deadline, progress, currentDate)
+  - [x] 20.12 Propriedade 11: Validação de metas — testar dados válidos e inválidos
+  - [x] 20.13 Propriedade 12: Validação de CPF — testar strings de 11 dígitos com algoritmo módulo 11
+  - [x] 20.14 Propriedade 13: Ordenação e filtragem de membros — testar listas com áreas variadas
+  - [x] 20.15 Propriedade 14: Unicidade de voto — testar tentativas de voto duplicado
+  - [x] 20.16 Propriedade 15: Enquete encerrada rejeita votos — testar votos em enquetes CLOSED
+  - [x] 20.17 Propriedade 16: Cálculo de pontuação — testar soma de infrações e recálculo após exclusão
+  - [x] 20.18 Propriedade 17: Regras de reserva — testar todas as combinações de regras de validação
 
-- [ ] 21. Testes E2E (Playwright)
-  - [ ] 21.1 Configurar Playwright com 3 viewports (320px mobile, 768px tablet, 1440px desktop)
-  - [ ] 21.2 Teste E2E: Fluxo completo de cadastro → aprovação por admin → login → dashboard
-  - [ ] 21.3 Teste E2E: Login com credenciais inválidas (mensagem de erro, bloqueio após 5 tentativas)
-  - [ ] 21.4 Teste E2E: Navegação responsiva (sidebar em desktop, hamburger em mobile)
-  - [ ] 21.5 Teste E2E: Criação e votação em enquete
-  - [ ] 21.6 Teste E2E: Reserva de computador com validação de regras
-  - [ ] 21.7 Teste E2E: Criação de comunicado e visualização no mural
-  - [ ] 21.8 Teste E2E: Controle de permissão (membro tenta acessar /admin → 403)
+- [x] 21. Testes E2E (Playwright)
+  - [x] 21.1 Configurar Playwright com 3 viewports (320px mobile, 768px tablet, 1440px desktop)
+  - [x] 21.2 Teste E2E: Fluxo completo de cadastro → aprovação por admin → login → dashboard
+  - [x] 21.3 Teste E2E: Login com credenciais inválidas (mensagem de erro, bloqueio após 5 tentativas)
+  - [x] 21.4 Teste E2E: Navegação responsiva (sidebar em desktop, hamburger em mobile)
+  - [x] 21.5 Teste E2E: Criação e votação em enquete
+  - [x] 21.6 Teste E2E: Reserva de computador com validação de regras
+  - [x] 21.7 Teste E2E: Criação de comunicado e visualização no mural
+  - [x] 21.8 Teste E2E: Controle de permissão (membro tenta acessar /admin → 403)
 
 ## Notes
 
