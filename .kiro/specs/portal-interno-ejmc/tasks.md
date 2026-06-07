@@ -231,15 +231,15 @@ graph TD
   - [x] 16.7 Implementar histórico ordenado (mais recente primeiro)
   - [x] 16.8 Configurar pontos por tipo de infração via `InfractionConfig`
 
-- [ ] 17. Módulo Reserva de Computadores
-  - [ ] 17.1 Criar API Routes: `GET /api/reservations?startDate=&endDate=`, `POST /api/reservations`, `DELETE /api/reservations/:id`
-  - [ ] 17.2 Implementar validação completa: data futura (>hoje), dentro de 7 dias, max 1 computador/dia/usuário, sem 3 dias consecutivos, computador disponível
-  - [ ] 17.3 Criar página `/reservas` com grid de disponibilidade (7 computadores × 7 dias)
-  - [ ] 17.4 Implementar seleção de computador e dia com feedback visual de disponibilidade
-  - [ ] 17.5 Implementar confirmação de reserva com detalhes
-  - [ ] 17.6 Implementar cancelamento de reserva futura
-  - [ ] 17.7 Implementar indicador visual de dias indisponíveis (todos os computadores reservados)
-  - [ ] 17.8 Implementar mensagens de erro específicas por regra violada
+- [x] 17. Módulo Reserva de Computadores
+  - [x] 17.1 Criar API Routes: `GET /api/reservations?startDate=&endDate=`, `POST /api/reservations`, `DELETE /api/reservations/:id`
+  - [x] 17.2 Implementar validação completa: data futura (>hoje), dentro de 7 dias, max 1 computador/dia/usuário, sem 3 dias consecutivos, computador disponível
+  - [x] 17.3 Criar página `/reservas` com grid de disponibilidade (7 computadores × 7 dias)
+  - [x] 17.4 Implementar seleção de computador e dia com feedback visual de disponibilidade
+  - [x] 17.5 Implementar confirmação de reserva com detalhes
+  - [x] 17.6 Implementar cancelamento de reserva futura
+  - [x] 17.7 Implementar indicador visual de dias indisponíveis (todos os computadores reservados)
+  - [x] 17.8 Implementar mensagens de erro específicas por regra violada
 
 - [ ] 18. Módulo Configurações
   - [ ] 18.1 Criar API Routes: `PATCH /api/users/me/password`, `PATCH /api/users/me/avatar`
