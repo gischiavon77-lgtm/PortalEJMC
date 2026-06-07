@@ -196,13 +196,13 @@ graph TD
   - [x] 12.4 Implementar formulário de adição/edição (visível apenas para Admin/Diretor)
   - [x] 12.5 Implementar mensagens de confirmação e erro
 
-- [ ] 13. Módulo Projetos
-  - [ ] 13.1 Criar API Routes: `GET /api/projects`, `GET /api/projects/:id`, `PATCH /api/projects/:id/status`
-  - [ ] 13.2 Implementar filtro por status e paginação (50 por página)
-  - [ ] 13.3 Criar página `/projetos` com listagem (nome, status) ordenada alfabeticamente
-  - [ ] 13.4 Criar página de detalhes do projeto (nome, descrição, equipe, status, histórico)
-  - [ ] 13.5 Implementar alteração de status com registro no histórico (Admin apenas)
-  - [ ] 13.6 Implementar mensagem quando filtro não retorna resultados
+- [x] 13. Módulo Projetos
+  - [x] 13.1 Criar API Routes: `GET /api/projects`, `GET /api/projects/:id`, `PATCH /api/projects/:id/status`
+  - [x] 13.2 Implementar filtro por status e paginação (50 por página)
+  - [x] 13.3 Criar página `/projetos` com listagem (nome, status) ordenada alfabeticamente
+  - [x] 13.4 Criar página de detalhes do projeto (nome, descrição, equipe, status, histórico)
+  - [x] 13.5 Implementar alteração de status com registro no histórico (Admin apenas)
+  - [x] 13.6 Implementar mensagem quando filtro não retorna resultados
 
 - [ ] 14. Módulo Comunicados
   - [ ] 14.1 Criar API Routes: `GET /api/announcements?page=&pageSize=20`, `POST /api/announcements`
