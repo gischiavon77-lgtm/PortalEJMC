@@ -10,7 +10,7 @@
 
 import { type FormEvent, useState } from 'react';
 
-import { Button, Input, Modal } from '@/components/ui';
+import { Button, Modal } from '@/components/ui';
 
 export interface InfractionFormProps {
   open: boolean;
