@@ -110,11 +110,7 @@ import bcrypt from 'bcryptjs';
 import type { AccountStatus } from '@prisma/client';
 
 import { prisma } from '@/lib/prisma';
-import {
-  checkLockedOut,
-  registerFailedAttempt,
-  resetFailedAttempts,
-} from '@/lib/rate-limit';
+import { checkLockedOut, registerFailedAttempt, resetFailedAttempts } from '@/lib/rate-limit';
 import { findOrCreateGoogleUser } from '@/lib/google-auth';
 import { AUTH_ERROR_CODES } from '@/lib/auth-errors';
 import { authConfig as edgeAuthConfig } from '@/lib/auth.config';
@@ -176,13 +172,8 @@ export const authConfig: NextAuthConfig = {
       },
       async authorize(credentials) {
         const email =
-          typeof credentials?.email === 'string'
-            ? credentials.email.trim().toLowerCase()
-            : '';
-        const password =
-          typeof credentials?.password === 'string'
-            ? credentials.password
-            : '';
+          typeof credentials?.email === 'string' ? credentials.email.trim().toLowerCase() : '';
+        const password = typeof credentials?.password === 'string' ? credentials.password : '';
 
         if (!email || !password) {
           return null;
@@ -254,7 +245,7 @@ export const authConfig: NextAuthConfig = {
           id: user.id,
           name: user.name,
           email: user.email,
-          image: user.avatarUrl ?? null,
+          image: null,
           role: user.role,
           area: user.area,
           status: user.status,
