@@ -35,17 +35,16 @@ import { PrismaPg } from '@prisma/adapter-pg';
 
 const createPrismaClient = (): PrismaClient => {
   const connectionString = process.env.DATABASE_URL;
-  // Não lançamos exceção se faltar — em build estático do Next.js o módulo
-  // pode ser carregado sem que conexões reais sejam executadas. Na primeira
-  // query o adapter falhará com mensagem clara caso a URL não exista.
-  const adapter = new PrismaPg({ connectionString });
+
+  if (!connectionString) {
+    console.error('[prisma] DATABASE_URL não está definida!');
+  }
+
+  const adapter = new PrismaPg({ connectionString: connectionString ?? '' });
 
   return new PrismaClient({
     adapter,
-    log:
-      process.env.NODE_ENV === 'production'
-        ? ['error']
-        : ['query', 'warn', 'error'],
+    log: process.env.NODE_ENV === 'production' ? ['error'] : ['query', 'warn', 'error'],
   });
 };
 

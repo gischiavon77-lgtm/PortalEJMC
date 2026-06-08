@@ -173,6 +173,7 @@ export async function POST(request: Request): Promise<Response> {
     // Logamos no servidor para auditoria, mas devolvemos uma mensagem
     // genérica para não vazar detalhes de infraestrutura.
     console.error('[auth/register] Falha ao criar usuário:', err);
+    console.error('[auth/register] DATABASE_URL definida?', !!process.env.DATABASE_URL);
     return NextResponse.json(
       {
         error: true,
