@@ -68,11 +68,11 @@ export const authConfig = {
   session: {
     strategy: 'jwt',
     // Limite máximo de uma reemissão para a próxima. Combinado com
-    // `updateAge = 0` cria a janela rolante exigida pelo Req 1.1.
+    // `updateAge = 60` cria janela rolante com granularidade de 1 min.
     maxAge: SESSION_MAX_AGE_SECONDS,
-    // Força reemissão a cada chamada do callback `jwt` para impor
-    // expiração por inatividade (Req 1.3).
-    updateAge: 0,
+    // Reemite o JWT a cada 60s de atividade (não a cada request).
+    // Evita cookies enormes no header que causam 494 na Vercel.
+    updateAge: 60,
   },
 
   pages: {
