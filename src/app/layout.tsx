@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from 'next';
+import './globals.css';
+import { SessionProvider } from '@/components/providers/SessionProvider';
 
 export const metadata: Metadata = {
-  title: "Portal Interno EJMC",
-  description: "Plataforma de gestão interna da Empresa Júnior de Matemática e Computação",
+  title: 'Portal Interno EJMC',
+  description: 'Plataforma de gestão interna da Empresa Júnior de Matemática e Computação',
 };
 
 export default function RootLayout({
@@ -19,7 +20,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <SessionProvider>{children}</SessionProvider>
+      </body>
     </html>
   );
 }
