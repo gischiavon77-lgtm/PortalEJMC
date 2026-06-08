@@ -38,9 +38,18 @@ const createPrismaClient = (): PrismaClient => {
 
   if (!connectionString) {
     console.error('[prisma] DATABASE_URL não está definida!');
+    // Retorna um client "morto" que falhará com mensagem clara na primeira query.
+    // Não lançamos aqui porque o módulo pode ser importado durante o build estático.
+    const adapter = new PrismaPg({ connectionString: '' });
+    return new PrismaClient({ adapter });
   }
 
-  const adapter = new PrismaPg({ connectionString: connectionString ?? '' });
+  // Garante SSL para Render/Supabase em produção
+  const url = connectionString.includes('sslmode=')
+    ? connectionString
+    : connectionString + (connectionString.includes('?') ? '&sslmode=require' : '?sslmode=require');
+
+  const adapter = new PrismaPg({ connectionString: url });
 
   return new PrismaClient({
     adapter,
