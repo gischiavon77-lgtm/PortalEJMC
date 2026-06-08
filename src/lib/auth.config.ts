@@ -66,17 +66,22 @@ export const authConfig = {
 
   callbacks: {
     /**
-     * JWT mínimo: armazena apenas o user ID para manter o cookie pequeno.
-     * Os demais campos (role, area, status) são buscados no session callback.
+     * JWT ultra-mínimo. Remove campos desnecessários que o NextAuth
+     * adiciona por padrão (name, email, picture) para manter o cookie
+     * o menor possível e evitar 494 na Vercel.
      */
     async jwt({ token, user }) {
       if (user) {
-        // Login recém-realizado — armazena apenas o ID
         token.id = user.id as string;
         token.role = (user as { role?: UserRole }).role as UserRole;
         token.area = (user as { area?: Area | null }).area ?? null;
         token.status = (user as { status?: AccountStatus }).status as AccountStatus;
       }
+      // Remove campos que o NextAuth injeta e inflam o cookie
+      delete token.name;
+      delete token.email;
+      delete token.picture;
+      delete token.image;
       return token;
     },
 
