@@ -58,6 +58,9 @@ const INACTIVITY_LIMIT_MS = SESSION_MAX_AGE_SECONDS * 1000;
  * literal de campos como `session.strategy: 'jwt'`).
  */
 export const authConfig = {
+  // Em produção na Vercel, o host é confiável (HTTPS garantido).
+  trustHost: true,
+
   // NextAuth v5 lê `AUTH_SECRET` por padrão; mantemos `NEXTAUTH_SECRET`
   // como alias para compatibilidade com `.env.local.example` (Task 1.10).
   secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
@@ -107,8 +110,7 @@ export const authConfig = {
       // Tokens emitidos antes desta task podem não ter `lastActivity`;
       // tratamos como atividade agora para não deslogar usuários no
       // primeiro deploy.
-      const lastActivity =
-        typeof token.lastActivity === 'number' ? token.lastActivity : now;
+      const lastActivity = typeof token.lastActivity === 'number' ? token.lastActivity : now;
 
       if (now - lastActivity > INACTIVITY_LIMIT_MS) {
         // 8h sem atividade → sessão expirada. Retornar `null` força o
