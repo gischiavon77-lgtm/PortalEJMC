@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 
-import {
-  getDashboardActivities,
-  getDashboardSummary,
-} from '@/lib/dashboard';
+import { getDashboardActivities, getDashboardSummary } from '@/lib/dashboard';
 import { auth } from '@/lib/auth';
 import { ActivityList } from '@/components/dashboard/ActivityList';
 import { KpiCard } from '@/components/dashboard/KpiCard';
@@ -86,10 +83,23 @@ export default async function DashboardPage() {
 
   // Carrega summary e activities em paralelo. Cada chamada já tem
   // tratamento de erro próprio dentro do helper.
-  const [summary, activities] = await Promise.all([
-    getDashboardSummary(),
-    getDashboardActivities(),
-  ]);
+  let summary: Awaited<ReturnType<typeof getDashboardSummary>>;
+  let activities: Awaited<ReturnType<typeof getDashboardActivities>>;
+
+  try {
+    [summary, activities] = await Promise.all([getDashboardSummary(), getDashboardActivities()]);
+  } catch (err) {
+    console.error('[dashboard] Erro ao carregar dados:', err);
+    summary = {
+      activeMembers: 0,
+      projectsInProgress: 0,
+      projectsFrozen: 0,
+      monthlyRevenue: 0,
+      revenueGoal: 0,
+      monthlyLeads: 0,
+    };
+    activities = [];
+  }
 
   return (
     <section
@@ -107,9 +117,7 @@ export default async function DashboardPage() {
         >
           {greetingName ? `Olá, ${greetingName}` : 'Dashboard'}
         </h1>
-        <p className="text-text-secondary">
-          Indicadores e atividades do mês corrente da EJMC.
-        </p>
+        <p className="text-text-secondary">Indicadores e atividades do mês corrente da EJMC.</p>
       </header>
 
       {/* ─── KPIs (grid responsivo: 1 / 2 / 3 colunas) ─── */}
