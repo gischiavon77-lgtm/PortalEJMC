@@ -198,12 +198,26 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
         {isAuthenticated && session?.user ? (
           <div className="rounded-lg bg-white/[0.04] p-3">
             <div className="flex items-center gap-3">
-              <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-red-core to-red-vivid text-xs font-bold text-white"
-                aria-hidden="true"
+              <Link
+                href="/perfil"
+                aria-label="Ir para perfil"
+                className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-bright/60"
               >
-                {getInitials(session.user.name ?? session.user.email ?? '?')}
-              </div>
+                {session.user.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name ?? 'Avatar'}
+                    className="h-9 w-9 rounded-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-red-core to-red-vivid text-xs font-bold text-white"
+                    aria-hidden="true"
+                  >
+                    {getInitials(session.user.name ?? session.user.email ?? '?')}
+                  </div>
+                )}
+              </Link>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-white">
                   {session.user.name ?? 'Usuário'}

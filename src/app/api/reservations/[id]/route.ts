@@ -58,9 +58,9 @@ async function deleteHandler(
     );
   }
 
-  // Check date is in the future
+  // Check date is not in the past (allow cancellation of today's reservations)
   const today = getTodayUTC();
-  if (reservation.reservedDate.getTime() <= today.getTime()) {
+  if (reservation.reservedDate.getTime() < today.getTime()) {
     return NextResponse.json(
       { error: true, code: 'BAD_REQUEST', message: RESERVATION_ERROR_MESSAGES.notFuture },
       { status: 400 },

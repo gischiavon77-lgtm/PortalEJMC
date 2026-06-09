@@ -59,6 +59,8 @@
  */
 
 import { useEffect, useState, type ReactNode } from 'react';
+import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 import { Sidebar } from './Sidebar';
 
@@ -68,6 +70,7 @@ interface PortalShellProps {
 
 export function PortalShell({ children }: PortalShellProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { data: session } = useSession();
 
   // Tecla Escape fecha o drawer (apenas quando aberto, para evitar
   // listeners desnecessários). Limpamos o handler no cleanup.
@@ -142,8 +145,50 @@ export function PortalShell({ children }: PortalShellProps) {
           EJMC
         </span>
 
-        {/* Spacer simétrico para manter o título centralizado */}
-        <span aria-hidden="true" className="h-11 w-11" />
+        {/* Right section: notification bell + avatar */}
+        <div className="flex items-center gap-2">
+          {/* Notification bell (placeholder) */}
+          <span
+            className="flex h-8 w-8 items-center justify-center rounded-full text-text-muted"
+            aria-label="Notificações"
+            role="button"
+            tabIndex={0}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.8}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 01-3.46 0" />
+            </svg>
+          </span>
+
+          {/* User avatar → links to /perfil */}
+          <Link
+            href="/perfil"
+            aria-label="Ir para perfil"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/40"
+          >
+            {session?.user?.image ? (
+              <img
+                src={session.user.image}
+                alt={session.user.name ?? 'Avatar'}
+                className="h-8 w-8 rounded-full object-cover"
+              />
+            ) : (
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-red-core to-red-vivid text-[11px] font-bold text-white">
+                {getInitials(session?.user?.name ?? session?.user?.email ?? '?')}
+              </span>
+            )}
+          </Link>
+        </div>
       </header>
 
       {/* ─── Backdrop ───
@@ -174,4 +219,17 @@ export function PortalShell({ children }: PortalShellProps) {
       <main className="flex-1 px-4 py-6 mobile:pt-20 sm:px-6 lg:px-8">{children}</main>
     </div>
   );
+}
+
+/**
+ * Extrai até duas iniciais de um nome ou email para o avatar fallback.
+ */
+function getInitials(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) return '?';
+  const base = trimmed.includes('@') ? trimmed.split('@')[0] : trimmed;
+  const parts = base.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }

@@ -19,14 +19,21 @@
  *
  *   4. **Layout responsivo** — delegado ao `ProjectsList`, que
  *      renderiza cartões em mobile e tabela em desktop.
+ *
+ *   5. **Botão "+ Novo Projeto"** — visível apenas para Admin via
+ *      `usePermission('project:updateStatus')`. Abre modal de criação.
  */
+
+import { useCallback, useState } from 'react';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import type { ProjectStatus } from '@prisma/client';
 
-import { Pagination } from '@/components/ui';
+import { Button, Pagination, Toast } from '@/components/ui';
+import { usePermission } from '@/hooks/usePermission';
 
 import { ProjectsList, type ProjectItem } from './ProjectsList';
+import { ProjectForm } from './ProjectForm';
 
 const STATUS_OPTIONS: { value: 'ALL' | ProjectStatus; label: string }[] = [
   { value: 'ALL', label: 'Todos' },
@@ -50,6 +57,28 @@ export interface ProjectsShellProps {
 export function ProjectsShell({ projects, currentStatus, pagination }: ProjectsShellProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Admin permission for creating projects
+  const { allowed: canCreate, isLoading: permissionLoading } =
+    usePermission('project:updateStatus');
+
+  // Modal state
+  const [createOpen, setCreateOpen] = useState(false);
+
+  // Toast de feedback
+  const [toast, setToast] = useState<{ message: string; visible: boolean }>({
+    message: '',
+    visible: false,
+  });
+
+  const dismissToast = useCallback(() => {
+    setToast((prev) => ({ ...prev, visible: false }));
+  }, []);
+
+  function handleCreateSaved() {
+    router.refresh();
+    setToast({ message: 'Projeto criado com sucesso!', visible: true });
+  }
 
   function handleStatusChange(value: 'ALL' | ProjectStatus) {
     const params = new URLSearchParams(searchParams?.toString() ?? '');
@@ -108,26 +137,37 @@ export function ProjectsShell({ projects, currentStatus, pagination }: ProjectsS
           </p>
         </div>
 
-        {/* Filtro por status */}
-        <div className="flex w-full flex-col gap-1.5 tablet:max-w-xs desktop:max-w-xs">
-          <label
-            htmlFor="projetos-status-filter"
-            className="text-xs font-semibold uppercase tracking-[1.5px] text-text-muted"
-          >
-            Filtrar por status
-          </label>
-          <select
-            id="projetos-status-filter"
-            value={currentStatus ?? 'ALL'}
-            onChange={(e) => handleStatusChange(e.target.value as 'ALL' | ProjectStatus)}
-            className="h-10 w-full rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
-          >
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+        {/* Filtro por status + botão criar */}
+        <div className="flex flex-col gap-3 tablet:flex-row tablet:items-end tablet:justify-between">
+          <div className="flex w-full flex-col gap-1.5 tablet:max-w-xs desktop:max-w-xs">
+            <label
+              htmlFor="projetos-status-filter"
+              className="text-xs font-semibold uppercase tracking-[1.5px] text-text-muted"
+            >
+              Filtrar por status
+            </label>
+            <select
+              id="projetos-status-filter"
+              value={currentStatus ?? 'ALL'}
+              onChange={(e) => handleStatusChange(e.target.value as 'ALL' | ProjectStatus)}
+              className="h-10 w-full rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+            >
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Botão "+ Novo Projeto" — visível apenas para Admin */}
+          {!permissionLoading && canCreate && (
+            <div className="flex items-center">
+              <Button type="button" variant="primary" size="sm" onClick={() => setCreateOpen(true)}>
+                + Novo Projeto
+              </Button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -154,6 +194,23 @@ export function ProjectsShell({ projects, currentStatus, pagination }: ProjectsS
           )}
         </>
       )}
+      {/* Modal de criação — montado apenas quando Admin */}
+      {canCreate && (
+        <ProjectForm
+          open={createOpen}
+          onClose={() => setCreateOpen(false)}
+          onSaved={handleCreateSaved}
+        />
+      )}
+
+      {/* Toast de confirmação */}
+      <Toast
+        message={toast.message}
+        variant="success"
+        visible={toast.visible}
+        onDismiss={dismissToast}
+        duration={4000}
+      />
     </section>
   );
 }
