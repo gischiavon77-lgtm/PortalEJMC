@@ -156,7 +156,9 @@ export type Action =
   | 'user:create'
   // Acesso ao módulo de administração — usado pelo middleware da Task 4.3
   // e pela visibilidade do menu (Property 8 / Req 5.3).
-  | 'admin:access';
+  | 'admin:access'
+  // Álbum de figurinhas — Diretor+ pode adicionar/remover membros do álbum.
+  | 'album:manage';
 
 /**
  * Lista de papéis autorizados por ação. A presença de um papel aqui
@@ -227,6 +229,9 @@ export const PERMISSION_MATRIX: Record<Action, UserRole[]> = {
 
   // ─── Página de administração (Admin, Req 4.1) ──────────────────────
   'admin:access': ['ADMIN'],
+
+  // ─── Álbum de figurinhas (Admin/Diretor) ───────────────────────────
+  'album:manage': ['ADMIN', 'DIRETOR'],
 };
 
 /**
@@ -286,10 +291,7 @@ export const PERMISSION_PREDICATES: Partial<
  * todas as áreas"). Para decisões de permissão "oficiais", prefira
  * `hasPermission(action)` para manter a matriz como fonte da verdade.
  */
-export function hasRoleLevel(
-  role: UserRole,
-  requiredRole: UserRole,
-): boolean {
+export function hasRoleLevel(role: UserRole, requiredRole: UserRole): boolean {
   return ROLE_LEVEL[role] >= ROLE_LEVEL[requiredRole];
 }
 

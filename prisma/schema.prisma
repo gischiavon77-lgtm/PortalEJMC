@@ -378,3 +378,18 @@ model Service {
 
   @@index([name])
 }
+
+// Álbum de figurinhas — membros por gestão e área
+model AlbumMember {
+  id        String   @id @default(cuid())
+  name      String   @db.VarChar(150)
+  position  String   @db.VarChar(100) // cargo
+  area      Area
+  gestao    String   @db.VarChar(10) // ex: "2026.1"
+  photoUrl  String?  @db.Text // base64 data URL da foto
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([gestao, area])
+  @@index([gestao])
+}
