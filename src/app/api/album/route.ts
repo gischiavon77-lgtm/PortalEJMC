@@ -43,7 +43,7 @@ async function listHandler(
 
   const members = await prisma.albumMember.findMany({
     where: { gestao },
-    orderBy: [{ area: 'asc' }, { name: 'asc' }],
+    orderBy: [{ area: 'asc' }, { order: 'asc' }, { name: 'asc' }],
   });
 
   // Agrupar por área

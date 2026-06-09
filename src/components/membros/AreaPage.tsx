@@ -5,8 +5,10 @@
  *
  * Exibe o cabeçalho com gradiente, emoji decorativo e grid de
  * figurinhas dos membros daquela área na gestão selecionada.
+ * Suporta drag-and-drop para reordenação quando `canManage` é true.
  */
 
+import { useState, useCallback } from 'react';
 import type { Area } from '@prisma/client';
 
 import { StickerCard } from './StickerCard';
@@ -27,9 +29,61 @@ interface AreaPageProps {
   canManage: boolean;
   onAddClick: () => void;
   onDelete: (id: string) => void;
+  onReorder?: (ids: string[]) => void;
 }
 
-export function AreaPage({ config, members, canManage, onAddClick, onDelete }: AreaPageProps) {
+export function AreaPage({
+  config,
+  members,
+  canManage,
+  onAddClick,
+  onDelete,
+  onReorder,
+}: AreaPageProps) {
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
+    setDragIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDragIndex(null);
+    setDragOverIndex(null);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverIndex(null);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>, dropIndex: number) => {
+      e.preventDefault();
+      const fromIndex = dragIndex;
+      setDragIndex(null);
+      setDragOverIndex(null);
+
+      if (fromIndex === null || fromIndex === dropIndex) return;
+
+      // Reorder the array
+      const reordered = [...members];
+      const [moved] = reordered.splice(fromIndex, 1);
+      reordered.splice(dropIndex, 0, moved);
+
+      const newIds = reordered.map((m) => m.id);
+      onReorder?.(newIds);
+    },
+    [dragIndex, members, onReorder],
+  );
+
   return (
     <div className={`overflow-hidden rounded-xl border ${config.border} ${config.bgLight}`}>
       {/* Colored header/banner */}
@@ -78,13 +132,21 @@ export function AreaPage({ config, members, canManage, onAddClick, onDelete }: A
           </p>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {members.map((member) => (
+            {members.map((member, index) => (
               <StickerCard
                 key={member.id}
                 member={member}
                 borderColor={config.border}
                 canDelete={canManage}
                 onDelete={() => onDelete(member.id)}
+                draggable={canManage}
+                isDragging={dragIndex === index}
+                isDragOver={dragOverIndex === index}
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, index)}
               />
             ))}
           </div>

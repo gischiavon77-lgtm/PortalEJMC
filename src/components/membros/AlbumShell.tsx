@@ -164,6 +164,27 @@ export function AlbumShell({ gestoes, initialGestao }: AlbumShellProps) {
       .catch(() => {});
   }
 
+  function handleReorder(ids: string[]) {
+    // Optimistic update: reorder local state immediately
+    setMembers((prev) => {
+      const areaMembers = prev[activeArea] ?? [];
+      const reordered = ids
+        .map((id) => areaMembers.find((m) => m.id === id))
+        .filter(Boolean) as AlbumMember[];
+      return { ...prev, [activeArea]: reordered };
+    });
+
+    // Persist to server
+    fetch('/api/album/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+    }).catch(() => {
+      // Revert on failure
+      fetchMembers(selectedGestao);
+    });
+  }
+
   const activeConfig = AREAS.find((a) => a.area === activeArea)!;
   const areaMembers = members[activeArea] ?? [];
 
@@ -286,6 +307,7 @@ export function AlbumShell({ gestoes, initialGestao }: AlbumShellProps) {
               canManage={canManage}
               onAddClick={() => setShowAddModal(true)}
               onDelete={handleDeleteMember}
+              onReorder={handleReorder}
             />
           )}
         </>

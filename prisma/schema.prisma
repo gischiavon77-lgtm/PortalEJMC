@@ -387,6 +387,7 @@ model AlbumMember {
   area      Area
   gestao    String   @db.VarChar(10) // ex: "2026.1"
   photoUrl  String?  @db.Text // base64 data URL da foto
+  order     Int      @default(0) // posição no grid da área
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
