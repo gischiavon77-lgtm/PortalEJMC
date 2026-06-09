@@ -24,13 +24,7 @@
  * facilitar a migração futura.
  */
 
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useRef,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 import { cn } from './cn';
@@ -163,9 +157,9 @@ export function Modal({
       const root = containerRef.current;
       if (!root) return;
 
-      const focusables = Array.from(
-        root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
-      ).filter((el) => !el.hasAttribute('data-focus-guard'));
+      const focusables = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+        (el) => !el.hasAttribute('data-focus-guard'),
+      );
 
       if (focusables.length === 0) {
         event.preventDefault();
@@ -208,7 +202,7 @@ export function Modal({
         data-testid="modal-overlay"
         aria-hidden="true"
         onClick={closeOnOverlayClick ? handleClose : undefined}
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60"
       />
 
       {/* Container — `tabIndex={-1}` permite que o modal receba foco
@@ -220,7 +214,7 @@ export function Modal({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
-          'relative z-10 w-full overflow-hidden rounded-lg bg-surface-card shadow-card',
+          'relative z-10 w-full overflow-hidden rounded-lg bg-white shadow-card',
           'flex max-h-[calc(100vh-3rem)] flex-col',
           SIZE_CLASSES[size],
         )}
@@ -234,9 +228,7 @@ export function Modal({
             >
               {title}
             </h2>
-            {description && (
-              <p className="mt-1 text-sm text-text-secondary">{description}</p>
-            )}
+            {description && <p className="mt-1 text-sm text-text-secondary">{description}</p>}
           </div>
 
           {/* Sempre mantemos o id do título disponível, mesmo com hideTitle */}
@@ -270,13 +262,11 @@ export function Modal({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 text-sm text-text-primary">
-          {children}
-        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-4 text-sm text-text-primary">{children}</div>
 
         {/* Footer (opcional) */}
         {footer && (
-          <div className="flex items-center justify-end gap-2 border-t border-border-light bg-surface-bg/50 px-5 py-3">
+          <div className="flex items-center justify-end gap-2 border-t border-border-light bg-gray-50 px-5 py-3">
             {footer}
           </div>
         )}

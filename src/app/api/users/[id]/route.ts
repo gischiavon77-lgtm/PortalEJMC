@@ -230,6 +230,39 @@ const handlePatch = withAuth(
       );
     }
 
+    // ─── Action: changeArea ───────────────────────────────────────────
+    if (parsed.action === 'changeArea') {
+      if (parsed.area === undefined) {
+        return NextResponse.json(
+          {
+            error: true,
+            code: 'VALIDATION_ERROR',
+            message: 'O campo "area" é obrigatório para a ação changeArea.',
+          },
+          { status: 422 },
+        );
+      }
+
+      const updated = await prisma.user.update({
+        where: { id: userId },
+        data: { area: parsed.area },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          status: true,
+          area: true,
+          createdAt: true,
+        },
+      });
+
+      return NextResponse.json(
+        { user: { ...updated, createdAt: updated.createdAt.toISOString() } },
+        { status: 200 },
+      );
+    }
+
     return NextResponse.json(
       { error: true, code: 'BAD_REQUEST', message: 'Ação desconhecida.' },
       { status: 400 },

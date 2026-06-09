@@ -17,7 +17,16 @@ export const VALID_STATUSES = ['PENDING', 'ACTIVE', 'INACTIVE', 'REJECTED'] as c
 
 export const VALID_ROLES = ['ADMIN', 'DIRETOR', 'GERENTE', 'COORDENADOR', 'MEMBRO'] as const;
 
-export const VALID_ACTIONS = ['approve', 'reject', 'changeRole'] as const;
+export const VALID_ACTIONS = ['approve', 'reject', 'changeRole', 'changeArea'] as const;
+
+export const VALID_AREAS = [
+  'VENDAS',
+  'PRESIDENCIA',
+  'PROJETOS',
+  'MARKETING',
+  'GESTAO_PESSOAS',
+  'ADM_FIN',
+] as const;
 
 // ─── Mensagens ───────────────────────────────────────────────────────────────
 
@@ -37,6 +46,9 @@ export const ADMIN_VALIDATION_MESSAGES = {
   },
   role: {
     invalid: `Nível de permissão inválido. Valores aceitos: ${VALID_ROLES.join(', ')}.`,
+  },
+  area: {
+    invalid: `Área inválida. Valores aceitos: ${VALID_AREAS.join(', ')}.`,
   },
   action: {
     invalid: `Ação inválida. Valores aceitos: ${VALID_ACTIONS.join(', ')}.`,
@@ -85,6 +97,12 @@ export const updateUserActionSchema = z
         error: ADMIN_VALIDATION_MESSAGES.role.invalid,
       })
       .optional(),
+    area: z
+      .enum(VALID_AREAS, {
+        error: ADMIN_VALIDATION_MESSAGES.area.invalid,
+      })
+      .nullable()
+      .optional(),
   })
   .refine(
     (data) => {
@@ -96,6 +114,18 @@ export const updateUserActionSchema = z
     {
       message: 'O campo "role" é obrigatório quando a ação é "changeRole".',
       path: ['role'],
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.action === 'changeArea' && data.area === undefined) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'O campo "area" é obrigatório quando a ação é "changeArea".',
+      path: ['area'],
     },
   );
 

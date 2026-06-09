@@ -52,6 +52,15 @@ const AREA_LABELS: Record<Area, string> = {
 
 const ROLES: UserRole[] = ['ADMIN', 'DIRETOR', 'GERENTE', 'COORDENADOR', 'MEMBRO'];
 
+const AREAS: Area[] = [
+  'VENDAS',
+  'PRESIDENCIA',
+  'PROJETOS',
+  'MARKETING',
+  'GESTAO_PESSOAS',
+  'ADM_FIN',
+];
+
 export function UserTable({ users, status, onActionComplete, onActionError }: UserTableProps) {
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
 
@@ -113,6 +122,27 @@ export function UserTable({ users, status, onActionComplete, onActionError }: Us
       onActionComplete(`Permissão alterada para ${ROLE_LABELS[newRole]}.`);
     } catch {
       onActionError('Erro de conexão ao alterar permissão.');
+    } finally {
+      setLoadingAction(null);
+    }
+  }
+
+  async function handleChangeArea(userId: string, newArea: Area | null) {
+    setLoadingAction(`area-${userId}`);
+    try {
+      const res = await fetch(`/api/users/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'changeArea', area: newArea }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        onActionError(data.message || 'Erro ao alterar área.');
+        return;
+      }
+      onActionComplete(`Área alterada para ${newArea ? AREA_LABELS[newArea] : 'Sem área'}.`);
+    } catch {
+      onActionError('Erro de conexão ao alterar área.');
     } finally {
       setLoadingAction(null);
     }
@@ -211,6 +241,12 @@ export function UserTable({ users, status, onActionComplete, onActionError }: Us
                           loading={loadingAction === `role-${user.id}`}
                           onChange={(newRole) => handleChangeRole(user.id, newRole)}
                         />
+                        <AreaSelector
+                          currentArea={user.area}
+                          disabled={loadingAction !== null}
+                          loading={loadingAction === `area-${user.id}`}
+                          onChange={(newArea) => handleChangeArea(user.id, newArea)}
+                        />
                         <Button
                           type="button"
                           variant="destructive"
@@ -260,6 +296,40 @@ function RoleSelector({ currentRole, disabled, loading, onChange }: RoleSelector
       {ROLES.map((role) => (
         <option key={role} value={role}>
           {ROLE_LABELS[role]}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+// ─── Sub-componente: Dropdown de seleção de área ─────────────────────────────
+
+interface AreaSelectorProps {
+  currentArea: Area | null;
+  disabled: boolean;
+  loading: boolean;
+  onChange: (area: Area | null) => void;
+}
+
+function AreaSelector({ currentArea, disabled, loading, onChange }: AreaSelectorProps) {
+  return (
+    <select
+      value={currentArea ?? ''}
+      disabled={disabled || loading}
+      onChange={(e) => {
+        const value = e.target.value;
+        const newArea = value === '' ? null : (value as Area);
+        if (newArea !== currentArea) {
+          onChange(newArea);
+        }
+      }}
+      aria-label="Alterar área"
+      className="rounded-md border border-border-light bg-surface-card px-2 py-1.5 text-xs font-medium text-text-primary transition-colors hover:border-text-muted focus:outline-none focus:ring-2 focus:ring-red-core/30 disabled:opacity-50"
+    >
+      <option value="">Sem área</option>
+      {AREAS.map((area) => (
+        <option key={area} value={area}>
+          {AREA_LABELS[area]}
         </option>
       ))}
     </select>
