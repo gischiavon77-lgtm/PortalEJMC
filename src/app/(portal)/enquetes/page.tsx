@@ -29,58 +29,64 @@ export default async function EnquetesPage() {
 
   const userId = session.user.id;
 
-  const polls = await prisma.poll.findMany({
-    orderBy: [
-      { status: 'asc' }, // ACTIVE before CLOSED (alphabetically)
-      { createdAt: 'desc' },
-    ],
-    include: {
-      createdBy: {
-        select: { id: true, name: true },
-      },
-      options: {
-        orderBy: { order: 'asc' },
-        include: {
-          votes: {
-            include: {
-              user: {
-                select: { id: true, name: true },
+  let serialized: PollItem[] = [];
+  try {
+    const polls = await prisma.poll.findMany({
+      orderBy: [
+        { status: 'asc' }, // ACTIVE before CLOSED (alphabetically)
+        { createdAt: 'desc' },
+      ],
+      include: {
+        createdBy: {
+          select: { id: true, name: true },
+        },
+        options: {
+          orderBy: { order: 'asc' },
+          include: {
+            votes: {
+              include: {
+                user: {
+                  select: { id: true, name: true },
+                },
               },
             },
           },
         },
+        votes: {
+          where: { userId },
+          select: { optionId: true },
+          take: 1,
+        },
       },
-      votes: {
-        where: { userId },
-        select: { optionId: true },
-        take: 1,
-      },
-    },
-  });
+    });
 
-  // Serialize for Client Component
-  const serialized: PollItem[] = polls.map((poll) => ({
-    id: poll.id,
-    title: poll.title,
-    description: poll.description,
-    status: poll.status,
-    createdBy: {
-      id: poll.createdBy.id,
-      name: poll.createdBy.name,
-    },
-    options: poll.options.map((opt) => ({
-      id: opt.id,
-      text: opt.text,
-      voteCount: opt.votes.length,
-      votes: opt.votes.map((v) => ({
-        id: v.user.id,
-        name: v.user.name,
+    // Serialize for Client Component
+    serialized = polls.map((poll) => ({
+      id: poll.id,
+      title: poll.title,
+      description: poll.description,
+      status: poll.status,
+      createdBy: {
+        id: poll.createdBy.id,
+        name: poll.createdBy.name,
+      },
+      options: poll.options.map((opt) => ({
+        id: opt.id,
+        text: opt.text,
+        voteCount: opt.votes.length,
+        votes: opt.votes.map((v) => ({
+          id: v.user.id,
+          name: v.user.name,
+        })),
       })),
-    })),
-    userVotedOptionId: poll.votes[0]?.optionId ?? null,
-    createdAt: poll.createdAt.toISOString(),
-    closedAt: poll.closedAt?.toISOString() ?? null,
-  }));
+      userVotedOptionId: poll.votes[0]?.optionId ?? null,
+      createdAt: poll.createdAt.toISOString(),
+      closedAt: poll.closedAt?.toISOString() ?? null,
+    }));
+  } catch (err) {
+    console.error('[enquetes] DB error:', err);
+    serialized = [];
+  }
 
   return <EnquetesShell polls={serialized} />;
 }

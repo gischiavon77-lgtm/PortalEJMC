@@ -46,33 +46,42 @@ export default async function ComunicadosPage(props: ComunicadosPageProps) {
   const page = parsePageParam(search.page);
   const skip = (page - 1) * PAGE_SIZE;
 
-  const [announcements, total] = await Promise.all([
-    prisma.announcement.findMany({
-      orderBy: { createdAt: 'desc' },
-      skip,
-      take: PAGE_SIZE,
-      include: {
-        author: {
-          select: { id: true, name: true },
+  let serialized: AnnouncementItem[] = [];
+  let total = 0;
+  let totalPages = 1;
+  try {
+    const [announcements, count] = await Promise.all([
+      prisma.announcement.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: PAGE_SIZE,
+        include: {
+          author: {
+            select: { id: true, name: true },
+          },
         },
+      }),
+      prisma.announcement.count(),
+    ]);
+
+    total = count;
+    totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+    // Serializa datas para ISO strings (necessário para Client Components).
+    serialized = announcements.map((a) => ({
+      id: a.id,
+      title: a.title,
+      content: a.content,
+      author: {
+        id: a.author.id,
+        name: a.author.name,
       },
-    }),
-    prisma.announcement.count(),
-  ]);
-
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-  // Serializa datas para ISO strings (necessário para Client Components).
-  const serialized: AnnouncementItem[] = announcements.map((a) => ({
-    id: a.id,
-    title: a.title,
-    content: a.content,
-    author: {
-      id: a.author.id,
-      name: a.author.name,
-    },
-    createdAt: a.createdAt.toISOString(),
-  }));
+      createdAt: a.createdAt.toISOString(),
+    }));
+  } catch (err) {
+    console.error('[comunicados] DB error:', err);
+    serialized = [];
+  }
 
   return (
     <ComunicadosShell

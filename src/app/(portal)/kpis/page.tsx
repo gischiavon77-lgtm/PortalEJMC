@@ -93,73 +93,76 @@ export default async function KpisPage(props: KpisPageProps) {
   const rawArea = Array.isArray(search.area) ? search.area[0] : search.area;
   const areaFilter = normalizeAreaFilter(rawArea);
 
-  // 1) Filtro de visibilidade (Req 10.1).
-  const visibility = kpiVisibilityWhere({
-    role: session.user.role,
-    area: session.user.area,
-  });
+  let kpis: KpiCardData[] = [];
+  try {
+    // 1) Filtro de visibilidade (Req 10.1).
+    const visibility = kpiVisibilityWhere({
+      role: session.user.role,
+      area: session.user.area,
+    });
 
-  // 2) Filtro explícito por área da URL.
-  const explicitFilters: Record<string, unknown> = {};
-  if (areaFilter === 'GLOBAL') {
-    explicitFilters.area = null;
-  } else if (areaFilter !== 'ALL') {
-    explicitFilters.area = areaFilter as Area;
-  }
+    // 2) Filtro explícito por área da URL.
+    const explicitFilters: Record<string, unknown> = {};
+    if (areaFilter === 'GLOBAL') {
+      explicitFilters.area = null;
+    } else if (areaFilter !== 'ALL') {
+      explicitFilters.area = areaFilter as Area;
+    }
 
-  const where: Record<string, unknown> = { ...visibility, ...explicitFilters };
-  if ('OR' in visibility && Object.keys(explicitFilters).length > 0) {
-    delete where.OR;
-    delete where.area;
-    where.AND = [visibility, explicitFilters];
-  }
+    const where: Record<string, unknown> = { ...visibility, ...explicitFilters };
+    if ('OR' in visibility && Object.keys(explicitFilters).length > 0) {
+      delete where.OR;
+      delete where.area;
+      where.AND = [visibility, explicitFilters];
+    }
 
-  const dbKpis = await prisma.kpi.findMany({
-    where,
-    orderBy: [{ area: 'asc' }, { name: 'asc' }],
-    select: {
-      id: true,
-      name: true,
-      unit: true,
-      area: true,
-      intervalMin: true,
-      intervalMax: true,
-      values: {
-        take: 1,
-        orderBy: { recordedAt: 'desc' },
-        select: {
-          value: true,
-          recordedAt: true,
+    const dbKpis = await prisma.kpi.findMany({
+      where,
+      orderBy: [{ area: 'asc' }, { name: 'asc' }],
+      select: {
+        id: true,
+        name: true,
+        unit: true,
+        area: true,
+        intervalMin: true,
+        intervalMax: true,
+        values: {
+          take: 1,
+          orderBy: { recordedAt: 'desc' },
+          select: {
+            value: true,
+            recordedAt: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  // Defesa em profundidade — protege contra qualquer eventual bug
-  // no `where`.
-  const visible = dbKpis.filter((k) =>
-    canUserSeeKpi(session.user, { area: k.area }),
-  );
+    // Defesa em profundidade — protege contra qualquer eventual bug
+    // no `where`.
+    const visible = dbKpis.filter((k) => canUserSeeKpi(session.user, { area: k.area }));
 
-  const kpis: KpiCardData[] = visible.map((k) => {
-    const latest = k.values[0] ?? null;
-    return {
-      id: k.id,
-      name: k.name,
-      unit: k.unit,
-      area: k.area,
-      intervalMin: k.intervalMin,
-      intervalMax: k.intervalMax,
-      latestValue: latest ? decimalToNumber(latest.value) : null,
-      latestRecordedAt: latest ? latest.recordedAt.toISOString() : null,
-    };
-  });
+    kpis = visible.map((k) => {
+      const latest = k.values[0] ?? null;
+      return {
+        id: k.id,
+        name: k.name,
+        unit: k.unit,
+        area: k.area,
+        intervalMin: k.intervalMin,
+        intervalMax: k.intervalMax,
+        latestValue: latest ? decimalToNumber(latest.value) : null,
+        latestRecordedAt: latest ? latest.recordedAt.toISOString() : null,
+      };
+    });
+  } catch (err) {
+    console.error('[kpis] DB error:', err);
+    kpis = [];
+  }
 
   // Lista das áreas disponíveis no seletor — limitamos às áreas que
   // o usuário pode ver para que o dropdown não exponha conjuntos
   // proibidos. Diretor/Admin enxergam todas.
-  const userCanSeeAllAreas =
-    session.user.role === 'ADMIN' || session.user.role === 'DIRETOR';
+  const userCanSeeAllAreas = session.user.role === 'ADMIN' || session.user.role === 'DIRETOR';
 
   return (
     <KpisShell

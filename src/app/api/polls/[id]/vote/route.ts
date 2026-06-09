@@ -19,7 +19,6 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { ZodError } from 'zod';
-import { Prisma } from '@prisma/client';
 
 import { withAuth } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
@@ -117,10 +116,19 @@ async function voteHandler(
     );
   }
 
-  // Create vote (unique constraint handles duplicates)
+  // Create or update vote (upsert allows changing vote)
   try {
-    const vote = await prisma.pollVote.create({
-      data: {
+    const vote = await prisma.pollVote.upsert({
+      where: {
+        pollId_userId: {
+          pollId,
+          userId,
+        },
+      },
+      update: {
+        optionId: payload.optionId,
+      },
+      create: {
         pollId,
         optionId: payload.optionId,
         userId,
@@ -139,17 +147,6 @@ async function voteHandler(
       { status: 201 },
     );
   } catch (err) {
-    // Prisma unique constraint violation (P2002) — duplicate vote
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-      return NextResponse.json(
-        {
-          error: true,
-          code: 'ALREADY_VOTED',
-          message: 'Você já votou nesta enquete.',
-        },
-        { status: 409 },
-      );
-    }
     throw err;
   }
 }

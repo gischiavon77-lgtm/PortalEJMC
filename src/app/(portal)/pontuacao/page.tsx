@@ -54,67 +54,78 @@ export default async function PontuacaoPage() {
 
   const semester = getCurrentSemester();
 
-  // Load own infractions (all users see their own)
-  const ownInfractions = await prisma.infraction.findMany({
-    where: {
-      userId: session.user.id,
-      semester,
-    },
-    orderBy: { occurredAt: 'desc' },
-    include: {
-      createdBy: { select: { id: true, name: true } },
-      target: { select: { id: true, name: true } },
-    },
-  });
-
-  const ownSerialized: InfractionItem[] = ownInfractions.map((inf) => ({
-    id: inf.id,
-    type: inf.type,
-    date: inf.occurredAt.toISOString(),
-    points: inf.points,
-    target: { id: inf.target.id, name: inf.target.name },
-    createdBy: { id: inf.createdBy.id, name: inf.createdBy.name },
-    createdAt: inf.createdAt.toISOString(),
-  }));
-
-  const ownTotalPoints = ownInfractions.reduce((sum, inf) => sum + inf.points, 0);
-
-  // Load all members' scores if GP/Diretor
+  let ownSerialized: InfractionItem[] = [];
+  let ownTotalPoints = 0;
   let allMembers: MemberScore[] = [];
-  if (canViewAll) {
-    const users = await prisma.user.findMany({
-      where: { status: 'ACTIVE' },
-      select: {
-        id: true,
-        name: true,
-        area: true,
-        infractions: {
-          where: { semester },
-          select: { points: true },
-        },
-      },
-      orderBy: { name: 'asc' },
-    });
-
-    allMembers = users.map((user) => ({
-      id: user.id,
-      name: user.name,
-      area: user.area,
-      totalPoints: user.infractions.reduce(
-        (sum: number, inf: { points: number }) => sum + inf.points,
-        0,
-      ),
-    }));
-  }
-
-  // Load active users for infraction form (GP only)
   let activeUsers: { id: string; name: string }[] = [];
-  if (canCreate) {
-    activeUsers = await prisma.user.findMany({
-      where: { status: 'ACTIVE' },
-      select: { id: true, name: true },
-      orderBy: { name: 'asc' },
+
+  try {
+    // Load own infractions (all users see their own)
+    const ownInfractions = await prisma.infraction.findMany({
+      where: {
+        userId: session.user.id,
+        semester,
+      },
+      orderBy: { occurredAt: 'desc' },
+      include: {
+        createdBy: { select: { id: true, name: true } },
+        target: { select: { id: true, name: true } },
+      },
     });
+
+    ownSerialized = ownInfractions.map((inf) => ({
+      id: inf.id,
+      type: inf.type,
+      date: inf.occurredAt.toISOString(),
+      points: inf.points,
+      target: { id: inf.target.id, name: inf.target.name },
+      createdBy: { id: inf.createdBy.id, name: inf.createdBy.name },
+      createdAt: inf.createdAt.toISOString(),
+    }));
+
+    ownTotalPoints = ownInfractions.reduce((sum, inf) => sum + inf.points, 0);
+
+    // Load all members' scores if GP/Diretor
+    if (canViewAll) {
+      const users = await prisma.user.findMany({
+        where: { status: 'ACTIVE' },
+        select: {
+          id: true,
+          name: true,
+          area: true,
+          infractions: {
+            where: { semester },
+            select: { points: true },
+          },
+        },
+        orderBy: { name: 'asc' },
+      });
+
+      allMembers = users.map((user) => ({
+        id: user.id,
+        name: user.name,
+        area: user.area,
+        totalPoints: user.infractions.reduce(
+          (sum: number, inf: { points: number }) => sum + inf.points,
+          0,
+        ),
+      }));
+    }
+
+    // Load active users for infraction form (GP only)
+    if (canCreate) {
+      activeUsers = await prisma.user.findMany({
+        where: { status: 'ACTIVE' },
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+      });
+    }
+  } catch (err) {
+    console.error('[pontuacao] DB error:', err);
+    ownSerialized = [];
+    ownTotalPoints = 0;
+    allMembers = [];
+    activeUsers = [];
   }
 
   return (

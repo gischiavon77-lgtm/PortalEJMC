@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import type { AccountStatus } from '@prisma/client';
+import type { AccountStatus, UserRole, Area } from '@prisma/client';
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -53,30 +53,44 @@ export default async function AdminPage(props: AdminPageProps) {
   const search = (await Promise.resolve(props.searchParams)) ?? {};
   const currentTab = parseStatusParam(search.status);
 
-  // Buscar usuários filtrados por status
-  const users = await prisma.user.findMany({
-    where: { status: currentTab as AccountStatus },
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      status: true,
-      area: true,
-      createdAt: true,
-    },
-  });
+  let serialized: {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+    status: string;
+    area: Area | null;
+    createdAt: string;
+  }[] = [];
+  try {
+    // Buscar usuários filtrados por status
+    const users = await prisma.user.findMany({
+      where: { status: currentTab as AccountStatus },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        area: true,
+        createdAt: true,
+      },
+    });
 
-  const serialized = users.map((u) => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    role: u.role,
-    status: u.status,
-    area: u.area,
-    createdAt: u.createdAt.toISOString(),
-  }));
+    serialized = users.map((u) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      status: u.status,
+      area: u.area,
+      createdAt: u.createdAt.toISOString(),
+    }));
+  } catch (err) {
+    console.error('[admin] DB error:', err);
+    serialized = [];
+  }
 
   return <AdminShell users={serialized} currentTab={currentTab} />;
 }

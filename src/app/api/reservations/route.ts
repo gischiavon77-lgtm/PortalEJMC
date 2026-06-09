@@ -21,8 +21,6 @@ import { prisma } from '@/lib/prisma';
 import {
   createReservationSchema,
   getTodayUTC,
-  isDateFuture,
-  isDateWithin7Days,
   isNotThreeConsecutive,
   parseDate,
   RESERVATION_ERROR_MESSAGES,
@@ -140,25 +138,26 @@ async function createHandler(
   const today = getTodayUTC();
   const reservationDate = parseDate(payload.date);
 
-  // ─── Regra (a): Data estritamente futura ─────────────────────────
-  if (!isDateFuture(reservationDate, today)) {
+  // ─── Regra (a): Data deve ser HOJE ──────────────────────────────
+  if (reservationDate.getTime() !== today.getTime()) {
     return NextResponse.json(
       {
         error: true,
         code: 'VALIDATION_ERROR',
-        message: RESERVATION_ERROR_MESSAGES.dateFuture,
+        message: 'Só é possível reservar um computador para o dia de hoje.',
       },
       { status: 400 },
     );
   }
 
-  // ─── Regra (b): Dentro dos próximos 7 dias ──────────────────────
-  if (!isDateWithin7Days(reservationDate, today)) {
+  // ─── Regra: Não permitir fins de semana ─────────────────────────
+  const dayOfWeek = reservationDate.getUTCDay(); // 0=Sun, 6=Sat
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
     return NextResponse.json(
       {
         error: true,
         code: 'VALIDATION_ERROR',
-        message: RESERVATION_ERROR_MESSAGES.dateWithin7Days,
+        message: 'Não é possível reservar computadores nos fins de semana.',
       },
       { status: 400 },
     );
@@ -204,13 +203,22 @@ async function createHandler(
     );
   }
 
-  // ─── Regra (d): Sem 3 dias consecutivos ─────────────────────────
-  // Buscar todas as reservas do usuário para verificar consecutividade
+  // ─── Regra (d): Sem 3 dias consecutivos na mesma semana (Seg-Sex) ──
+  // Calcular segunda-feira da semana atual
+  const currentDayOfWeek = today.getUTCDay(); // 0=Sun, 6=Sat
+  const mondayOffset = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+  const weekMonday = new Date(today);
+  weekMonday.setUTCDate(today.getUTCDate() - mondayOffset);
+  const weekFriday = new Date(weekMonday);
+  weekFriday.setUTCDate(weekMonday.getUTCDate() + 4);
+
+  // Buscar reservas do usuário nesta semana (Seg-Sex)
   const userReservations = await prisma.reservation.findMany({
     where: {
       userId,
       reservedDate: {
-        gte: new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000),
+        gte: weekMonday,
+        lte: weekFriday,
       },
     },
     select: { reservedDate: true },

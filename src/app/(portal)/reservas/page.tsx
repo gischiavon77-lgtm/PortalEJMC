@@ -33,45 +33,64 @@ export default async function ReservasPage() {
     redirect('/login');
   }
 
-  // Calculate date range: tomorrow through 7 days from today
+  // Calculate current week (Mon-Fri) dates
   const now = new Date();
   const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
-  const startDate = new Date(today);
-  startDate.setUTCDate(startDate.getUTCDate() + 1); // tomorrow
-  const endDate = new Date(today);
-  endDate.setUTCDate(endDate.getUTCDate() + 7); // 7 days from today
+  const todayStr = today.toISOString().split('T')[0];
 
-  // Fetch reservations for the range
-  const reservations = await prisma.reservation.findMany({
-    where: {
-      reservedDate: {
-        gte: startDate,
-        lte: endDate,
-      },
-    },
-    include: {
-      user: {
-        select: { id: true, name: true },
-      },
-    },
-    orderBy: [{ reservedDate: 'asc' }, { computerId: 'asc' }],
-  });
+  // Find Monday of the current week
+  const dayOfWeek = today.getUTCDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  const monday = new Date(today);
+  monday.setUTCDate(today.getUTCDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
 
-  const serialized: ReservationItem[] = reservations.map((r) => ({
-    id: r.id,
-    computerId: r.computerId,
-    date: r.reservedDate.toISOString().split('T')[0],
-    user: { id: r.user.id, name: r.user.name },
-    createdAt: r.createdAt.toISOString(),
-  }));
-
-  // Build array of 7 dates starting from tomorrow
+  // Build Mon-Fri dates array
   const dates: string[] = [];
-  for (let i = 1; i <= 7; i++) {
-    const d = new Date(today);
-    d.setUTCDate(d.getUTCDate() + i);
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(monday);
+    d.setUTCDate(monday.getUTCDate() + i);
     dates.push(d.toISOString().split('T')[0]);
   }
 
-  return <ReservasShell reservations={serialized} dates={dates} currentUserId={session.user.id} />;
+  const startDate = new Date(monday);
+  const endDate = new Date(monday);
+  endDate.setUTCDate(monday.getUTCDate() + 4); // Friday
+
+  let serialized: ReservationItem[] = [];
+  try {
+    // Fetch reservations for Mon-Fri of current week
+    const reservations = await prisma.reservation.findMany({
+      where: {
+        reservedDate: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      include: {
+        user: {
+          select: { id: true, name: true },
+        },
+      },
+      orderBy: [{ reservedDate: 'asc' }, { computerId: 'asc' }],
+    });
+
+    serialized = reservations.map((r) => ({
+      id: r.id,
+      computerId: r.computerId,
+      date: r.reservedDate.toISOString().split('T')[0],
+      user: { id: r.user.id, name: r.user.name },
+      createdAt: r.createdAt.toISOString(),
+    }));
+  } catch (err) {
+    console.error('[reservas] DB error:', err);
+    serialized = [];
+  }
+
+  return (
+    <ReservasShell
+      reservations={serialized}
+      dates={dates}
+      currentUserId={session.user.id}
+      todayStr={todayStr}
+    />
+  );
 }

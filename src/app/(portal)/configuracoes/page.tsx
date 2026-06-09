@@ -29,28 +29,41 @@ export default async function ConfiguracoesPage() {
     redirect('/login');
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      avatarUrl: true,
-    },
-  });
+  let configUser: ConfiguracoesUser;
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        avatarUrl: true,
+      },
+    });
 
-  if (!user) {
-    redirect('/login');
+    if (!user) {
+      redirect('/login');
+    }
+
+    configUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      avatarUrl: user.avatarUrl,
+    };
+  } catch (err) {
+    console.error('[configuracoes] DB error:', err);
+    // Fallback with session data
+    configUser = {
+      id: session.user.id,
+      name: session.user.name ?? '',
+      email: session.user.email ?? '',
+      role: session.user.role ?? 'MEMBRO',
+      avatarUrl: null,
+    };
   }
-
-  const configUser: ConfiguracoesUser = {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    avatarUrl: user.avatarUrl,
-  };
 
   return (
     <section

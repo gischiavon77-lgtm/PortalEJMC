@@ -66,32 +66,41 @@ export default async function PortfolioPage(props: PortfolioPageProps) {
   const page = parsePageParam(search.page);
   const skip = (page - 1) * PAGE_SIZE;
 
-  const [services, total] = await Promise.all([
-    prisma.service.findMany({
-      orderBy: { name: 'asc' },
-      skip,
-      take: PAGE_SIZE,
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    }),
-    prisma.service.count(),
-  ]);
+  let serialized: ServiceItem[] = [];
+  let total = 0;
+  let totalPages = 1;
+  try {
+    const [services, count] = await Promise.all([
+      prisma.service.findMany({
+        orderBy: { name: 'asc' },
+        skip,
+        take: PAGE_SIZE,
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      prisma.service.count(),
+    ]);
 
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    total = count;
+    totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  // Serializa datas para ISO strings (necessário para Client Components).
-  const serialized: ServiceItem[] = services.map((s) => ({
-    id: s.id,
-    name: s.name,
-    description: s.description,
-    createdAt: s.createdAt.toISOString(),
-    updatedAt: s.updatedAt.toISOString(),
-  }));
+    // Serializa datas para ISO strings (necessário para Client Components).
+    serialized = services.map((s) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+      createdAt: s.createdAt.toISOString(),
+      updatedAt: s.updatedAt.toISOString(),
+    }));
+  } catch (err) {
+    console.error('[portfolio] DB error:', err);
+    serialized = [];
+  }
 
   return (
     <PortfolioShell

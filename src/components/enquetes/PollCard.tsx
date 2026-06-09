@@ -61,7 +61,7 @@ export function PollCard({ poll, canClose, onVote, onClose }: PollCardProps) {
   const totalVotes = poll.options.reduce((sum, opt) => sum + opt.voteCount, 0);
   const isActive = poll.status === 'ACTIVE';
   const hasVoted = poll.userVotedOptionId !== null;
-  const canVote = isActive && !hasVoted;
+  const canVote = isActive; // Users can vote or change their vote
 
   async function handleVote(optionId: string) {
     setVotingOptionId(optionId);
@@ -137,13 +137,16 @@ export function PollCard({ poll, canClose, onVote, onClose }: PollCardProps) {
                   isSelected
                     ? 'border-red-core bg-red-core/5 ring-1 ring-red-core/20'
                     : 'border-border-light bg-surface-bg',
-                  canVote ? 'cursor-pointer hover:border-red-core/40 hover:bg-red-core/5' : '',
+                  canVote && !isSelected
+                    ? 'cursor-pointer hover:border-red-core/40 hover:bg-red-core/5'
+                    : '',
+                  canVote && isSelected ? 'cursor-pointer' : '',
                 ].join(' ')}
-                onClick={canVote ? () => handleVote(option.id) : undefined}
-                role={canVote ? 'button' : undefined}
-                tabIndex={canVote ? 0 : undefined}
+                onClick={canVote && !isSelected ? () => handleVote(option.id) : undefined}
+                role={canVote && !isSelected ? 'button' : undefined}
+                tabIndex={canVote && !isSelected ? 0 : undefined}
                 onKeyDown={
-                  canVote
+                  canVote && !isSelected
                     ? (e) => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault();
@@ -152,8 +155,14 @@ export function PollCard({ poll, canClose, onVote, onClose }: PollCardProps) {
                       }
                     : undefined
                 }
-                aria-pressed={canVote ? false : undefined}
-                aria-label={canVote ? `Votar em: ${option.text}` : undefined}
+                aria-pressed={canVote ? isSelected : undefined}
+                aria-label={
+                  canVote && !isSelected
+                    ? `Votar em: ${option.text}`
+                    : isSelected
+                      ? `Seu voto atual: ${option.text}`
+                      : undefined
+                }
               >
                 {/* Progress bar background */}
                 {(hasVoted || !isActive) && (

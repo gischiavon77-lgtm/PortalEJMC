@@ -20,6 +20,7 @@ export interface ReservationGridProps {
   dates: string[];
   currentUserId: string;
   onCellClick: (computerId: number, date: string, reservation?: ReservationItem) => void;
+  todayStr: string;
 }
 
 const COMPUTERS = [1, 2, 3, 4, 5, 6, 7];
@@ -30,6 +31,7 @@ export function ReservationGrid({
   dates,
   currentUserId,
   onCellClick,
+  todayStr,
 }: ReservationGridProps) {
   // Build a lookup map: `${computerId}-${date}` → reservation
   const reservationMap = useMemo(() => {
@@ -71,12 +73,17 @@ export function ReservationGrid({
               const dayNum = date.split('-')[2];
               const monthNum = date.split('-')[1];
               const isFullyBooked = fullyBookedDays.has(date);
+              const isToday = date === todayStr;
 
               return (
                 <th
                   key={date}
                   className={`border-b border-border-light px-2 py-2.5 text-center text-xs font-medium ${
-                    isFullyBooked ? 'bg-red-50 text-red-700' : 'bg-surface-bg text-text-secondary'
+                    isToday
+                      ? 'bg-blue-50 text-blue-800 ring-2 ring-inset ring-blue-300'
+                      : isFullyBooked
+                        ? 'bg-red-50 text-red-700'
+                        : 'bg-surface-bg text-text-secondary'
                   }`}
                 >
                   <div className="flex flex-col items-center">
@@ -85,7 +92,10 @@ export function ReservationGrid({
                       {dayNum}/{monthNum}
                     </span>
                   </div>
-                  {isFullyBooked && (
+                  {isToday && (
+                    <span className="mt-0.5 block text-[9px] font-medium text-blue-600">HOJE</span>
+                  )}
+                  {isFullyBooked && !isToday && (
                     <span className="mt-0.5 block text-[9px] font-medium text-red-600">LOTADO</span>
                   )}
                 </th>
@@ -104,6 +114,7 @@ export function ReservationGrid({
                 const reservation = reservationMap.get(key);
                 const isFullyBooked = fullyBookedDays.has(date);
                 const isOwn = reservation?.user.id === currentUserId;
+                const isToday = date === todayStr;
 
                 return (
                   <td key={key} className="border-b border-border-light p-1">
@@ -111,6 +122,7 @@ export function ReservationGrid({
                       reservation={reservation}
                       isOwn={isOwn}
                       isFullyBooked={isFullyBooked}
+                      isToday={isToday}
                       computerId={pc}
                       date={date}
                       onCellClick={onCellClick}
@@ -132,6 +144,7 @@ interface CellButtonProps {
   reservation?: ReservationItem;
   isOwn: boolean;
   isFullyBooked: boolean;
+  isToday: boolean;
   computerId: number;
   date: string;
   onCellClick: (computerId: number, date: string, reservation?: ReservationItem) => void;
@@ -141,20 +154,26 @@ function CellButton({
   reservation,
   isOwn,
   isFullyBooked,
+  isToday,
   computerId,
   date,
   onCellClick,
 }: CellButtonProps) {
   if (reservation) {
     if (isOwn) {
-      // Own reservation - blue, clickable to cancel
+      // Own reservation - blue, clickable only if today
       return (
         <button
           type="button"
           onClick={() => onCellClick(computerId, date, reservation)}
-          className="flex h-10 w-full items-center justify-center rounded border border-blue-300 bg-blue-100 text-[10px] font-medium text-blue-800 transition-colors hover:bg-blue-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-          title="Sua reserva — clique para cancelar"
-          aria-label={`Sua reserva no PC ${computerId} em ${date}. Clique para cancelar.`}
+          disabled={!isToday}
+          className={`flex h-10 w-full items-center justify-center rounded border border-blue-300 bg-blue-100 text-[10px] font-medium text-blue-800 transition-colors ${
+            isToday
+              ? 'hover:bg-blue-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400'
+              : 'opacity-70 cursor-not-allowed'
+          }`}
+          title={isToday ? 'Sua reserva — clique para cancelar' : 'Sua reserva'}
+          aria-label={`Sua reserva no PC ${computerId} em ${date}.${isToday ? ' Clique para cancelar.' : ''}`}
         >
           Você
         </button>
@@ -175,13 +194,25 @@ function CellButton({
 
   // Available slot
   if (isFullyBooked) {
-    // Shouldn't happen (if fully booked, all cells are taken), but guard
     return (
       <div
         className="flex h-10 w-full items-center justify-center rounded border border-red-200 bg-red-50 text-[10px] text-red-400"
         aria-label={`Dia lotado — PC ${computerId} em ${date}`}
       >
         —
+      </div>
+    );
+  }
+
+  // Only today's slots are clickable
+  if (!isToday) {
+    return (
+      <div
+        className="flex h-10 w-full items-center justify-center rounded border border-green-100 bg-green-50/50 text-[10px] font-medium text-green-500 opacity-60 cursor-not-allowed"
+        title="Disponível (somente reservas para hoje)"
+        aria-label={`Disponível — PC ${computerId} em ${date}. Somente reservas para hoje.`}
+      >
+        Livre
       </div>
     );
   }

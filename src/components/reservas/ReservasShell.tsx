@@ -20,9 +20,15 @@ export interface ReservasShellProps {
   reservations: ReservationItem[];
   dates: string[];
   currentUserId: string;
+  todayStr: string;
 }
 
-export function ReservasShell({ reservations, dates, currentUserId }: ReservasShellProps) {
+export function ReservasShell({
+  reservations,
+  dates,
+  currentUserId,
+  todayStr,
+}: ReservasShellProps) {
   const router = useRouter();
 
   // Modal states
@@ -63,6 +69,12 @@ export function ReservasShell({ reservations, dates, currentUserId }: ReservasSh
   // ─── Handlers ──────────────────────────────────────────────────────
 
   function handleCellClick(computerId: number, date: string, reservation?: ReservationItem) {
+    // Only allow interaction on today's date
+    if (date !== todayStr) {
+      showToast('Só é possível reservar um computador para o dia de hoje.', 'error');
+      return;
+    }
+
     if (reservation) {
       // It's a reservation
       if (reservation.user.id === currentUserId) {
@@ -182,6 +194,7 @@ export function ReservasShell({ reservations, dates, currentUserId }: ReservasSh
         dates={dates}
         currentUserId={currentUserId}
         onCellClick={handleCellClick}
+        todayStr={todayStr}
       />
 
       {/* Confirmation Modal — Reserve (Task 17.5) */}

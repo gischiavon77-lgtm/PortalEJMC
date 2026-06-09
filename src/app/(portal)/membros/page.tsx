@@ -62,8 +62,7 @@ function normalizeArea(raw: string | undefined): Area | null {
 
 export const metadata: Metadata = {
   title: 'Membros',
-  description:
-    'Diretório de membros ativos do Portal Interno EJMC — nome, cargo e área.',
+  description: 'Diretório de membros ativos do Portal Interno EJMC — nome, cargo e área.',
 };
 
 // Membros mudam quando o admin aprova/rejeita contas ou altera
@@ -72,9 +71,7 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 interface MembrosPageProps {
-  searchParams?:
-    | Promise<{ area?: string | string[] }>
-    | { area?: string | string[] };
+  searchParams?: Promise<{ area?: string | string[] }> | { area?: string | string[] };
 }
 
 export default async function MembrosPage(props: MembrosPageProps) {
@@ -89,38 +86,42 @@ export default async function MembrosPage(props: MembrosPageProps) {
   const rawArea = Array.isArray(search.area) ? search.area[0] : search.area;
   const currentArea = normalizeArea(rawArea);
 
-  const where: { status: 'ACTIVE'; area?: Area } = { status: 'ACTIVE' };
-  if (currentArea) {
-    where.area = currentArea;
+  let members: MemberItem[] = [];
+  try {
+    const where: { status: 'ACTIVE'; area?: Area } = { status: 'ACTIVE' };
+    if (currentArea) {
+      where.area = currentArea;
+    }
+
+    const dbMembers = await prisma.user.findMany({
+      where,
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        area: true,
+        position: true,
+        avatarUrl: true,
+      },
+    });
+
+    // Re-ordena com `localeCompare` para que nomes com acentos sigam a
+    // ordem natural pt-BR. Mesmo critério do API Route — manter
+    // espelhado preserva a Property 13.
+    members = dbMembers
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }))
+      .map((m) => ({
+        id: m.id,
+        name: m.name,
+        area: m.area,
+        position: m.position,
+        avatarUrl: m.avatarUrl,
+      }));
+  } catch (err) {
+    console.error('[membros] DB error:', err);
+    members = [];
   }
-
-  const dbMembers = await prisma.user.findMany({
-    where,
-    orderBy: { name: 'asc' },
-    select: {
-      id: true,
-      name: true,
-      area: true,
-      position: true,
-      avatarUrl: true,
-    },
-  });
-
-  // Re-ordena com `localeCompare` para que nomes com acentos sigam a
-  // ordem natural pt-BR. Mesmo critério do API Route — manter
-  // espelhado preserva a Property 13.
-  const members: MemberItem[] = dbMembers
-    .slice()
-    .sort((a, b) =>
-      a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }),
-    )
-    .map((m) => ({
-      id: m.id,
-      name: m.name,
-      area: m.area,
-      position: m.position,
-      avatarUrl: m.avatarUrl,
-    }));
 
   return <MembrosShell members={members} currentArea={currentArea} />;
 }

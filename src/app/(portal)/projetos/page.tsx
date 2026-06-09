@@ -76,38 +76,47 @@ export default async function ProjetosPage(props: ProjetosPageProps) {
   const page = parsePageParam(search.page);
   const skip = (page - 1) * PAGE_SIZE;
 
-  const where: { status?: ProjectStatus } = {};
-  if (currentStatus) {
-    where.status = currentStatus;
+  let serialized: ProjectItem[] = [];
+  let total = 0;
+  let totalPages = 1;
+  try {
+    const where: { status?: ProjectStatus } = {};
+    if (currentStatus) {
+      where.status = currentStatus;
+    }
+
+    const [projects, count] = await Promise.all([
+      prisma.project.findMany({
+        where,
+        orderBy: { name: 'asc' },
+        skip,
+        take: PAGE_SIZE,
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          createdAt: true,
+        },
+      }),
+      prisma.project.count({ where }),
+    ]);
+
+    total = count;
+    totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+    serialized = projects
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }))
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        status: p.status,
+        createdAt: p.createdAt.toISOString(),
+      }));
+  } catch (err) {
+    console.error('[projetos] DB error:', err);
+    serialized = [];
   }
-
-  const [projects, total] = await Promise.all([
-    prisma.project.findMany({
-      where,
-      orderBy: { name: 'asc' },
-      skip,
-      take: PAGE_SIZE,
-      select: {
-        id: true,
-        name: true,
-        status: true,
-        createdAt: true,
-      },
-    }),
-    prisma.project.count({ where }),
-  ]);
-
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-  const serialized: ProjectItem[] = projects
-    .slice()
-    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }))
-    .map((p) => ({
-      id: p.id,
-      name: p.name,
-      status: p.status,
-      createdAt: p.createdAt.toISOString(),
-    }));
 
   return (
     <ProjectsShell

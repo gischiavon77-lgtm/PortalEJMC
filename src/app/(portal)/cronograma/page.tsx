@@ -1,10 +1,7 @@
 import type { Metadata } from 'next';
 
 import { prisma } from '@/lib/prisma';
-import {
-  parseMonthKey,
-  type CalendarEvent,
-} from '@/components/cronograma/calendar-utils';
+import { parseMonthKey, type CalendarEvent } from '@/components/cronograma/calendar-utils';
 import { CronogramaShell } from '@/components/cronograma/CronogramaShell';
 
 /**
@@ -67,18 +64,14 @@ interface CronogramaPageProps {
  * `?month=2025-99` é tratado como inválido e cai no mês corrente,
  * sem redirecionar — preserva URLs colaveis sem efeitos colaterais.
  */
-function resolveSelectedMonth(searchParams?: {
-  month?: string;
-}): { year: number; month: number } {
+function resolveSelectedMonth(searchParams?: { month?: string }): { year: number; month: number } {
   const parsed = parseMonthKey(searchParams?.month);
   if (parsed) return parsed;
   const now = new Date();
   return { year: now.getFullYear(), month: now.getMonth() };
 }
 
-export default async function CronogramaPage({
-  searchParams,
-}: CronogramaPageProps) {
+export default async function CronogramaPage({ searchParams }: CronogramaPageProps) {
   const { year, month } = resolveSelectedMonth(searchParams);
 
   // Busca eventos cujo INTERVALO intersecta a janela do mês visível.
@@ -94,37 +87,38 @@ export default async function CronogramaPage({
   const rangeStart = new Date(start.getFullYear(), start.getMonth(), 1 - 7);
   const rangeEnd = new Date(start.getFullYear(), start.getMonth() + 1, 1 + 7);
 
-  const dbEvents = await prisma.event.findMany({
-    where: {
-      AND: [
-        { startsAt: { lt: rangeEnd } },
-        { endsAt: { gt: rangeStart } },
-      ],
-    },
-    orderBy: { startsAt: 'asc' },
-    select: {
-      id: true,
-      title: true,
-      startsAt: true,
-      endsAt: true,
-      syncStatus: true,
-      createdById: true,
-    },
-  });
+  let events: CalendarEvent[] = [];
+  try {
+    const dbEvents = await prisma.event.findMany({
+      where: {
+        AND: [{ startsAt: { lt: rangeEnd } }, { endsAt: { gt: rangeStart } }],
+      },
+      orderBy: { startsAt: 'asc' },
+      select: {
+        id: true,
+        title: true,
+        startsAt: true,
+        endsAt: true,
+        syncStatus: true,
+        createdById: true,
+      },
+    });
 
-  // Serializa as datas para strings ISO — o `CronogramaShell` é um
-  // Client Component e queremos passar dados serializáveis (Next.js
-  // já faz isso, mas explicitar deixa o contrato visível).
-  const events: CalendarEvent[] = dbEvents.map((e) => ({
-    id: e.id,
-    title: e.title,
-    startsAt: e.startsAt.toISOString(),
-    endsAt: e.endsAt.toISOString(),
-    syncStatus: e.syncStatus,
-    createdById: e.createdById,
-  }));
+    // Serializa as datas para strings ISO — o `CronogramaShell` é um
+    // Client Component e queremos passar dados serializáveis (Next.js
+    // já faz isso, mas explicitar deixa o contrato visível).
+    events = dbEvents.map((e) => ({
+      id: e.id,
+      title: e.title,
+      startsAt: e.startsAt.toISOString(),
+      endsAt: e.endsAt.toISOString(),
+      syncStatus: e.syncStatus,
+      createdById: e.createdById,
+    }));
+  } catch (err) {
+    console.error('[cronograma] DB error:', err);
+    events = [];
+  }
 
-  return (
-    <CronogramaShell year={year} month={month} events={events} />
-  );
+  return <CronogramaShell year={year} month={month} events={events} />;
 }
