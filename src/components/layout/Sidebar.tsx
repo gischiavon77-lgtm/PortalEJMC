@@ -66,16 +66,9 @@ import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import type { Area, UserRole } from '@prisma/client';
 
-import {
-  hasPermission,
-  type PermissionUser,
-} from '@/lib/permissions';
+import { hasPermission, type PermissionUser } from '@/lib/permissions';
 
-import {
-  MENU_ITEMS,
-  type SidebarIconName,
-  type SidebarItem,
-} from './sidebar-items';
+import { MENU_ITEMS, type SidebarIconName, type SidebarItem } from './sidebar-items';
 
 interface SidebarProps {
   /**
@@ -147,7 +140,7 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
       <div className="flex flex-col items-center border-b border-white/[0.08] px-4 py-6">
         <div className="logo-emblem h-14 w-14">
           <Image
-            src="/logoejmc.png"
+            src="/logoejmc.svg"
             alt="Logo EJMC"
             width={56}
             height={56}
@@ -155,9 +148,7 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
             priority
           />
         </div>
-        <p className="mt-3 font-heading text-base font-bold tracking-[-0.3px] text-white">
-          EJMC
-        </p>
+        <p className="mt-3 font-heading text-base font-bold tracking-[-0.3px] text-white">EJMC</p>
         <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[2px] text-white/40">
           Portal Interno
         </p>
@@ -167,8 +158,7 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
       <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Navegação principal">
         <ul className="flex flex-col gap-0.5">
           {visibleItems.map((item) => {
-            const isActive =
-              pathname === item.href || pathname?.startsWith(`${item.href}/`);
+            const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
 
             return (
               <li key={item.href}>

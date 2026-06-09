@@ -48,7 +48,7 @@ export default function CadastroPage() {
       <header className="mb-8 flex flex-col items-center text-center animate-fade-up opacity-0 [animation-delay:0.15s]">
         <div className="logo-emblem h-[100px] w-[100px]">
           <Image
-            src="/logoejmc.png"
+            src="/logoejmc.svg"
             alt="Logo EJMC"
             width={120}
             height={120}
@@ -66,8 +66,8 @@ export default function CadastroPage() {
           Portal Interno
         </p>
         <p className="mt-3 max-w-[18rem] text-[13px] leading-relaxed text-white/45">
-          Preencha seus dados para solicitar acesso. Sua conta passará por
-          aprovação de um administrador.
+          Preencha seus dados para solicitar acesso. Sua conta passará por aprovação de um
+          administrador.
         </p>
       </header>
 

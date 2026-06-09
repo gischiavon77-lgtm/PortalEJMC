@@ -148,7 +148,7 @@ export default function ForbiddenPage() {
           <header className="mb-8 flex flex-col items-center text-center animate-fade-up opacity-0 [animation-delay:0.15s]">
             <div className="logo-emblem h-[100px] w-[100px]">
               <Image
-                src="/logoejmc.png"
+                src="/logoejmc.svg"
                 alt="Logo EJMC"
                 width={120}
                 height={120}
@@ -166,18 +166,14 @@ export default function ForbiddenPage() {
               Acesso restrito
             </h1>
             <p className="mt-4 max-w-[20rem] text-[14px] leading-relaxed text-white/55 text-balance">
-              Você não tem permissão para acessar esta página. Se acredita que
-              isso é um engano, entre em contato com um administrador.
+              Você não tem permissão para acessar esta página. Se acredita que isso é um engano,
+              entre em contato com um administrador.
             </p>
           </header>
 
           {/* ─── Ações (voltar / sair) ─── */}
           <div className="flex flex-col gap-3 animate-fade-up opacity-0 [animation-delay:0.28s]">
-            <Link
-              href="/dashboard"
-              className="btn-light"
-              prefetch={false}
-            >
+            <Link href="/dashboard" className="btn-light" prefetch={false}>
               Voltar ao Dashboard
               <svg
                 viewBox="0 0 24 24"

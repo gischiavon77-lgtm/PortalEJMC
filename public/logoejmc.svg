@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="24" fill="#1a0a0d"/>
+  <path d="M35 140 L55 60 L80 110 L105 60 L125 140" stroke="#c0182e" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="132" y="120" font-family="serif" font-size="36" font-style="italic" fill="#c0182e" opacity="0.85">Jr.</text>
+</svg>
