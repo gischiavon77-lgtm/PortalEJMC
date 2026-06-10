@@ -26,8 +26,8 @@ const AREAS: Area[] = [
   {
     id: 'marketing',
     name: 'MARKETING',
-    emoji: '🦅',
-    gradient: 'from-purple-500 to-purple-700',
+    emoji: '📢',
+    gradient: 'from-pink-500 to-rose-600',
     services: [
       {
         name: 'Plano de Marketing',
@@ -82,10 +82,73 @@ const AREAS: Area[] = [
     ],
   },
   {
-    id: 'projetos',
-    name: 'PROJETOS',
-    emoji: '🐙',
-    gradient: 'from-orange-500 to-orange-700',
+    id: 'inteligencia-mercado',
+    name: 'INTELIGÊNCIA DE MERCADO',
+    emoji: '🔍',
+    gradient: 'from-blue-500 to-indigo-600',
+    services: [
+      {
+        name: 'Pesquisa de Mercado',
+        description: 'Estudo do segmento, público, concorrentes.',
+        objective: 'Gerar dados para decisões estratégicas.',
+        macroSteps: ['Definição do escopo', 'Coleta de dados', 'Análise', 'Relatório'],
+      },
+      {
+        name: 'Diagnóstico de Negócio',
+        description: 'Avaliação 360° das áreas do negócio.',
+        objective: 'Identificar pontos fortes e gargalos.',
+        macroSteps: ['Entrevista', 'Análise interna', 'Benchmarking', 'Plano de ação'],
+      },
+      {
+        name: 'CRM',
+        description: 'Implementação de sistemas de gestão de relacionamento com clientes.',
+        objective: 'Organizar a jornada do lead ao cliente.',
+        macroSteps: ['Mapeamento', 'Escolha de ferramenta', 'Configuração', 'Treinamento'],
+      },
+    ],
+  },
+  {
+    id: 'operacoes',
+    name: 'OPERAÇÕES',
+    emoji: '⚙️',
+    gradient: 'from-emerald-500 to-green-600',
+    services: [
+      {
+        name: 'Plano de Cargos e Salários',
+        description: 'Estruturação de níveis, faixas salariais e critérios de promoção.',
+        objective: 'Criar equidade e transparência na remuneração.',
+        macroSteps: [
+          'Mapeamento de cargos',
+          'Pesquisa salarial',
+          'Definição de faixas',
+          'Documento final',
+        ],
+      },
+      {
+        name: 'PDI (Plano de Desenvolvimento Individual)',
+        description: 'Ferramenta de acompanhamento de crescimento dos colaboradores.',
+        objective: 'Alinhar desenvolvimento pessoal com metas da empresa.',
+        macroSteps: ['Diagnóstico', 'Definição de metas', 'Cronograma', 'Acompanhamento'],
+      },
+      {
+        name: 'Pesquisa de Clima Organizacional',
+        description: 'Medição de satisfação e engajamento interno.',
+        objective: 'Entender o sentimento do time e direcionar melhorias.',
+        macroSteps: ['Elaboração do questionário', 'Aplicação', 'Análise', 'Plano de ação'],
+      },
+      {
+        name: 'Processo Seletivo',
+        description: 'Estruturação e execução de recrutamento e seleção.',
+        objective: 'Atrair e selecionar talentos alinhados à cultura.',
+        macroSteps: ['Job description', 'Divulgação', 'Triagem', 'Entrevistas', 'Decisão'],
+      },
+    ],
+  },
+  {
+    id: 'tech',
+    name: 'TECH',
+    emoji: '💻',
+    gradient: 'from-violet-500 to-purple-700',
     services: [
       {
         name: 'Site Institucional',
@@ -147,10 +210,42 @@ const AREAS: Area[] = [
     ],
   },
   {
-    id: 'adm-fin',
-    name: 'ADM-FIN',
-    emoji: '🦁',
-    gradient: 'from-yellow-500 to-amber-600',
+    id: 'estrategia',
+    name: 'ESTRATÉGIA DE NOVOS NEGÓCIOS',
+    emoji: '🚀',
+    gradient: 'from-amber-500 to-orange-600',
+    services: [
+      {
+        name: 'Planejamento Estratégico',
+        description: 'Definição de visão, missão, valores, OKRs e roadmap.',
+        objective: 'Alinhar toda a organização em torno de metas claras.',
+        macroSteps: [
+          'Diagnóstico',
+          'Definição de missão e visão',
+          'OKRs',
+          'Roadmap',
+          'Alinhamento',
+        ],
+      },
+      {
+        name: 'Canvas e Modelagem de Negócio',
+        description: 'Framework visual para estruturar ou pivotar modelos de negócio.',
+        objective: 'Organizar proposta de valor, canais, receitas e parcerias num único quadro.',
+        macroSteps: ['Workshop', 'Preenchimento', 'Validação', 'Iteração'],
+      },
+      {
+        name: 'Mentoria Empresarial',
+        description: 'Acompanhamento próximo com foco em decisões estratégicas.',
+        objective: 'Acelerar resultados com experiência direcionada.',
+        macroSteps: ['Mapeamento', 'Sessões periódicas', 'Feedbacks', 'Ajustes'],
+      },
+    ],
+  },
+  {
+    id: 'financeiro',
+    name: 'FINANCEIRO',
+    emoji: '💰',
+    gradient: 'from-teal-500 to-cyan-600',
     services: [
       {
         name: 'Planejamento Financeiro',
@@ -179,101 +274,6 @@ const AREAS: Area[] = [
         description: 'Organização de fluxo de caixa, DRE e controles internos.',
         objective: 'Criar bases sólidas para decisões financeiras.',
         macroSteps: ['Diagnóstico atual', 'Modelagem', 'Implementação', 'Treinamento'],
-      },
-    ],
-  },
-  {
-    id: 'vendas',
-    name: 'VENDAS',
-    emoji: '🦈',
-    gradient: 'from-teal-400 to-teal-600',
-    services: [
-      {
-        name: 'Pesquisa de Mercado',
-        description: 'Estudo do segmento, público, concorrentes.',
-        objective: 'Gerar dados para decisões estratégicas.',
-        macroSteps: ['Definição do escopo', 'Coleta de dados', 'Análise', 'Relatório'],
-      },
-      {
-        name: 'Diagnóstico de Negócio',
-        description: 'Avaliação 360° das áreas do negócio.',
-        objective: 'Identificar pontos fortes e gargalos.',
-        macroSteps: ['Entrevista', 'Análise interna', 'Benchmarking', 'Plano de ação'],
-      },
-      {
-        name: 'CRM',
-        description: 'Implementação de sistemas de gestão de relacionamento com clientes.',
-        objective: 'Organizar a jornada do lead ao cliente.',
-        macroSteps: ['Mapeamento', 'Escolha de ferramenta', 'Configuração', 'Treinamento'],
-      },
-      {
-        name: 'Canvas e Modelagem de Negócio',
-        description: 'Framework visual para estruturar ou pivotar modelos de negócio.',
-        objective: 'Organizar proposta de valor, canais, receitas e parcerias num único quadro.',
-        macroSteps: ['Workshop', 'Preenchimento', 'Validação', 'Iteração'],
-      },
-    ],
-  },
-  {
-    id: 'gestao-pessoas',
-    name: 'GESTÃO DE PESSOAS',
-    emoji: '🐬',
-    gradient: 'from-sky-400 to-sky-600',
-    services: [
-      {
-        name: 'Plano de Cargos e Salários',
-        description: 'Estruturação de níveis, faixas salariais e critérios de promoção.',
-        objective: 'Criar equidade e transparência na remuneração.',
-        macroSteps: [
-          'Mapeamento de cargos',
-          'Pesquisa salarial',
-          'Definição de faixas',
-          'Documento final',
-        ],
-      },
-      {
-        name: 'PDI (Plano de Desenvolvimento Individual)',
-        description: 'Ferramenta de acompanhamento de crescimento dos colaboradores.',
-        objective: 'Alinhar desenvolvimento pessoal com metas da empresa.',
-        macroSteps: ['Diagnóstico', 'Definição de metas', 'Cronograma', 'Acompanhamento'],
-      },
-      {
-        name: 'Pesquisa de Clima Organizacional',
-        description: 'Medição de satisfação e engajamento interno.',
-        objective: 'Entender o sentimento do time e direcionar melhorias.',
-        macroSteps: ['Elaboração do questionário', 'Aplicação', 'Análise', 'Plano de ação'],
-      },
-      {
-        name: 'Processo Seletivo',
-        description: 'Estruturação e execução de recrutamento e seleção.',
-        objective: 'Atrair e selecionar talentos alinhados à cultura.',
-        macroSteps: ['Job description', 'Divulgação', 'Triagem', 'Entrevistas', 'Decisão'],
-      },
-    ],
-  },
-  {
-    id: 'presidencia',
-    name: 'PRESIDÊNCIA',
-    emoji: '🐘',
-    gradient: 'from-red-800 to-red-950',
-    services: [
-      {
-        name: 'Planejamento Estratégico',
-        description: 'Definição de visão, missão, valores, OKRs e roadmap.',
-        objective: 'Alinhar toda a organização em torno de metas claras.',
-        macroSteps: [
-          'Diagnóstico',
-          'Definição de missão e visão',
-          'OKRs',
-          'Roadmap',
-          'Alinhamento',
-        ],
-      },
-      {
-        name: 'Mentoria Empresarial',
-        description: 'Acompanhamento próximo com foco em decisões estratégicas.',
-        objective: 'Acelerar resultados com experiência direcionada.',
-        macroSteps: ['Mapeamento', 'Sessões periódicas', 'Feedbacks', 'Ajustes'],
       },
     ],
   },
