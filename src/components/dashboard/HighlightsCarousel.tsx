@@ -74,6 +74,24 @@ export function HighlightsCarousel() {
     scrollRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
   };
 
+  // Auto-scroll: avança a cada 4 segundos, pausa ao interagir
+  useEffect(() => {
+    if (loading) return;
+
+    const interval = setInterval(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (el.scrollLeft >= maxScroll - 10) {
+        el.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        el.scrollBy({ left: 300, behavior: 'smooth' });
+      }
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [loading]);
+
   return (
     <section className="w-full bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8">
       {/* Title */}
