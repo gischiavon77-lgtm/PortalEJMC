@@ -34,9 +34,14 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translate(-50%, -8px)' },
           '100%': { opacity: '1', transform: 'translate(-50%, 0)' },
         },
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
       },
       animation: {
         'toast-in': 'toast-in 0.3s ease-out forwards',
+        marquee: 'marquee 30s linear infinite',
       },
     },
   },

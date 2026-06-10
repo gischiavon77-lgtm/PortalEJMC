@@ -8,7 +8,7 @@
  * Admin/Diretor podem fazer upload/editar os destaques via modal inline.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { usePermission } from '@/hooks/usePermission';
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -33,7 +33,7 @@ const SLOTS: SlotConfig[] = [
   { slot: 'coordenador', label: 'COORDENADOR DESTAQUE', aspectRatio: 'aspect-[5/7]' },
   { slot: 'assessor', label: 'ASSESSOR DESTAQUE', aspectRatio: 'aspect-[5/7]' },
   { slot: 'gerente', label: 'GERENTE DESTAQUE', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'equipe', label: 'EQUIPE DESTAQUE', aspectRatio: 'aspect-video' },
+  { slot: 'equipe', label: 'EQUIPE DESTAQUE', aspectRatio: 'aspect-[5/7]' },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────
@@ -42,7 +42,6 @@ export function HighlightsCarousel() {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingSlot, setEditingSlot] = useState<string | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   const { allowed: canManage } = usePermission('album:manage');
 
@@ -66,75 +65,41 @@ export function HighlightsCarousel() {
 
   const getHighlight = (slot: string) => highlights.find((h) => h.slot === slot) ?? null;
 
-  const scrollLeft = () => {
-    scrollRef.current?.scrollBy({ left: -300, behavior: 'smooth' });
-  };
-
-  const scrollRight = () => {
-    scrollRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
-  };
-
-  // Auto-scroll: avança a cada 4 segundos, pausa ao interagir
-  useEffect(() => {
-    if (loading) return;
-
-    const interval = setInterval(() => {
-      const el = scrollRef.current;
-      if (!el) return;
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      if (el.scrollLeft >= maxScroll - 10) {
-        el.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: 300, behavior: 'smooth' });
-      }
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [loading]);
+  // Auto-scroll removido — usamos animação CSS marquee infinita
 
   return (
-    <section className="w-full bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8">
+    <section className="w-full bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Title */}
       <h2 className="mb-8 text-center font-heading text-2xl font-bold tracking-wide text-white sm:text-3xl">
         ✨ DESTAQUES
       </h2>
 
-      {/* Carousel wrapper */}
-      <div className="relative mx-auto max-w-7xl">
-        {/* Left arrow */}
-        <button
-          onClick={scrollLeft}
-          aria-label="Rolar para esquerda"
-          className="absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white backdrop-blur-sm transition hover:bg-white/20 hidden sm:flex"
-        >
-          <ChevronLeftIcon />
-        </button>
-
-        {/* Right arrow */}
-        <button
-          onClick={scrollRight}
-          aria-label="Rolar para direita"
-          className="absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white backdrop-blur-sm transition hover:bg-white/20 hidden sm:flex"
-        >
-          <ChevronRightIcon />
-        </button>
-
-        {/* Scrollable container */}
-        <div
-          ref={scrollRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 px-8 sm:px-12 scrollbar-hide"
-        >
+      {/* Infinite marquee carousel */}
+      <div className="relative mx-auto max-w-7xl overflow-hidden">
+        <div className="flex animate-marquee gap-6 w-max">
+          {/* First set */}
           {loading
-            ? SLOTS.map((s) => <SkeletonCard key={s.slot} config={s} />)
+            ? SLOTS.map((s) => <SkeletonCard key={`a-${s.slot}`} config={s} />)
             : SLOTS.map((s) => (
                 <HighlightCard
-                  key={s.slot}
+                  key={`a-${s.slot}`}
                   config={s}
                   highlight={getHighlight(s.slot)}
                   canManage={canManage}
                   onEdit={() => setEditingSlot(s.slot)}
                 />
               ))}
+          {/* Duplicated set for seamless loop */}
+          {!loading &&
+            SLOTS.map((s) => (
+              <HighlightCard
+                key={`b-${s.slot}`}
+                config={s}
+                highlight={getHighlight(s.slot)}
+                canManage={canManage}
+                onEdit={() => setEditingSlot(s.slot)}
+              />
+            ))}
         </div>
       </div>
 
@@ -416,42 +381,6 @@ function UploadModal({
 }
 
 // ─── Icons ───────────────────────────────────────────────────────────
-
-function ChevronLeftIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="15 18 9 12 15 6" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="9 18 15 12 9 6" />
-    </svg>
-  );
-}
 
 function PlusIcon() {
   return (
