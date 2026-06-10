@@ -33,7 +33,11 @@ const SLOTS: SlotConfig[] = [
   { slot: 'coordenador', label: 'COORDENADOR DESTAQUE', aspectRatio: 'aspect-[5/7]' },
   { slot: 'assessor', label: 'ASSESSOR DESTAQUE', aspectRatio: 'aspect-[5/7]' },
   { slot: 'gerente', label: 'GERENTE DESTAQUE', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'equipe', label: 'EQUIPE DESTAQUE', aspectRatio: 'aspect-[5/7]' },
+  {
+    slot: 'equipe',
+    label: 'EQUIPE DESTAQUE',
+    aspectRatio: 'aspect-[5/7] sm:aspect-auto sm:h-[360px]',
+  },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────
@@ -135,7 +139,9 @@ function HighlightCard({
   const hasPhoto = !!highlight?.photoUrl;
 
   return (
-    <div className="flex-shrink-0 snap-center w-56 sm:w-64">
+    <div
+      className={`flex-shrink-0 snap-center ${config.slot === 'equipe' ? 'w-80 sm:w-[400px]' : 'w-56 sm:w-64'}`}
+    >
       <div className="relative flex flex-col items-center rounded-2xl bg-[#1a1a1a] border border-white/5 p-4 transition hover:border-white/10">
         {/* Glow effect */}
         <div className="relative w-full">
