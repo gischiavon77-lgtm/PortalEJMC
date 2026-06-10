@@ -60,7 +60,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 import { Sidebar } from './Sidebar';
 
@@ -70,6 +70,7 @@ interface PortalShellProps {
 
 export function PortalShell({ children }: PortalShellProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const { data: session } = useSession();
 
   // Tecla Escape fecha o drawer (apenas quando aberto, para evitar
@@ -170,24 +171,48 @@ export function PortalShell({ children }: PortalShellProps) {
             </svg>
           </span>
 
-          {/* User avatar → links to /perfil */}
-          <Link
-            href="/perfil"
-            aria-label="Ir para perfil"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/40"
-          >
-            {session?.user?.image ? (
-              <img
-                src={session.user.image}
-                alt={session.user.name ?? 'Avatar'}
-                className="h-8 w-8 rounded-full object-cover"
-              />
-            ) : (
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-red-core to-red-vivid text-[11px] font-bold text-white">
-                {getInitials(session?.user?.name ?? session?.user?.email ?? '?')}
-              </span>
+          {/* User avatar with dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setAvatarMenuOpen((v) => !v)}
+              aria-label="Menu do perfil"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/40"
+            >
+              {session?.user?.image ? (
+                <img
+                  src={session.user.image}
+                  alt={session.user.name ?? 'Avatar'}
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              ) : (
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-red-core to-red-vivid text-[11px] font-bold text-white">
+                  {getInitials(session?.user?.name ?? session?.user?.email ?? '?')}
+                </span>
+              )}
+            </button>
+            {avatarMenuOpen && (
+              <div className="absolute right-0 top-10 z-50 w-40 rounded-lg border border-border-light bg-white py-1 shadow-lg">
+                <Link
+                  href="/perfil"
+                  onClick={() => setAvatarMenuOpen(false)}
+                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-text-primary hover:bg-gray-50"
+                >
+                  Meu Perfil
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAvatarMenuOpen(false);
+                    signOut({ callbackUrl: '/login' });
+                  }}
+                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                  Sair
+                </button>
+              </div>
             )}
-          </Link>
+          </div>
         </div>
       </header>
 

@@ -279,47 +279,6 @@ export function LoginForm() {
         )}
       </button>
 
-      {/* ─── Botão Google ─── */}
-      <button
-        type="button"
-        onClick={handleGoogleSignIn}
-        disabled={isSubmitting || isGoogleLoading}
-        aria-busy={isGoogleLoading}
-        className="mt-1 flex w-full items-center justify-center gap-2.5 rounded-md border border-white/15 bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-[2px] text-white/85 transition-colors hover:border-white/30 hover:bg-white/10 focus-visible:border-white/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {isGoogleLoading ? (
-          <span
-            className="h-[18px] w-[18px] animate-spin rounded-full border-2 border-white/20 border-t-white"
-            aria-hidden="true"
-          />
-        ) : (
-          <svg
-            viewBox="0 0 24 24"
-            className="h-[18px] w-[18px]"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fill="#EA4335"
-              d="M12 10.2v3.96h5.52c-.24 1.44-1.68 4.2-5.52 4.2-3.36 0-6.06-2.7-6.06-6.06s2.7-6.06 6.06-6.06c1.92 0 3.18.78 3.96 1.5l2.7-2.64C16.92 3.66 14.7 2.7 12 2.7c-5.16 0-9.3 4.14-9.3 9.3s4.14 9.3 9.3 9.3c5.4 0 9-3.78 9-9.12 0-.6-.06-1.08-.18-1.62L12 10.2z"
-            />
-            <path
-              fill="#4285F4"
-              d="M21.6 12.18c0-.66-.06-1.32-.18-1.98H12v3.96h5.52c-.24 1.32-.96 2.4-2.04 3.18l3.3 2.58c1.92-1.8 3.06-4.44 3.06-7.74h-.24z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.4 14.34a5.65 5.65 0 010-3.66l-3.3-2.58a9.32 9.32 0 000 8.82l3.3-2.58z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 21.3c2.7 0 4.92-.9 6.6-2.4l-3.3-2.58c-.9.6-2.04.96-3.3.96-2.52 0-4.68-1.68-5.4-4.02l-3.3 2.58A9.32 9.32 0 0012 21.3z"
-            />
-          </svg>
-        )}
-        Entrar com Google
-      </button>
-
       {/* ─── Link para cadastro ─── */}
       <div className="mt-3 text-center text-[13px] text-white/45 animate-fade-up opacity-0 [animation-delay:0.5s]">
         Ainda não tem conta?{' '}
