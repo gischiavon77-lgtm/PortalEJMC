@@ -379,6 +379,16 @@ model Service {
   @@index([name])
 }
 
+// Destaques — carrossel de highlights no dashboard
+model Highlight {
+  id        String   @id @default(cuid())
+  slot      String   @unique @db.VarChar(30) // trainee, coordenador, assessor, gerente, equipe
+  name      String   @db.VarChar(150) // nome da pessoa ou equipe
+  photoUrl  String?  @db.Text // base64 data URL
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
 // Álbum de figurinhas — membros por gestão e área
 model AlbumMember {
   id        String   @id @default(cuid())
