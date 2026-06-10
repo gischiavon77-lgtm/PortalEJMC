@@ -16,7 +16,7 @@
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 
 import { withAuth } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
