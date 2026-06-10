@@ -10,6 +10,7 @@ interface Service {
   objective: string;
   macroSteps: string[];
   modules?: string[];
+  subServices?: { name: string; steps: string[] }[];
 }
 
 interface Area {
@@ -17,6 +18,7 @@ interface Area {
   name: string;
   emoji: string;
   gradient: string;
+  description: string;
   services: Service[];
 }
 
@@ -28,55 +30,61 @@ const AREAS: Area[] = [
     name: 'MARKETING',
     emoji: '📢',
     gradient: 'from-pink-500 to-rose-600',
+    description:
+      'Construir posicionamento, comunicação e ativos de marca que gerem reconhecimento e aquisição de clientes.',
     services: [
       {
-        name: 'Plano de Marketing',
-        description:
-          'Documento estratégico que organiza os caminhos da comunicação e posicionamento de marca.',
-        objective: 'Criar um plano alinhado com a identidade e metas do negócio.',
+        name: 'Branding Innovation',
+        description: 'Criação completa da identidade e posicionamento de marca.',
+        objective: 'Construir uma marca forte, memorável e estrategicamente posicionada.',
         macroSteps: [
-          'Briefing / Diagnóstico',
-          'Pesquisa de mercado',
-          'Definição de persona',
-          'Estratégias e canais',
-          'Cronograma de ações',
-          'Entrega final',
+          'Imersão e diagnóstico',
+          'Posicionamento e estratégia de marca',
+          'Criação da identidade visual',
+          'Sistema e manual de marca',
+          'Finalização e entrega do projeto',
         ],
       },
       {
-        name: 'Social Media',
-        description: 'Gestão de redes sociais com foco em posicionamento e engajamento.',
-        objective: 'Fortalecer a presença digital e gerar conexão com o público.',
+        name: 'Marketing Estratégico',
+        description: 'Estratégia de comunicação digital com posicionamento e conteúdo.',
+        objective: 'Fortalecer a presença digital com estratégia e consistência.',
         macroSteps: [
-          'Briefing',
-          'Planejamento de conteúdo',
-          'Produção visual e textual',
-          'Publicação programada',
-          'Relatório de métricas',
+          'Inicialização do projeto',
+          'Diagnóstico digital e de mercado',
+          'Posicionamento e diretrizes de comunicação',
+          'Estratégia de conteúdo e calendário editorial',
+          'Modelos de postagem e guia estratégico',
+          'Finalização e entrega do projeto',
         ],
+        modules: ['Análise de Desempenho Digital'],
       },
       {
-        name: 'Identidade Visual',
-        description: 'Criação de logo, tipografia, cores e linguagem da marca.',
-        objective: 'Traduzir a essência da empresa num sistema visual memorável.',
+        name: 'Plano de Marketing Digital',
+        description: 'Solução completa integrando branding, conteúdo e execução digital.',
+        objective: 'Entregar um sistema completo de marca e comunicação digital.',
         macroSteps: [
-          'Briefing criativo',
-          'Pesquisa de referências',
-          'Geração de conceitos',
-          'Refinamento',
-          'Manual de marca',
+          'Inicialização do projeto',
+          'Diagnóstico integrado',
+          'Estratégia e posicionamento de marca',
+          'Criação da identidade visual',
+          'Sistema e manual de marca',
+          'Estratégia de conteúdo e calendário editorial',
+          'Modelos de postagem e guia de execução enriquecido',
+          'Brandbook integrado e entrega final enriquecido',
         ],
+        modules: ['Análise de Desempenho Digital'],
       },
       {
-        name: 'Design Editorial / Apresentação',
-        description: 'Design de pitch-decks, portfólios, catálogos e documentos corporativos.',
-        objective: 'Comunicar ideias com impacto visual e clareza.',
+        name: 'Apresentação Estratégica',
+        description: 'Design de apresentações com estrutura estratégica e impacto visual.',
+        objective: 'Comunicar ideias com clareza e poder de persuasão.',
         macroSteps: [
-          'Briefing',
-          'Estrutura do documento',
-          'Design de layouts',
-          'Revisão / ajustes',
-          'Entrega',
+          'Inicialização e definição de escopo',
+          'Diagnóstico e coleta de conteúdo',
+          'Estruturação estratégica do conteúdo',
+          'Produção e refinamento',
+          'Entrega e orientações de uso',
         ],
       },
     ],
@@ -86,24 +94,75 @@ const AREAS: Area[] = [
     name: 'INTELIGÊNCIA DE MERCADO',
     emoji: '🔍',
     gradient: 'from-blue-500 to-indigo-600',
+    description: 'Reduzir incertezas através de dados sobre consumidores, concorrentes e mercado.',
     services: [
       {
         name: 'Pesquisa de Mercado',
-        description: 'Estudo do segmento, público, concorrentes.',
-        objective: 'Gerar dados para decisões estratégicas.',
-        macroSteps: ['Definição do escopo', 'Coleta de dados', 'Análise', 'Relatório'],
+        description: 'Coleta e análise de dados primários e secundários sobre o mercado.',
+        objective: 'Gerar insights acionáveis para decisões estratégicas.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Estruturação da Pesquisa',
+          'Coleta e Análise de Dados',
+          'Etapa de Finalização',
+        ],
+        modules: ['Grupos Focais'],
       },
       {
-        name: 'Diagnóstico de Negócio',
-        description: 'Avaliação 360° das áreas do negócio.',
-        objective: 'Identificar pontos fortes e gargalos.',
-        macroSteps: ['Entrevista', 'Análise interna', 'Benchmarking', 'Plano de ação'],
+        name: 'Análise Concorrencial',
+        description: 'Estudo profundo dos concorrentes e posicionamento competitivo.',
+        objective: 'Entender o cenário competitivo e encontrar diferenciais.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Definição de Objetivos e Critérios',
+          'Mapeamento de Concorrentes',
+          'Análise dos 4Ps',
+          'Análise S.W.O.T',
+          'Etapa de Finalização',
+        ],
       },
       {
-        name: 'CRM',
-        description: 'Implementação de sistemas de gestão de relacionamento com clientes.',
-        objective: 'Organizar a jornada do lead ao cliente.',
-        macroSteps: ['Mapeamento', 'Escolha de ferramenta', 'Configuração', 'Treinamento'],
+        name: 'Análise Setorial',
+        description: 'Panorama completo do setor com estrutura competitiva e cenários.',
+        objective: 'Compreender a dinâmica do setor e antecipar movimentos.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Introdução e Contexto Setorial',
+          'Estrutura e Competitividade do Setor',
+          'Conduta e Segmentação',
+          'Perspectivas, Riscos e Cenários',
+          'Etapa de Finalização',
+        ],
+      },
+      {
+        name: 'Geomarketing',
+        description: 'Análise geográfica para decisões de localização e expansão.',
+        objective: 'Identificar as melhores localizações e estratégias regionais.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Coleta e Tratamento de Dados',
+          'Análise de Zona de Influência e Segmentação',
+          'Mapeamento de Concorrentes, Oportunidades e Riscos',
+          'Modelagem de Cenários e Priorização de Localizações',
+          'Estratégias de Segmentação e Marketing Geográfico',
+          'Etapa de Finalização',
+        ],
+      },
+      {
+        name: 'Estudo de Mercado',
+        description: 'Estudo completo combinando dados secundários, primários e análise setorial.',
+        objective: 'Fornecer uma visão 360° do mercado para tomada de decisão.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Coleta de Dados Secundários',
+          'Pesquisa de Mercado (Dados Primários)',
+          'Análise Setorial e Macroambiente',
+          'Segmentação e Comportamento do Cliente',
+          'Análise Concorrencial',
+          'Mapeamento de Tendências',
+          'Síntese de Oportunidades e Estratégias',
+          'Etapa de Finalização',
+        ],
       },
     ],
   },
@@ -112,35 +171,47 @@ const AREAS: Area[] = [
     name: 'OPERAÇÕES',
     emoji: '⚙️',
     gradient: 'from-emerald-500 to-green-600',
+    description: 'Estruturar processos, pessoas e organização para crescimento sustentável.',
     services: [
       {
-        name: 'Plano de Cargos e Salários',
-        description: 'Estruturação de níveis, faixas salariais e critérios de promoção.',
-        objective: 'Criar equidade e transparência na remuneração.',
+        name: 'Mapeamento de Processos',
+        description: 'Documentação e otimização de processos operacionais.',
+        objective: 'Criar eficiência e escalabilidade nos processos internos.',
         macroSteps: [
-          'Mapeamento de cargos',
-          'Pesquisa salarial',
-          'Definição de faixas',
-          'Documento final',
+          'Etapa de Inicialização',
+          'Levantamento e Coleta de Informações',
+          'Mapeamento e Documentação dos Processos',
+          'Análise e Diagnóstico Operacional',
+          'Redesenho e Otimização dos Processos',
+          'Etapa de Finalização',
+        ],
+        modules: ['Pesquisa de Clima Organizacional'],
+      },
+      {
+        name: 'Mapeamento de Profissionais',
+        description: 'Hunting e qualificação de talentos para posições estratégicas.',
+        objective: 'Encontrar os melhores profissionais alinhados à cultura.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Mapeamento e Hunting de Profissionais',
+          'Triagem e Qualificação dos Perfis',
+          'Estruturação do Dossiê e Pipeline',
+          'Etapa de Finalização',
         ],
       },
       {
-        name: 'PDI (Plano de Desenvolvimento Individual)',
-        description: 'Ferramenta de acompanhamento de crescimento dos colaboradores.',
-        objective: 'Alinhar desenvolvimento pessoal com metas da empresa.',
-        macroSteps: ['Diagnóstico', 'Definição de metas', 'Cronograma', 'Acompanhamento'],
-      },
-      {
-        name: 'Pesquisa de Clima Organizacional',
-        description: 'Medição de satisfação e engajamento interno.',
-        objective: 'Entender o sentimento do time e direcionar melhorias.',
-        macroSteps: ['Elaboração do questionário', 'Aplicação', 'Análise', 'Plano de ação'],
-      },
-      {
-        name: 'Processo Seletivo',
-        description: 'Estruturação e execução de recrutamento e seleção.',
-        objective: 'Atrair e selecionar talentos alinhados à cultura.',
-        macroSteps: ['Job description', 'Divulgação', 'Triagem', 'Entrevistas', 'Decisão'],
+        name: 'Plano de Salários',
+        description: 'Estruturação de política salarial com faixas e benefícios.',
+        objective: 'Criar equidade remuneratória e atratividade.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Benchmarking de Remuneração',
+          'Construção das Faixas Salariais',
+          'Modelo de Remuneração Variável',
+          'Estruturação de Benefícios',
+          'Etapa de Finalização',
+        ],
+        modules: ['Pesquisa Salarial Customizada'],
       },
     ],
   },
@@ -149,62 +220,102 @@ const AREAS: Area[] = [
     name: 'TECH',
     emoji: '💻',
     gradient: 'from-violet-500 to-purple-700',
+    description: 'Transformar tecnologia e dados em vantagem competitiva.',
     services: [
       {
-        name: 'Site Institucional',
-        description: 'Site com páginas informativas e responsivo.',
-        objective: 'Apresentar a empresa no digital com profissionalismo.',
-        macroSteps: [
-          'Briefing',
-          'Wireframe',
-          'Design UI',
-          'Desenvolvimento front-end',
-          'Publicação',
+        name: 'Base de Dados',
+        description: 'Criação, otimização ou migração de bases de dados.',
+        objective: 'Garantir dados confiáveis, organizados e acessíveis.',
+        macroSteps: [],
+        subServices: [
+          {
+            name: 'Criação e Modelagem',
+            steps: [
+              'Diagnóstico de Dados',
+              'Modelagem da Estrutura',
+              'Implementação da Base',
+              'Validação e Treinamento',
+            ],
+          },
+          {
+            name: 'Otimização',
+            steps: [
+              'Diagnóstico da Base Atual',
+              'Plano de Correção',
+              'Limpeza e Reestruturação',
+              'Entrega e Governança',
+            ],
+          },
+          {
+            name: 'Migração',
+            steps: [
+              'Mapeamento de Origem e Destino',
+              'Preparação e Limpeza',
+              'Execução da Migração',
+              'Conferência e Handoff',
+            ],
+          },
         ],
-        modules: ['Multi-páginas', 'Blog', 'Formulários', 'Integrações', 'CMS'],
       },
       {
-        name: 'Landing Page',
-        description: 'Página única com foco em conversão.',
-        objective: 'Converter visitantes em leads ou vendas.',
-        macroSteps: ['Briefing', 'Copywriting', 'Design', 'Desenvolvimento', 'Teste A/B'],
-        modules: ['Formulário', 'CTA', 'Métricas', 'Pixel de rastreamento'],
-      },
-      {
-        name: 'E-commerce',
-        description: 'Loja virtual completa com catálogo, carrinho e checkout.',
-        objective: 'Vender produtos ou serviços online com autonomia.',
-        macroSteps: [
-          'Briefing',
-          'Arquitetura da loja',
-          'Design UI',
-          'Integração de pagamento',
-          'Publicação',
+        name: 'Indicadores e Business Intelligence',
+        description: 'Dashboards, KPIs e automação de relatórios baseados em dados.',
+        objective: 'Transformar dados em decisões inteligentes.',
+        macroSteps: [],
+        subServices: [
+          {
+            name: 'Desenvolvimento de Dashboards',
+            steps: [
+              'Diagnóstico Analítico',
+              'Desenho dos Indicadores',
+              'Construção do Dashboard',
+              'Validação e Treinamento',
+            ],
+          },
+          {
+            name: 'Definição de KPIs',
+            steps: [
+              'Entendimento Estratégico',
+              'Mapeamento de Processos e Dados',
+              'Desenho dos KPIs',
+              'Governança de Indicadores',
+            ],
+          },
+          {
+            name: 'Automação de Relatórios',
+            steps: [
+              'Mapeamento da Rotina Atual',
+              'Desenho da Automação',
+              'Implementação da Automação',
+              'Testes e Handoff',
+            ],
+          },
         ],
-        modules: ['Catálogo', 'Carrinho', 'Checkout', 'Painel Admin', 'Integrações logísticas'],
       },
       {
-        name: 'Sistema / App Web',
-        description: 'Aplicações sob medida para resolver problemas específicos.',
-        objective: 'Automatizar ou digitalizar processos com software personalizado.',
-        macroSteps: [
-          'Levantamento de requisitos',
-          'Prototipação',
-          'Desenvolvimento',
-          'Testes',
-          'Deploy',
-        ],
-        modules: ['Auth', 'Dashboard', 'APIs', 'Banco de dados', 'Deploy'],
-      },
-      {
-        name: 'Automação',
-        description: 'Integração de ferramentas, bots, fluxos automatizados.',
-        objective: 'Eliminar tarefas repetitivas e acelerar processos.',
-        macroSteps: [
-          'Mapeamento de processos',
-          'Definição de gatilhos',
-          'Implementação',
-          'Monitoramento',
+        name: 'Desenvolvimento Web',
+        description: 'Sites institucionais e landing pages de alta conversão.',
+        objective: 'Presença digital profissional e orientada a resultados.',
+        macroSteps: [],
+        subServices: [
+          {
+            name: 'Site Institucional',
+            steps: [
+              'Briefing e Arquitetura',
+              'UX e Wireframe',
+              'Design e Desenvolvimento',
+              'Publicação e Treinamento',
+            ],
+          },
+          {
+            name: 'Landing Page',
+            steps: [
+              'Briefing de Conversão',
+              'Estrutura Persuasiva',
+              'Design e Implementação',
+              'Medição e Entrega',
+            ],
+          },
         ],
       },
     ],
@@ -214,30 +325,78 @@ const AREAS: Area[] = [
     name: 'ESTRATÉGIA DE NOVOS NEGÓCIOS',
     emoji: '🚀',
     gradient: 'from-amber-500 to-orange-600',
+    description: 'Transformar ideias em negócios viáveis e escaláveis.',
     services: [
       {
-        name: 'Planejamento Estratégico',
-        description: 'Definição de visão, missão, valores, OKRs e roadmap.',
-        objective: 'Alinhar toda a organização em torno de metas claras.',
+        name: 'Viabilidade de Negócios',
+        description: 'Análise completa de viabilidade de mercado, operacional e econômica.',
+        objective: 'Validar se uma ideia de negócio é viável antes de investir.',
         macroSteps: [
-          'Diagnóstico',
-          'Definição de missão e visão',
-          'OKRs',
-          'Roadmap',
-          'Alinhamento',
+          'Etapa de Inicialização',
+          'Análise de Viabilidade de Mercado',
+          'Análise de Viabilidade Operacional',
+          'Análise de Viabilidade Econômica',
+          'Síntese e Recomendação Estratégica',
+          'Etapa de Finalização',
+        ],
+        subServices: [
+          {
+            name: 'Viabilidade de Mercado (módulo individual)',
+            steps: [
+              'Entendimento do Mercado',
+              'Análise de Demanda',
+              'Análise Competitiva',
+              'Síntese de Mercado',
+            ],
+          },
+          {
+            name: 'Viabilidade Operacional (módulo individual)',
+            steps: [
+              'Mapeamento da Operação',
+              'Processos e Recursos',
+              'Riscos Operacionais',
+              'Síntese Operacional',
+            ],
+          },
+          {
+            name: 'Viabilidade Econômica (módulo individual)',
+            steps: [
+              'Premissas Financeiras',
+              'Modelagem Econômica',
+              'Indicadores de Retorno',
+              'Síntese Econômica',
+            ],
+          },
         ],
       },
       {
-        name: 'Canvas e Modelagem de Negócio',
-        description: 'Framework visual para estruturar ou pivotar modelos de negócio.',
-        objective: 'Organizar proposta de valor, canais, receitas e parcerias num único quadro.',
-        macroSteps: ['Workshop', 'Preenchimento', 'Validação', 'Iteração'],
+        name: 'Plano de Negócios',
+        description: 'Documento completo para estruturar e apresentar um negócio.',
+        objective: 'Criar um roadmap completo do negócio para execução ou investidores.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Estudo de Mercado',
+          'Modelo de Negócio e Proposta de Valor',
+          'Estratégia de Marketing e Posicionamento',
+          'Estruturação de Processos e Modelo Operacional',
+          'Modelagem Financeira',
+          'Plano de Implementação',
+          'Etapa de Finalização',
+        ],
+        modules: ['Pitch Deck para Investidores'],
       },
       {
-        name: 'Mentoria Empresarial',
-        description: 'Acompanhamento próximo com foco em decisões estratégicas.',
-        objective: 'Acelerar resultados com experiência direcionada.',
-        macroSteps: ['Mapeamento', 'Sessões periódicas', 'Feedbacks', 'Ajustes'],
+        name: 'Estruturação Comercial e CRM',
+        description: 'Planejamento comercial completo com implementação de CRM.',
+        objective: 'Profissionalizar a operação de vendas e gestão de clientes.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Diagnóstico e Mapeamento Comercial',
+          'Planejamento Estratégico Comercial',
+          'Implementação e Configuração do CRM',
+          'Treinamento e Dashboards',
+          'Etapa de Finalização',
+        ],
       },
     ],
   },
@@ -246,34 +405,56 @@ const AREAS: Area[] = [
     name: 'FINANCEIRO',
     emoji: '💰',
     gradient: 'from-teal-500 to-cyan-600',
+    description:
+      'Garantir sustentabilidade financeira, tomada de decisão baseada em números e crescimento saudável.',
     services: [
       {
-        name: 'Planejamento Financeiro',
-        description: 'Projeção de receitas, custos e ponto de equilíbrio.',
-        objective: 'Dar clareza sobre a viabilidade do negócio.',
+        name: 'Estruturação de Fluxo de Caixa e DRE',
+        description: 'Implementação de controles financeiros essenciais.',
+        objective: 'Criar visibilidade financeira para decisões assertivas.',
         macroSteps: [
-          'Levantamento de dados',
-          'Projeção de cenários',
-          'Análise de viabilidade',
-          'Relatório final',
+          'Etapa de Inicialização',
+          'Levantamento e Categorização de Lançamentos',
+          'Implementação do Fluxo de Caixa e DRE',
+          'Análise e Recomendações',
+          'Etapa de Finalização',
         ],
       },
       {
-        name: 'Pricing / Precificação',
-        description: 'Definição de preços baseada em custos, mercado e percepção de valor.',
-        objective: 'Encontrar o preço ideal para maximizar lucro e competitividade.',
+        name: 'Precificação de Produtos e Serviços',
+        description: 'Modelagem de preços baseada em custos e mercado.',
+        objective: 'Definir preços que maximizem margem e competitividade.',
         macroSteps: [
-          'Análise de custos',
-          'Pesquisa de mercado',
-          'Modelagem de preço',
-          'Recomendação final',
+          'Etapa de Inicialização',
+          'Levantamento e Estruturação de Custos',
+          'Análise de Benchmarking de Preços',
+          'Modelagem e Definição de Preços',
+          'Etapa de Finalização',
         ],
       },
       {
-        name: 'Estruturação Financeira',
-        description: 'Organização de fluxo de caixa, DRE e controles internos.',
-        objective: 'Criar bases sólidas para decisões financeiras.',
-        macroSteps: ['Diagnóstico atual', 'Modelagem', 'Implementação', 'Treinamento'],
+        name: 'Análise de Viabilidade Econômico-Financeira',
+        description: 'Projeção de investimentos, receitas e retorno financeiro.',
+        objective: 'Validar a viabilidade econômica de projetos e investimentos.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Levantamento de Investimento e Custos',
+          'Projeção de Receitas',
+          'Modelagem Financeira e Indicadores de Retorno',
+          'Etapa de Finalização',
+        ],
+      },
+      {
+        name: 'Reestruturação Financeira',
+        description: 'Plano de recuperação para empresas em dificuldade financeira.',
+        objective: 'Criar um caminho de recuperação viável e sustentável.',
+        macroSteps: [
+          'Etapa de Inicialização',
+          'Diagnóstico Financeiro',
+          'Plano de Reestruturação',
+          'Modelagem do Cenário de Reestruturação',
+          'Etapa de Finalização',
+        ],
       },
     ],
   },
@@ -322,27 +503,62 @@ export function PortfolioInterativo() {
             <p className="text-gray-600">{service.objective}</p>
           </section>
 
-          {/* Macro Steps — Timeline */}
-          <section className="mb-6">
-            <h2 className="mb-4 text-lg font-semibold text-gray-800">Macroetapas</h2>
-            <ol className="relative border-l-2 border-gray-200 pl-6">
-              {service.macroSteps.map((step, i) => (
-                <li key={i} className="relative mb-6 last:mb-0">
-                  <span
-                    className={`absolute -left-[31px] flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${area.gradient} text-xs font-bold text-white shadow`}
+          {/* Macro Steps — Timeline (only if macroSteps has content) */}
+          {service.macroSteps.length > 0 && (
+            <section className="mb-6">
+              <h2 className="mb-4 text-lg font-semibold text-gray-800">Macroetapas</h2>
+              <ol className="relative border-l-2 border-gray-200 pl-6">
+                {service.macroSteps.map((step, i) => (
+                  <li key={i} className="relative mb-6 last:mb-0">
+                    <span
+                      className={`absolute -left-[31px] flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${area.gradient} text-xs font-bold text-white shadow`}
+                    >
+                      {i + 1}
+                    </span>
+                    <p className="text-gray-700">{step}</p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+
+          {/* Sub-Services */}
+          {service.subServices && service.subServices.length > 0 && (
+            <section className="mb-6">
+              <h2 className="mb-4 text-lg font-semibold text-gray-800">Modalidades</h2>
+              <div className="space-y-5">
+                {service.subServices.map((sub, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
                   >
-                    {i + 1}
-                  </span>
-                  <p className="text-gray-700">{step}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
+                    <h3
+                      className={`mb-3 text-base font-semibold text-transparent bg-clip-text bg-gradient-to-r ${area.gradient}`}
+                    >
+                      {sub.name}
+                    </h3>
+                    <ol className="relative border-l-2 border-gray-200 pl-5">
+                      {sub.steps.map((step, i) => (
+                        <li key={i} className="relative mb-4 last:mb-0">
+                          <span
+                            className={`absolute -left-[25px] flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br ${area.gradient} text-[10px] font-bold text-white shadow`}
+                          >
+                            {i + 1}
+                          </span>
+                          <p className="text-sm text-gray-700">{step}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Modules */}
           {service.modules && service.modules.length > 0 && (
             <section className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold text-gray-800">Módulos</h2>
+              <h2 className="mb-3 text-lg font-semibold text-gray-800">Módulo adicional</h2>
               <div className="flex flex-wrap gap-2">
                 {service.modules.map((mod, i) => (
                   <span
@@ -383,9 +599,7 @@ export function PortfolioInterativo() {
               <span className="text-4xl">{area.emoji}</span>
               <div>
                 <h1 className="text-2xl font-bold sm:text-3xl">{area.name}</h1>
-                <p className="text-sm opacity-80">
-                  {area.services.length} serviço{area.services.length !== 1 ? 's' : ''}
-                </p>
+                <p className="mt-1 text-sm opacity-80">{area.description}</p>
               </div>
             </div>
           </div>
