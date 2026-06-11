@@ -110,25 +110,43 @@ export async function POST(request: Request): Promise<Response> {
 
   const { name, email, password } = payload;
 
-  // ─── 3. Verificação de unicidade — Property 5 / Req 3.2 ────────────
-  // A consulta abaixo serve como pré-checagem amigável (mensagem
-  // imediata, sem custo de bcrypt). Mesmo assim, mantemos o tratamento
-  // de `P2002` no `create` adiante para fechar a janela de corrida
-  // (dois cadastros simultâneos para o mesmo email).
+  // ─── 3. Verificação de unicidade ────────────────────────────────────
+  // Contas ACTIVE ou PENDING bloqueiam novo cadastro.
+  // Contas INACTIVE ou REJECTED podem solicitar acesso novamente
+  // (atualiza a conta existente para PENDING com nova senha).
   const existing = await prisma.user.findUnique({
     where: { email },
-    select: { id: true },
+    select: { id: true, status: true },
   });
 
   if (existing) {
-    return NextResponse.json(
-      {
-        error: true,
-        code: 'EMAIL_TAKEN',
-        message: 'Este email já está em uso.',
+    // Se a conta está ativa ou pendente, bloqueia
+    if (existing.status === 'ACTIVE' || existing.status === 'PENDING') {
+      return NextResponse.json(
+        {
+          error: true,
+          code: 'EMAIL_TAKEN',
+          message: 'Este email já está em uso.',
+        },
+        { status: 409 },
+      );
+    }
+
+    // Se INACTIVE ou REJECTED, permite re-solicitar acesso
+    const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
+    const updated = await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        name,
+        passwordHash,
+        status: 'PENDING',
+        failedAttempts: 0,
+        lockedUntil: null,
       },
-      { status: 409 },
-    );
+      select: { id: true, email: true, status: true },
+    });
+
+    return NextResponse.json(updated, { status: 201 });
   }
 
   // ─── 4. Hash da senha + criação do usuário ────────────────────────
