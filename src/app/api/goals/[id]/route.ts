@@ -40,7 +40,7 @@ import type { Area, GoalType } from '@prisma/client';
 
 import { withAuth } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
-import { updateProgressSchema } from '@/lib/validators/goal';
+import { updateGoalSchema } from '@/lib/validators/goal';
 
 export const runtime = 'nodejs';
 
@@ -113,9 +113,9 @@ async function patchHandler(
     );
   }
 
-  let payload: { progress: number };
+  let payload: { progress?: number; deadline?: Date };
   try {
-    payload = updateProgressSchema.parse(rawBody);
+    payload = updateGoalSchema.parse(rawBody);
   } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json(
@@ -134,30 +134,56 @@ async function patchHandler(
     throw err;
   }
 
-  // Atualização da meta + log do histórico em uma única transação.
-  // Garante atomicidade: ou ambos persistem, ou nenhum.
-  const [updated] = await prisma.$transaction([
-    prisma.goal.update({
-      where: { id },
-      data: { progress: payload.progress },
-    }),
-    prisma.goalUpdate.create({
-      data: {
-        goalId: id,
-        updatedById: ctx.session.user.id,
-        oldProgress: existing.progress,
-        newProgress: payload.progress,
-      },
-    }),
-  ]);
+  // Monta o conjunto de operações de forma condicional: progresso e
+  // prazo são independentes. O `GoalUpdate` só é registrado quando o
+  // progresso é alterado (mantém a semântica de auditoria de progresso).
+  const data: { progress?: number; deadline?: Date } = {};
+  if (payload.progress !== undefined) data.progress = payload.progress;
+  if (payload.deadline !== undefined) data.deadline = payload.deadline;
 
-  return NextResponse.json(
-    { goal: serializeGoal(updated) },
-    { status: 200 },
-  );
+  const updated = await prisma.$transaction(async (tx) => {
+    const goal = await tx.goal.update({ where: { id }, data });
+    if (payload.progress !== undefined) {
+      await tx.goalUpdate.create({
+        data: {
+          goalId: id,
+          updatedById: ctx.session.user.id,
+          oldProgress: existing.progress,
+          newProgress: payload.progress,
+        },
+      });
+    }
+    return goal;
+  });
+
+  return NextResponse.json({ goal: serializeGoal(updated) }, { status: 200 });
 }
 
-export const PATCH = withAuth<GoalRouteParams>(
-  'goal:updateProgress',
-  patchHandler,
-);
+async function deleteHandler(
+  _req: NextRequest,
+  ctx: { session: import('next-auth').Session; params?: GoalRouteParams },
+): Promise<Response> {
+  const id = ctx.params?.id;
+  if (!id) {
+    return notFoundResponse();
+  }
+
+  const existing = await prisma.goal.findUnique({ where: { id } });
+  if (!existing) {
+    return notFoundResponse();
+  }
+
+  // Remove o histórico de progresso antes da meta para respeitar a FK
+  // (caso `GoalUpdate` não tenha `onDelete: Cascade`). Em transação
+  // para garantir atomicidade.
+  await prisma.$transaction([
+    prisma.goalUpdate.deleteMany({ where: { goalId: id } }),
+    prisma.goal.delete({ where: { id } }),
+  ]);
+
+  return NextResponse.json({ success: true }, { status: 200 });
+}
+
+export const PATCH = withAuth<GoalRouteParams>('goal:updateProgress', patchHandler);
+
+export const DELETE = withAuth<GoalRouteParams>('goal:delete', deleteHandler);

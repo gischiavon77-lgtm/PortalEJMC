@@ -24,7 +24,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/ui';
+import { Button, Modal } from '@/components/ui';
 import { usePermission } from '@/hooks/usePermission';
 import { isGoalOverdue } from '@/lib/goals';
 
@@ -38,14 +38,13 @@ export interface GoalsShellProps {
 
 export function GoalsShell({ goals }: GoalsShellProps) {
   const router = useRouter();
-  const { allowed: canManage, isLoading: permissionLoading } = usePermission(
-    'goal:create',
-  );
+  const { allowed: canManage, isLoading: permissionLoading } = usePermission('goal:create');
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [progressTarget, setProgressTarget] = useState<GoalCardData | null>(
-    null,
-  );
+  const [progressTarget, setProgressTarget] = useState<GoalCardData | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<GoalCardData | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // Resumo numérico exibido no cabeçalho. Calculamos no client porque
   // os cards já estão hidratados — nenhum custo extra.
@@ -66,6 +65,28 @@ export function GoalsShell({ goals }: GoalsShellProps) {
     router.refresh();
   }
 
+  async function handleConfirmDelete() {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const res = await fetch(`/api/goals/${deleteTarget.id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => null)) as { message?: string } | null;
+        setDeleteError(data?.message ?? 'Não foi possível excluir a meta. Tente novamente.');
+        return;
+      }
+      setDeleteTarget(null);
+      router.refresh();
+    } catch {
+      setDeleteError('Erro de conexão. Verifique sua internet e tente novamente.');
+    } finally {
+      setDeleting(false);
+    }
+  }
+
   return (
     <section
       aria-labelledby="metas-heading"
@@ -83,22 +104,14 @@ export function GoalsShell({ goals }: GoalsShellProps) {
             Metas da empresa e da minha área
           </h1>
           <p className="text-text-secondary">
-            Acompanhe o progresso das metas gerais e das metas da área à qual
-            você pertence.
+            Acompanhe o progresso das metas gerais e das metas da área à qual você pertence.
           </p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div
-            className="flex flex-wrap gap-3 text-xs"
-            aria-label="Resumo das metas"
-          >
+          <div className="flex flex-wrap gap-3 text-xs" aria-label="Resumo das metas">
             <SummaryPill label="Total" value={summary.total} tone="neutral" />
-            <SummaryPill
-              label="Concluídas"
-              value={summary.completed}
-              tone="success"
-            />
+            <SummaryPill label="Concluídas" value={summary.completed} tone="success" />
             <SummaryPill
               label="Vencidas"
               value={summary.overdue}
@@ -107,12 +120,7 @@ export function GoalsShell({ goals }: GoalsShellProps) {
           </div>
 
           {!permissionLoading && canManage && (
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              onClick={() => setCreateOpen(true)}
-            >
+            <Button type="button" variant="primary" size="sm" onClick={() => setCreateOpen(true)}>
               + Nova meta
             </Button>
           )}
@@ -138,6 +146,10 @@ export function GoalsShell({ goals }: GoalsShellProps) {
                 goal={goal}
                 canManage={canManage}
                 onUpdateProgress={(g) => setProgressTarget(g)}
+                onDelete={(g) => {
+                  setDeleteError(null);
+                  setDeleteTarget(g);
+                }}
               />
             </li>
           ))}
@@ -147,17 +159,58 @@ export function GoalsShell({ goals }: GoalsShellProps) {
       {/* Modais — montados apenas quando o usuário tem permissão */}
       {canManage && (
         <>
-          <GoalForm
-            open={createOpen}
-            onClose={() => setCreateOpen(false)}
-            onSaved={handleSaved}
-          />
+          <GoalForm open={createOpen} onClose={() => setCreateOpen(false)} onSaved={handleSaved} />
           <UpdateProgressForm
             open={progressTarget !== null}
             onClose={() => setProgressTarget(null)}
             goal={progressTarget}
             onSaved={handleSaved}
           />
+          <Modal
+            open={deleteTarget !== null}
+            onClose={deleting ? () => {} : () => setDeleteTarget(null)}
+            title="Excluir meta"
+            description={deleteTarget ? `Meta: ${deleteTarget.name}` : undefined}
+            size="sm"
+            closeOnEscape={!deleting}
+            closeOnOverlayClick={!deleting}
+            footer={
+              <div className="flex w-full items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setDeleteTarget(null)}
+                  disabled={deleting}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  className="bg-red-vivid hover:bg-red-vivid/90"
+                  loading={deleting}
+                  onClick={handleConfirmDelete}
+                >
+                  Excluir
+                </Button>
+              </div>
+            }
+          >
+            <div className="flex flex-col gap-3">
+              {deleteError && (
+                <div
+                  role="alert"
+                  className="rounded-md border border-red-vivid/30 bg-red-vivid/5 px-3 py-2 text-sm text-red-vivid"
+                >
+                  {deleteError}
+                </div>
+              )}
+              <p className="text-sm text-text-secondary">
+                Tem certeza que deseja excluir esta meta? Essa ação não pode ser desfeita e todo o
+                histórico de progresso será removido.
+              </p>
+            </div>
+          </Modal>
         </>
       )}
     </section>

@@ -30,11 +30,7 @@
 
 import { Badge, Button, Card } from '@/components/ui';
 import { cn } from '@/components/ui/cn';
-import {
-  AREA_LABELS,
-  GOAL_TYPE_LABELS,
-  isGoalOverdue,
-} from '@/lib/goals';
+import { AREA_LABELS, GOAL_TYPE_LABELS, isGoalOverdue } from '@/lib/goals';
 import type { Area } from '@prisma/client';
 
 export interface GoalCardData {
@@ -55,8 +51,10 @@ export interface GoalCardProps {
    * `usePermission('goal:updateProgress')`); o card só renderiza.
    */
   canManage?: boolean;
-  /** Disparado quando o usuário clica em "Atualizar progresso". */
+  /** Disparado quando o usuário clica em "Editar". */
   onUpdateProgress?: (goal: GoalCardData) => void;
+  /** Disparado quando o usuário clica em "Excluir". */
+  onDelete?: (goal: GoalCardData) => void;
   /** Data atual injetável — útil para testes determinísticos. */
   now?: Date;
 }
@@ -77,6 +75,7 @@ export function GoalCard({
   goal,
   canManage = false,
   onUpdateProgress,
+  onDelete,
   now,
 }: GoalCardProps) {
   const overdue = isGoalOverdue(goal, now);
@@ -105,12 +104,7 @@ export function GoalCard({
           </Badge>
         )}
         {overdue && (
-          <Badge
-            variant="error"
-            size="sm"
-            withDot
-            data-testid="goal-overdue-indicator"
-          >
+          <Badge variant="error" size="sm" withDot data-testid="goal-overdue-indicator">
             Vencida
           </Badge>
         )}
@@ -126,11 +120,7 @@ export function GoalCard({
         <h3 className="font-heading text-lg font-bold tracking-tight text-text-primary">
           {goal.name}
         </h3>
-        {goal.description && (
-          <p className="text-sm text-text-secondary">
-            {goal.description}
-          </p>
-        )}
+        {goal.description && <p className="text-sm text-text-secondary">{goal.description}</p>}
 
         <p className="text-xs text-text-muted">
           Prazo:{' '}
@@ -146,9 +136,7 @@ export function GoalCard({
           <span className="font-semibold uppercase tracking-[1.5px] text-text-muted">
             Progresso
           </span>
-          <span className="font-semibold tabular-nums text-text-primary">
-            {progressClamped}%
-          </span>
+          <span className="font-semibold tabular-nums text-text-primary">{progressClamped}%</span>
         </div>
         <div
           role="progressbar"
@@ -161,11 +149,7 @@ export function GoalCard({
           <div
             className={cn(
               'h-full rounded-full transition-[width] duration-300',
-              overdue
-                ? 'bg-red-vivid'
-                : completed
-                  ? 'bg-emerald-500'
-                  : 'bg-red-core',
+              overdue ? 'bg-red-vivid' : completed ? 'bg-emerald-500' : 'bg-red-core',
             )}
             style={{ width: `${progressClamped}%` }}
           />
@@ -173,16 +157,29 @@ export function GoalCard({
       </div>
 
       {/* Ações (Task 8.8 — apenas Diretor/Admin) */}
-      {canManage && onUpdateProgress && (
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => onUpdateProgress(goal)}
-          >
-            Atualizar progresso
-          </Button>
+      {canManage && (onUpdateProgress || onDelete) && (
+        <div className="flex justify-end gap-2">
+          {onDelete && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-red-vivid hover:bg-red-vivid/10"
+              onClick={() => onDelete(goal)}
+            >
+              Excluir
+            </Button>
+          )}
+          {onUpdateProgress && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => onUpdateProgress(goal)}
+            >
+              Editar
+            </Button>
+          )}
         </div>
       )}
     </Card>

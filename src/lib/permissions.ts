@@ -126,9 +126,10 @@ export type Action =
   | 'calendar:create'
   | 'calendar:update'
   | 'calendar:delete'
-  // Metas (Req 9) — Diretor+ cria e atualiza progresso.
+  // Metas (Req 9) — Diretor+ cria, atualiza progresso/prazo e exclui.
   | 'goal:create'
   | 'goal:updateProgress'
+  | 'goal:delete'
   // KPIs (Req 10) — `kpi:write` cobre a configuração administrativa
   // (criação/edição de indicadores) e é exclusiva do Admin (Req 10.5).
   // `kpi:writeValue` cobre o registro de valores por membros da área
@@ -182,6 +183,7 @@ export const PERMISSION_MATRIX: Record<Action, UserRole[]> = {
   // ─── Metas (Diretor+, Req 9.1, 9.3) ────────────────────────────────
   'goal:create': ['ADMIN', 'DIRETOR'],
   'goal:updateProgress': ['ADMIN', 'DIRETOR'],
+  'goal:delete': ['ADMIN', 'DIRETOR'],
 
   // ─── KPIs (Req 10) ─────────────────────────────────────────────────
   // Configuração de indicadores — Admin apenas (Req 10.5).

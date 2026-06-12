@@ -34,7 +34,7 @@ export interface UpdateProgressFormProps {
   open: boolean;
   onClose: () => void;
   /** Meta sendo editada. `null` quando o modal está fechado. */
-  goal: { id: string; name: string; progress: number } | null;
+  goal: { id: string; name: string; progress: number; deadline: string } | null;
   onSaved: () => void;
 }
 
@@ -43,13 +43,23 @@ function clamp(value: number): number {
   return Math.min(GOAL_PROGRESS_MAX, Math.max(GOAL_PROGRESS_MIN, Math.round(value)));
 }
 
-export function UpdateProgressForm({
-  open,
-  onClose,
-  goal,
-  onSaved,
-}: UpdateProgressFormProps) {
+/**
+ * Converte um ISO 8601 para o formato aceito por `<input type="datetime-local">`
+ * (`YYYY-MM-DDTHH:mm`) no fuso local do navegador.
+ */
+function toDateTimeLocal(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return (
+    `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
+    `T${pad(date.getHours())}:${pad(date.getMinutes())}`
+  );
+}
+
+export function UpdateProgressForm({ open, onClose, goal, onSaved }: UpdateProgressFormProps) {
   const [value, setValue] = useState<number>(0);
+  const [deadline, setDeadline] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -57,6 +67,7 @@ export function UpdateProgressForm({
   useEffect(() => {
     if (!open || !goal) return;
     setValue(clamp(goal.progress));
+    setDeadline(toDateTimeLocal(goal.deadline));
     setError(null);
   }, [open, goal]);
 
@@ -70,27 +81,37 @@ export function UpdateProgressForm({
       return;
     }
 
+    // Monta o payload: sempre envia progresso; envia prazo apenas se
+    // o usuário preencheu o campo (convertido para ISO).
+    const body: { progress: number; deadline?: string } = { progress: next };
+    if (deadline) {
+      const parsed = new Date(deadline);
+      if (Number.isNaN(parsed.getTime())) {
+        setError(GOAL_VALIDATION_MESSAGES.deadline.invalid);
+        return;
+      }
+      body.deadline = parsed.toISOString();
+    }
+
     setSubmitting(true);
     setError(null);
     try {
       const res = await fetch(`/api/goals/${goal.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ progress: next }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as
-          | {
-              message?: string;
-              fields?: Array<{ path: string; message: string }>;
-            }
-          | null;
-        const fieldMsg = data?.fields?.find((f) => f.path === 'progress')?.message;
+        const data = (await res.json().catch(() => null)) as {
+          message?: string;
+          fields?: Array<{ path: string; message: string }>;
+        } | null;
+        const fieldMsg =
+          data?.fields?.find((f) => f.path === 'deadline')?.message ??
+          data?.fields?.find((f) => f.path === 'progress')?.message;
         setError(
-          fieldMsg ??
-            data?.message ??
-            'Não foi possível atualizar o progresso. Tente novamente.',
+          fieldMsg ?? data?.message ?? 'Não foi possível atualizar a meta. Tente novamente.',
         );
         return;
       }
@@ -108,19 +129,14 @@ export function UpdateProgressForm({
     <Modal
       open={open}
       onClose={submitting ? () => {} : onClose}
-      title="Atualizar progresso"
+      title="Atualizar meta"
       description={goal ? `Meta: ${goal.name}` : undefined}
       size="md"
       closeOnEscape={!submitting}
       closeOnOverlayClick={!submitting}
       footer={
         <div className="flex w-full items-center justify-end gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onClose}
-            disabled={submitting}
-          >
+          <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
           <Button
@@ -152,10 +168,7 @@ export function UpdateProgressForm({
 
         <div className="flex flex-col gap-3">
           <div className="flex items-end justify-between">
-            <label
-              htmlFor="goal-progress-range"
-              className="text-sm font-medium text-text-primary"
-            >
+            <label htmlFor="goal-progress-range" className="text-sm font-medium text-text-primary">
               Progresso
             </label>
             <span
@@ -196,6 +209,22 @@ export function UpdateProgressForm({
             />
             <span className="text-sm text-text-muted">%</span>
           </div>
+        </div>
+
+        {/* Ajuste de prazo */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="goal-deadline" className="text-sm font-medium text-text-primary">
+            Prazo
+          </label>
+          <input
+            id="goal-deadline"
+            type="datetime-local"
+            value={deadline}
+            onChange={(e) => setDeadline(e.target.value)}
+            disabled={submitting}
+            className="h-10 w-full rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30 disabled:cursor-not-allowed disabled:bg-surface-bg"
+          />
+          <p className="text-xs text-text-muted">O prazo deve ser uma data futura.</p>
         </div>
       </form>
     </Modal>

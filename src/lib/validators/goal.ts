@@ -86,10 +86,8 @@ export const GOAL_VALIDATION_MESSAGES = {
     invalid: 'Tipo de meta inválido.',
   },
   area: {
-    requiredForAreaGoal:
-      'Selecione a área para metas do tipo "Área".',
-    forbiddenForGeneralGoal:
-      'Metas gerais não devem ter área associada.',
+    requiredForAreaGoal: 'Selecione a área para metas do tipo "Área".',
+    forbiddenForGeneralGoal: 'Metas gerais não devem ter área associada.',
     invalid: 'Área inválida.',
   },
   deadline: {
@@ -206,6 +204,38 @@ export const updateProgressSchema = z.object({
 });
 
 export type UpdateProgressInput = z.infer<typeof updateProgressSchema>;
+
+/**
+ * Payload de atualização combinada (Task: ajustar prazo da meta).
+ *
+ * Permite atualizar `progress` e/ou `deadline` em uma única chamada
+ * PATCH. Ambos os campos são opcionais, mas ao menos um deve ser
+ * informado (caso contrário a requisição não faz sentido).
+ *
+ *   - `progress` → inteiro 0-100 (mesma regra do `updateProgressSchema`).
+ *   - `deadline` → ISO 8601 estritamente no futuro (reusa
+ *                  `futureDateTime` — não permitimos remarcar para uma
+ *                  data passada, coerente com Req 9.6).
+ */
+export const updateGoalSchema = z
+  .object({
+    progress: z
+      .number({ error: GOAL_VALIDATION_MESSAGES.progress.required })
+      .int({ message: GOAL_VALIDATION_MESSAGES.progress.invalid })
+      .min(GOAL_PROGRESS_MIN, {
+        message: GOAL_VALIDATION_MESSAGES.progress.outOfRange,
+      })
+      .max(GOAL_PROGRESS_MAX, {
+        message: GOAL_VALIDATION_MESSAGES.progress.outOfRange,
+      })
+      .optional(),
+    deadline: futureDateTime.optional(),
+  })
+  .refine((data) => data.progress !== undefined || data.deadline !== undefined, {
+    message: 'Informe ao menos um campo para atualizar (progresso ou prazo).',
+  });
+
+export type UpdateGoalInput = z.infer<typeof updateGoalSchema>;
 
 /**
  * Schema dos query params de `GET /api/goals`. Hoje aceitamos:
