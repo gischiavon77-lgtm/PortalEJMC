@@ -1,10 +1,12 @@
 'use client';
 
 /**
- * HighlightsCarousel — Carrossel de destaques do dashboard.
+ * HighlightsCarousel — 3 carrosséis de destaques do dashboard.
  *
- * Exibe 5 cards de destaque (trainee, coordenador, assessor, gerente, equipe)
- * em um carrossel horizontal com efeito de glow/brilho por trás das fotos.
+ * 1. ✨ DESTAQUES — trainee, coordenador, assessor, gerente, equipe (left-to-right)
+ * 2. 🏆 REFERÊNCIAS — ref-trainee, ref-coordenador, ref-assessor, ref-gerente, ref-equipe (right-to-left)
+ * 3. 🎖️ PRÊMIO CULTURA — premio-movimento, premio-sangue, premio-uniao, premio-coracao, premio-voz (left-to-right)
+ *
  * Admin/Diretor podem fazer upload/editar os destaques via modal inline.
  */
 
@@ -25,10 +27,21 @@ interface Highlight {
 interface SlotConfig {
   slot: string;
   label: string;
-  aspectRatio: string; // Tailwind aspect-ratio class
+  aspectRatio: string;
+  wide?: boolean;
 }
 
-const SLOTS: SlotConfig[] = [
+interface CarouselConfig {
+  title: string;
+  slots: SlotConfig[];
+  direction: 'forward' | 'reverse';
+  labelColor: string;
+  glowGradient: string;
+}
+
+// ─── Slot Definitions ────────────────────────────────────────────────
+
+const DESTAQUES_SLOTS: SlotConfig[] = [
   { slot: 'trainee', label: 'TRAINEE DESTAQUE', aspectRatio: 'aspect-[5/7]' },
   { slot: 'coordenador', label: 'COORDENADOR DESTAQUE', aspectRatio: 'aspect-[5/7]' },
   { slot: 'assessor', label: 'ASSESSOR DESTAQUE', aspectRatio: 'aspect-[5/7]' },
@@ -37,10 +50,58 @@ const SLOTS: SlotConfig[] = [
     slot: 'equipe',
     label: 'EQUIPE DESTAQUE',
     aspectRatio: 'aspect-[5/7] sm:aspect-auto sm:h-[360px]',
+    wide: true,
   },
 ];
 
-// ─── Component ───────────────────────────────────────────────────────
+const REFERENCIAS_SLOTS: SlotConfig[] = [
+  { slot: 'ref-trainee', label: 'TRAINEE REFERÊNCIA', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'ref-coordenador', label: 'COORDENADOR REFERÊNCIA', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'ref-assessor', label: 'ASSESSOR REFERÊNCIA', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'ref-gerente', label: 'GERENTE REFERÊNCIA', aspectRatio: 'aspect-[5/7]' },
+  {
+    slot: 'ref-equipe',
+    label: 'EQUIPE REFERÊNCIA',
+    aspectRatio: 'aspect-[5/7] sm:aspect-auto sm:h-[360px]',
+    wide: true,
+  },
+];
+
+const PREMIOS_SLOTS: SlotConfig[] = [
+  { slot: 'premio-movimento', label: 'PRÊMIO MOVIMENTO', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'premio-sangue', label: 'PRÊMIO SANGUE NO OLHO', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'premio-uniao', label: 'PRÊMIO UNIÃO', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'premio-coracao', label: 'PRÊMIO CORAÇÃO EJMC', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'premio-voz', label: 'PRÊMIO VOZ DO CLIENTE', aspectRatio: 'aspect-[5/7]' },
+];
+
+const ALL_SLOTS: SlotConfig[] = [...DESTAQUES_SLOTS, ...REFERENCIAS_SLOTS, ...PREMIOS_SLOTS];
+
+const CAROUSELS: CarouselConfig[] = [
+  {
+    title: '✨ DESTAQUES',
+    slots: DESTAQUES_SLOTS,
+    direction: 'forward',
+    labelColor: 'text-amber-400',
+    glowGradient: 'from-[#c0182e] to-amber-500',
+  },
+  {
+    title: '🏆 REFERÊNCIAS',
+    slots: REFERENCIAS_SLOTS,
+    direction: 'reverse',
+    labelColor: 'text-red-500',
+    glowGradient: 'from-[#c0182e] to-orange-500',
+  },
+  {
+    title: '🎖️ PRÊMIO CULTURA',
+    slots: PREMIOS_SLOTS,
+    direction: 'forward',
+    labelColor: 'text-gray-300',
+    glowGradient: 'from-white/60 to-gray-400',
+  },
+];
+
+// ─── Main Component ──────────────────────────────────────────────────
 
 export function HighlightsCarousel() {
   const [highlights, setHighlights] = useState<Highlight[]>([]);
@@ -69,43 +130,18 @@ export function HighlightsCarousel() {
 
   const getHighlight = (slot: string) => highlights.find((h) => h.slot === slot) ?? null;
 
-  // Auto-scroll removido — usamos animação CSS marquee infinita
-
   return (
-    <section className="w-full bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      {/* Title */}
-      <h2 className="mb-8 text-center font-heading text-2xl font-bold tracking-wide text-white sm:text-3xl">
-        ✨ DESTAQUES
-      </h2>
-
-      {/* Infinite marquee carousel */}
-      <div className="relative mx-auto max-w-7xl overflow-hidden">
-        <div className="flex animate-marquee gap-6 w-max">
-          {/* First set */}
-          {loading
-            ? SLOTS.map((s) => <SkeletonCard key={`a-${s.slot}`} config={s} />)
-            : SLOTS.map((s) => (
-                <HighlightCard
-                  key={`a-${s.slot}`}
-                  config={s}
-                  highlight={getHighlight(s.slot)}
-                  canManage={canManage}
-                  onEdit={() => setEditingSlot(s.slot)}
-                />
-              ))}
-          {/* Duplicated set for seamless loop */}
-          {!loading &&
-            SLOTS.map((s) => (
-              <HighlightCard
-                key={`b-${s.slot}`}
-                config={s}
-                highlight={getHighlight(s.slot)}
-                canManage={canManage}
-                onEdit={() => setEditingSlot(s.slot)}
-              />
-            ))}
-        </div>
-      </div>
+    <div className="bg-[#0a0a0a] min-h-screen">
+      {CAROUSELS.map((carousel) => (
+        <CarouselSection
+          key={carousel.title}
+          config={carousel}
+          loading={loading}
+          canManage={canManage}
+          onEdit={setEditingSlot}
+          getHighlight={getHighlight}
+        />
+      ))}
 
       {/* Upload/Edit Modal */}
       {editingSlot && (
@@ -119,6 +155,67 @@ export function HighlightsCarousel() {
           }}
         />
       )}
+    </div>
+  );
+}
+
+// ─── Carousel Section ────────────────────────────────────────────────
+
+function CarouselSection({
+  config,
+  loading,
+  canManage,
+  onEdit,
+  getHighlight,
+}: {
+  config: CarouselConfig;
+  loading: boolean;
+  canManage: boolean;
+  onEdit: (slot: string) => void;
+  getHighlight: (slot: string) => Highlight | null;
+}) {
+  const animationClass =
+    config.direction === 'forward' ? 'animate-marquee' : 'animate-marquee-reverse';
+
+  return (
+    <section className="w-full bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      {/* Title */}
+      <h2 className="mb-8 text-center font-heading text-2xl font-bold tracking-wide text-white sm:text-3xl">
+        {config.title}
+      </h2>
+
+      {/* Infinite marquee carousel */}
+      <div className="relative mx-auto max-w-7xl overflow-hidden">
+        <div className={`flex ${animationClass} gap-6 w-max`}>
+          {/* First set */}
+          {loading
+            ? config.slots.map((s) => <SkeletonCard key={`a-${s.slot}`} config={s} />)
+            : config.slots.map((s) => (
+                <HighlightCard
+                  key={`a-${s.slot}`}
+                  config={s}
+                  highlight={getHighlight(s.slot)}
+                  canManage={canManage}
+                  onEdit={() => onEdit(s.slot)}
+                  labelColor={config.labelColor}
+                  glowGradient={config.glowGradient}
+                />
+              ))}
+          {/* Duplicated set for seamless loop */}
+          {!loading &&
+            config.slots.map((s) => (
+              <HighlightCard
+                key={`b-${s.slot}`}
+                config={s}
+                highlight={getHighlight(s.slot)}
+                canManage={canManage}
+                onEdit={() => onEdit(s.slot)}
+                labelColor={config.labelColor}
+                glowGradient={config.glowGradient}
+              />
+            ))}
+        </div>
+      </div>
     </section>
   );
 }
@@ -130,23 +227,29 @@ function HighlightCard({
   highlight,
   canManage,
   onEdit,
+  labelColor,
+  glowGradient,
 }: {
   config: SlotConfig;
   highlight: Highlight | null;
   canManage: boolean;
   onEdit: () => void;
+  labelColor: string;
+  glowGradient: string;
 }) {
   const hasPhoto = !!highlight?.photoUrl;
 
   return (
     <div
-      className={`flex-shrink-0 snap-center ${config.slot === 'equipe' ? 'w-80 sm:w-[400px]' : 'w-56 sm:w-64'}`}
+      className={`flex-shrink-0 snap-center ${config.wide ? 'w-80 sm:w-[400px]' : 'w-56 sm:w-64'}`}
     >
       <div className="relative flex flex-col items-center rounded-2xl bg-[#1a1a1a] border border-white/5 p-4 transition hover:border-white/10">
         {/* Glow effect */}
         <div className="relative w-full">
           {hasPhoto && (
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#c0182e] to-amber-500 opacity-40 blur-xl scale-90" />
+            <div
+              className={`absolute inset-0 rounded-xl bg-gradient-to-r ${glowGradient} opacity-40 blur-xl scale-90`}
+            />
           )}
 
           {/* Photo container */}
@@ -179,7 +282,9 @@ function HighlightCard({
         </p>
 
         {/* Category label */}
-        <p className="mt-1 text-center text-[10px] font-semibold uppercase tracking-widest text-amber-400">
+        <p
+          className={`mt-1 text-center text-[10px] font-semibold uppercase tracking-widest ${labelColor}`}
+        >
           {config.label}
         </p>
 
@@ -201,7 +306,9 @@ function HighlightCard({
 
 function SkeletonCard({ config }: { config: SlotConfig }) {
   return (
-    <div className="flex-shrink-0 snap-center w-56 sm:w-64">
+    <div
+      className={`flex-shrink-0 snap-center ${config.wide ? 'w-80 sm:w-[400px]' : 'w-56 sm:w-64'}`}
+    >
       <div className="flex flex-col items-center rounded-2xl bg-[#1a1a1a] border border-white/5 p-4">
         <div className={`w-full ${config.aspectRatio} rounded-xl bg-[#2a2a2a] animate-pulse`} />
         <div className="mt-3 h-4 w-24 rounded bg-[#2a2a2a] animate-pulse" />
@@ -230,7 +337,7 @@ function UploadModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const slotLabel = SLOTS.find((s) => s.slot === slot)?.label ?? slot;
+  const slotLabel = ALL_SLOTS.find((s) => s.slot === slot)?.label ?? slot;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;

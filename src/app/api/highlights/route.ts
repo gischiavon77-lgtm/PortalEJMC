@@ -12,7 +12,23 @@ import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 
-const VALID_SLOTS = ['trainee', 'coordenador', 'assessor', 'gerente', 'equipe'] as const;
+const VALID_SLOTS = [
+  'trainee',
+  'coordenador',
+  'assessor',
+  'gerente',
+  'equipe',
+  'ref-trainee',
+  'ref-coordenador',
+  'ref-assessor',
+  'ref-gerente',
+  'ref-equipe',
+  'premio-movimento',
+  'premio-sangue',
+  'premio-uniao',
+  'premio-coracao',
+  'premio-voz',
+] as const;
 type Slot = (typeof VALID_SLOTS)[number];
 
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5MB
@@ -56,7 +72,7 @@ async function upsertHandler(
   // Validação
   const errors: string[] = [];
   if (!slot || !VALID_SLOTS.includes(slot as Slot)) {
-    errors.push('Slot inválido. Valores aceitos: trainee, coordenador, assessor, gerente, equipe.');
+    errors.push('Slot inválido.');
   }
   if (!name || name.trim().length === 0) errors.push('Nome é obrigatório.');
   if (name && name.trim().length > 150) errors.push('Nome deve ter no máximo 150 caracteres.');

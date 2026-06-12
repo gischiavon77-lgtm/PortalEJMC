@@ -11,7 +11,23 @@ import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
 
-const VALID_SLOTS = ['trainee', 'coordenador', 'assessor', 'gerente', 'equipe'] as const;
+const VALID_SLOTS = [
+  'trainee',
+  'coordenador',
+  'assessor',
+  'gerente',
+  'equipe',
+  'ref-trainee',
+  'ref-coordenador',
+  'ref-assessor',
+  'ref-gerente',
+  'ref-equipe',
+  'premio-movimento',
+  'premio-sangue',
+  'premio-uniao',
+  'premio-coracao',
+  'premio-voz',
+] as const;
 type Slot = (typeof VALID_SLOTS)[number];
 
 interface SlotRouteParams {
