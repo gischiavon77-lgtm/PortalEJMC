@@ -57,7 +57,7 @@ export interface ProjectFormProps {
 
 export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectFormProps) {
   const [name, setName] = useState('');
-  const [ferramenta, setFerramenta] = useState(FERRAMENTAS[0]);
+  const [ferramenta, setFerramenta] = useState<string>(FERRAMENTAS[0]);
   const [progress, setProgress] = useState(0);
   const [team, setTeam] = useState('');
   const [price, setPrice] = useState('');
