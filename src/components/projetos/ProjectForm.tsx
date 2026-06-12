@@ -1,44 +1,93 @@
 'use client';
 
 /**
- * `ProjectForm` — Formulário de criação de projeto.
+ * `ProjectForm` — Formulário de criação/edição de projeto.
  *
- * Renderizado dentro do `Modal` da UI base. Apenas Admin pode montar
- * este componente — o controle vive no parent (`ProjectsShell`) via
- * `usePermission('project:updateStatus')`. A API revalida no servidor.
+ * Modal com campos: Nome, Ferramenta (dropdown), Progresso (slider 0-100),
+ * Equipe (texto, comma-separated), Preço (R$), Proposta Comercial (PDF upload).
  *
- * Campos:
- *   - `name`        → texto, obrigatório, max 200 chars.
- *   - `description` → textarea, opcional, max 2000 chars.
+ * Envia como FormData (multipart) para suportar upload de arquivo.
  */
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 import { Button, Input, Modal } from '@/components/ui';
 
-const NAME_MAX = 200;
-const DESCRIPTION_MAX = 2000;
+import type { ProjectItem } from './ProjectsShell';
 
-type FormErrors = Partial<Record<'name' | 'description' | '_global', string>>;
+// ─── Ferramenta dropdown options (hardcoded from portfolio) ───
+
+const FERRAMENTAS = [
+  'Branding Innovation',
+  'Marketing Estratégico',
+  'Plano de Marketing Digital',
+  'Apresentação Estratégica',
+  'Pesquisa de Mercado',
+  'Análise Concorrencial',
+  'Análise Setorial',
+  'Geomarketing',
+  'Estudo de Mercado',
+  'Mapeamento de Processos',
+  'Mapeamento de Profissionais',
+  'Plano de Salários',
+  'Base de Dados',
+  'Indicadores e BI',
+  'Desenvolvimento Web',
+  'Viabilidade de Negócios',
+  'Plano de Negócios',
+  'Estruturação Comercial e CRM',
+  'Estruturação de Fluxo de Caixa e DRE',
+  'Precificação',
+  'Análise de Viabilidade Econômico-Financeira',
+  'Reestruturação Financeira',
+] as const;
+
+const MAX_PROPOSAL_SIZE = 10 * 1024 * 1024; // 10MB
+
+type FormErrors = Partial<
+  Record<'name' | 'ferramenta' | 'progress' | 'team' | 'price' | 'proposal' | '_global', string>
+>;
 
 export interface ProjectFormProps {
   open: boolean;
   onClose: () => void;
   onSaved: () => void;
+  editProject?: ProjectItem | null;
 }
 
-export function ProjectForm({ open, onClose, onSaved }: ProjectFormProps) {
+export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectFormProps) {
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [ferramenta, setFerramenta] = useState(FERRAMENTAS[0]);
+  const [progress, setProgress] = useState(0);
+  const [team, setTeam] = useState('');
+  const [price, setPrice] = useState('');
+  const [proposalFile, setProposalFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isEditing = Boolean(editProject);
+
   useEffect(() => {
     if (!open) return;
-    setName('');
-    setDescription('');
+    if (editProject) {
+      setName(editProject.name);
+      setFerramenta(editProject.ferramenta);
+      setProgress(editProject.progress);
+      setTeam(editProject.team);
+      setPrice(editProject.price > 0 ? String(editProject.price) : '');
+    } else {
+      setName('');
+      setFerramenta(FERRAMENTAS[0]);
+      setProgress(0);
+      setTeam('');
+      setPrice('');
+    }
+    setProposalFile(null);
     setErrors({});
-  }, [open]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, [open, editProject]);
 
   async function handleSubmit(ev: FormEvent<HTMLFormElement>) {
     ev.preventDefault();
@@ -47,18 +96,33 @@ export function ProjectForm({ open, onClose, onSaved }: ProjectFormProps) {
     setErrors({});
 
     const trimmedName = name.trim();
-    const trimmedDesc = description.trim();
+    const trimmedTeam = team.trim();
 
     // Client-side validation
     const next: FormErrors = {};
     if (!trimmedName) {
       next.name = 'Nome é obrigatório.';
-    } else if (trimmedName.length > NAME_MAX) {
-      next.name = `Nome deve ter no máximo ${NAME_MAX} caracteres.`;
+    } else if (trimmedName.length > 200) {
+      next.name = 'Nome deve ter no máximo 200 caracteres.';
     }
-    if (trimmedDesc.length > DESCRIPTION_MAX) {
-      next.description = `Descrição deve ter no máximo ${DESCRIPTION_MAX} caracteres.`;
+    if (!ferramenta) {
+      next.ferramenta = 'Ferramenta é obrigatória.';
     }
+    if (progress < 0 || progress > 100) {
+      next.progress = 'Progresso deve estar entre 0 e 100.';
+    }
+    const priceNum = price ? parseFloat(price) : 0;
+    if (price && (isNaN(priceNum) || priceNum < 0)) {
+      next.price = 'Preço deve ser um número positivo.';
+    }
+    if (proposalFile) {
+      if (proposalFile.type !== 'application/pdf') {
+        next.proposal = 'Apenas arquivos PDF são aceitos.';
+      } else if (proposalFile.size > MAX_PROPOSAL_SIZE) {
+        next.proposal = 'O arquivo deve ter no máximo 10MB.';
+      }
+    }
+
     if (Object.keys(next).length > 0) {
       setErrors(next);
       return;
@@ -66,14 +130,20 @@ export function ProjectForm({ open, onClose, onSaved }: ProjectFormProps) {
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: trimmedName,
-          description: trimmedDesc || undefined,
-        }),
-      });
+      const formData = new FormData();
+      formData.append('name', trimmedName);
+      formData.append('ferramenta', ferramenta);
+      formData.append('progress', String(progress));
+      formData.append('team', trimmedTeam);
+      formData.append('price', String(priceNum));
+      if (proposalFile) {
+        formData.append('proposal', proposalFile);
+      }
+
+      const url = isEditing ? `/api/projects/${editProject!.id}` : '/api/projects';
+      const method = isEditing ? 'PATCH' : 'POST';
+
+      const res = await fetch(url, { method, body: formData });
 
       if (!res.ok) {
         const data = (await res.json().catch(() => null)) as {
@@ -91,7 +161,7 @@ export function ProjectForm({ open, onClose, onSaved }: ProjectFormProps) {
           setErrors(fieldErrors);
         } else {
           setErrors({
-            _global: data?.message ?? 'Não foi possível criar o projeto. Tente novamente.',
+            _global: data?.message ?? 'Não foi possível salvar o projeto. Tente novamente.',
           });
         }
         return;
@@ -112,8 +182,10 @@ export function ProjectForm({ open, onClose, onSaved }: ProjectFormProps) {
     <Modal
       open={open}
       onClose={submitting ? () => {} : onClose}
-      title="Novo projeto"
-      description="Cadastre um novo projeto da empresa."
+      title={isEditing ? 'Editar projeto' : 'Novo projeto'}
+      description={
+        isEditing ? 'Atualize os dados do projeto.' : 'Cadastre um novo projeto da empresa.'
+      }
       size="md"
       closeOnEscape={!submitting}
       closeOnOverlayClick={!submitting}
@@ -123,7 +195,7 @@ export function ProjectForm({ open, onClose, onSaved }: ProjectFormProps) {
             Cancelar
           </Button>
           <Button type="submit" form="project-form" variant="primary" loading={submitting}>
-            Criar projeto
+            {isEditing ? 'Salvar' : 'Criar projeto'}
           </Button>
         </div>
       }
@@ -138,6 +210,7 @@ export function ProjectForm({ open, onClose, onSaved }: ProjectFormProps) {
           </div>
         )}
 
+        {/* Nome */}
         <Input
           label="Nome"
           name="name"
@@ -146,52 +219,138 @@ export function ProjectForm({ open, onClose, onSaved }: ProjectFormProps) {
             setName(e.target.value);
             setErrors((prev) => ({ ...prev, name: undefined, _global: undefined }));
           }}
-          maxLength={NAME_MAX}
+          maxLength={200}
           required
           placeholder="Ex.: Redesign do site corporativo"
           error={errors.name}
-          helperText={`${name.trim().length}/${NAME_MAX} caracteres`}
           disabled={submitting}
         />
 
+        {/* Ferramenta (dropdown) */}
         <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="project-description" className="text-sm font-medium text-text-primary">
-            Descrição
+          <label htmlFor="project-ferramenta" className="text-sm font-medium text-text-primary">
+            Ferramenta <span className="text-red-vivid">*</span>
           </label>
-          <textarea
-            id="project-description"
-            value={description}
+          <select
+            id="project-ferramenta"
+            value={ferramenta}
             onChange={(e) => {
-              setDescription(e.target.value);
-              setErrors((prev) => ({ ...prev, description: undefined, _global: undefined }));
+              setFerramenta(e.target.value);
+              setErrors((prev) => ({ ...prev, ferramenta: undefined, _global: undefined }));
             }}
-            maxLength={DESCRIPTION_MAX}
-            rows={4}
             disabled={submitting}
-            placeholder="Descreva brevemente o projeto (opcional)."
-            aria-invalid={Boolean(errors.description) || undefined}
-            aria-describedby={
-              errors.description ? 'project-description-error' : 'project-description-hint'
-            }
             className={[
-              'w-full resize-y rounded-md border bg-white px-3 py-2 text-sm text-text-primary',
-              'placeholder:text-text-muted',
+              'h-10 w-full rounded-md border bg-white px-3 text-sm text-text-primary',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
-              errors.description
-                ? 'border-red-vivid focus-visible:border-red-vivid focus-visible:ring-red-vivid/30'
+              errors.ferramenta
+                ? 'border-red-vivid focus-visible:border-red-vivid'
                 : 'border-border-light focus-visible:border-red-core',
               'disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-text-muted',
             ].join(' ')}
+          >
+            {FERRAMENTAS.map((f) => (
+              <option key={f} value={f}>
+                {f}
+              </option>
+            ))}
+          </select>
+          {errors.ferramenta && <p className="text-xs text-red-vivid">{errors.ferramenta}</p>}
+        </div>
+
+        {/* Progresso (slider) */}
+        <div className="flex w-full flex-col gap-1.5">
+          <label htmlFor="project-progress" className="text-sm font-medium text-text-primary">
+            Progresso: {progress}%
+          </label>
+          <input
+            id="project-progress"
+            type="range"
+            min={0}
+            max={100}
+            value={progress}
+            onChange={(e) => {
+              setProgress(parseInt(e.target.value, 10));
+              setErrors((prev) => ({ ...prev, progress: undefined, _global: undefined }));
+            }}
+            disabled={submitting}
+            className="w-full accent-red-core"
           />
-          {errors.description ? (
-            <p id="project-description-error" className="text-xs text-red-vivid">
-              {errors.description}
-            </p>
-          ) : (
-            <p id="project-description-hint" className="text-xs text-text-muted">
-              {description.trim().length}/{DESCRIPTION_MAX} caracteres
+          {errors.progress && <p className="text-xs text-red-vivid">{errors.progress}</p>}
+        </div>
+
+        {/* Equipe */}
+        <Input
+          label="Equipe"
+          name="team"
+          value={team}
+          onChange={(e) => {
+            setTeam(e.target.value);
+            setErrors((prev) => ({ ...prev, team: undefined, _global: undefined }));
+          }}
+          placeholder="Nomes separados por vírgula (ex.: João, Maria, Pedro)"
+          error={errors.team}
+          disabled={submitting}
+        />
+
+        {/* Preço */}
+        <div className="flex w-full flex-col gap-1.5">
+          <label htmlFor="project-price" className="text-sm font-medium text-text-primary">
+            Preço (R$)
+          </label>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">
+              R$
+            </span>
+            <input
+              id="project-price"
+              type="number"
+              min={0}
+              step="0.01"
+              value={price}
+              onChange={(e) => {
+                setPrice(e.target.value);
+                setErrors((prev) => ({ ...prev, price: undefined, _global: undefined }));
+              }}
+              disabled={submitting}
+              placeholder="0,00"
+              className={[
+                'h-10 w-full rounded-md border bg-white pl-10 pr-3 text-sm text-text-primary',
+                'placeholder:text-text-muted',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
+                errors.price
+                  ? 'border-red-vivid focus-visible:border-red-vivid'
+                  : 'border-border-light focus-visible:border-red-core',
+                'disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-text-muted',
+              ].join(' ')}
+            />
+          </div>
+          {errors.price && <p className="text-xs text-red-vivid">{errors.price}</p>}
+        </div>
+
+        {/* Proposta Comercial (PDF upload) */}
+        <div className="flex w-full flex-col gap-1.5">
+          <label htmlFor="project-proposal" className="text-sm font-medium text-text-primary">
+            Proposta Comercial (PDF, máx. 10MB)
+          </label>
+          <input
+            id="project-proposal"
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf"
+            onChange={(e) => {
+              const file = e.target.files?.[0] ?? null;
+              setProposalFile(file);
+              setErrors((prev) => ({ ...prev, proposal: undefined, _global: undefined }));
+            }}
+            disabled={submitting}
+            className="text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-red-core/10 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-red-core hover:file:bg-red-core/20"
+          />
+          {isEditing && editProject?.proposalUrl && !proposalFile && (
+            <p className="text-xs text-text-muted">
+              📄 Proposta existente. Selecione um novo arquivo para substituir.
             </p>
           )}
+          {errors.proposal && <p className="text-xs text-red-vivid">{errors.proposal}</p>}
         </div>
       </form>
     </Modal>

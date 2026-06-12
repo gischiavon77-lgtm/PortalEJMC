@@ -57,7 +57,6 @@
  *      - `Event`        → "Cronograma" (eventos sincronizados com
  *                         Google Calendar);
  *      - `Announcement` → "Comunicado" publicado no mural;
- *      - `ProjectStatusHistory` → "Projeto" mudou de status;
  *      - `GoalUpdate`   → "Meta" teve progresso atualizado.
  *
  *    Cada fonte é normalizada para `{ id, type, title, timestamp }`,
@@ -74,7 +73,7 @@
  *    `changedAt` que indica quando a coisa "aconteceu".
  *
  *    O id de cada atividade recebe um prefixo do tipo
- *    (`event:`, `announcement:`, `project-status:`, `goal-update:`)
+ *    (`event:`, `announcement:`, `goal-update:`)
  *    para que a UI possa usar `id` como `key` do React sem risco de
  *    colisão entre os modelos (ids do Prisma são `cuid`, mas uma
  *    `Announcement` e um `Event` poderiam — ainda que improvável —
@@ -114,11 +113,7 @@ export interface DashboardSummary {
 }
 
 /** Tipos discriminantes da feed de atividades (Req 7.7). */
-export type DashboardActivityType =
-  | 'event'
-  | 'announcement'
-  | 'project-status'
-  | 'goal-update';
+export type DashboardActivityType = 'event' | 'announcement' | 'goal-update';
 
 /** Item normalizado da feed de atividades. */
 export interface DashboardActivity {
@@ -215,8 +210,14 @@ export async function getDashboardSummary(now: Date = new Date()): Promise<Dashb
     readMonthlyKpiValue(KPI_NAMES.monthlyLeads, start, end),
   ] as const;
 
-  const [activeMembers, projectsInProgress, projectsFrozen, monthlyRevenue, revenueGoal, monthlyLeads] =
-    await Promise.all(tasks);
+  const [
+    activeMembers,
+    projectsInProgress,
+    projectsFrozen,
+    monthlyRevenue,
+    revenueGoal,
+    monthlyLeads,
+  ] = await Promise.all(tasks);
 
   return {
     activeMembers,
@@ -243,18 +244,15 @@ async function safeCount(fn: () => Promise<number>): Promise<number> {
 
 /**
  * Atividades do mês corrente (Req 7.7). Combina eventos do
- * cronograma, comunicados, mudanças de status de projetos e
- * atualizações de progresso de metas; ordena por `timestamp` desc;
- * limita a 10 itens.
+ * cronograma, comunicados e atualizações de progresso de metas;
+ * ordena por `timestamp` desc; limita a 10 itens.
  */
-export async function getDashboardActivities(
-  now: Date = new Date(),
-): Promise<DashboardActivity[]> {
+export async function getDashboardActivities(now: Date = new Date()): Promise<DashboardActivity[]> {
   const { start, end } = getCurrentMonthRange(now);
 
   // Consultamos cada fonte com `take: ACTIVITY_LIMIT` para limitar
   // o tráfego — depois unimos e pegamos os 10 mais recentes da união.
-  const [events, announcements, projectChanges, goalUpdates] = await Promise.all([
+  const [events, announcements, goalUpdates] = await Promise.all([
     safeFindMany(() =>
       prisma.event.findMany({
         where: { startsAt: { gte: start, lt: end } },
@@ -277,20 +275,6 @@ export async function getDashboardActivities(
           title: true,
           createdAt: true,
           author: { select: { name: true } },
-        },
-      }),
-    ),
-    safeFindMany(() =>
-      prisma.projectStatusHistory.findMany({
-        where: { changedAt: { gte: start, lt: end } },
-        orderBy: { changedAt: 'desc' },
-        take: ACTIVITY_LIMIT,
-        select: {
-          id: true,
-          oldStatus: true,
-          newStatus: true,
-          changedAt: true,
-          project: { select: { name: true } },
         },
       }),
     ),
@@ -324,13 +308,6 @@ export async function getDashboardActivities(
       detail: a.author?.name ? `Por ${a.author.name}` : 'Comunicado publicado',
       timestamp: a.createdAt.toISOString(),
     })),
-    ...projectChanges.map<DashboardActivity>((c) => ({
-      id: `project-status:${c.id}`,
-      type: 'project-status',
-      title: c.project?.name ?? 'Projeto',
-      detail: formatStatusChange(c.oldStatus, c.newStatus),
-      timestamp: c.changedAt.toISOString(),
-    })),
     ...goalUpdates.map<DashboardActivity>((u) => ({
       id: `goal-update:${u.id}`,
       type: 'goal-update',
@@ -355,35 +332,4 @@ async function safeFindMany<T>(fn: () => Promise<T[]>): Promise<T[]> {
     console.error('[dashboard] Falha em findMany():', err);
     return [];
   }
-}
-
-/**
- * Formata uma mudança de status de projeto para a feed de atividades.
- * Usa rótulos pt-BR coerentes com o dropdown da página de Projetos
- * (Task 13). Quando `oldStatus` é `null` (criação inicial), exibe
- * apenas o novo status.
- */
-function formatStatusChange(
-  oldStatus: string | null,
-  newStatus: string,
-): string {
-  const label = (status: string) => {
-    switch (status) {
-      case 'EM_ANDAMENTO':
-        return 'Em andamento';
-      case 'CONCLUIDO':
-        return 'Concluído';
-      case 'CONGELADO':
-        return 'Congelado';
-      case 'CANCELADO':
-        return 'Cancelado';
-      default:
-        return status;
-    }
-  };
-
-  if (!oldStatus) {
-    return `Status definido como ${label(newStatus)}`;
-  }
-  return `${label(oldStatus)} → ${label(newStatus)}`;
 }

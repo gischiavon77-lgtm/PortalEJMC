@@ -39,12 +39,7 @@ enum Area {
   ADM_FIN
 }
 
-enum ProjectStatus {
-  EM_ANDAMENTO
-  CONCLUIDO
-  CONGELADO
-  CANCELADO
-}
+
 
 enum InfractionType {
   ATRASO
@@ -102,8 +97,7 @@ model User {
   goalsCreated         Goal[]
   goalUpdates          GoalUpdate[]
   kpiValues            KpiValue[]
-  projectMembers       ProjectMember[]
-  projectStatusChanges ProjectStatusHistory[]
+
   announcements        Announcement[]
   pollsCreated         Poll[]
   pollVotes            PollVote[]
@@ -204,54 +198,21 @@ model KpiValue {
   @@index([kpiId, recordedAt])
 }
 
-// Task 2.5 — Modelos `Project`, `ProjectMember`, `ProjectStatusHistory`.
+// Task 2.5 — Modelo `Project` (redesenhado).
 
-// Projeto da empresa júnior, com equipe associada e histórico de status.
+// Projeto da empresa júnior com campos simplificados.
 model Project {
-  id          String        @id @default(cuid())
-  name        String        @db.VarChar(200)
-  description String?       @db.Text
-  status      ProjectStatus @default(EM_ANDAMENTO)
-  clientName  String?       @db.VarChar(200)
-  startDate   DateTime?
-  endDate     DateTime?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(200)
+  ferramenta  String   @db.VarChar(200) // portfolio service name
+  progress    Int      @default(0) // 0-100
+  team        String   @db.Text // comma-separated names
+  price       Decimal  @db.Decimal(12, 2) @default(0)
+  proposalUrl String?  @db.Text // base64 PDF data URL
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  members       ProjectMember[]
-  statusHistory ProjectStatusHistory[]
-
-  @@index([status])
-  @@index([name])
-}
-
-// Associação entre projeto e usuário membro da equipe (com papel opcional).
-model ProjectMember {
-  id        String   @id @default(cuid())
-  projectId String
-  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  role      String?  @db.VarChar(50) // ex: "Líder", "Membro"
-  joinedAt  DateTime @default(now())
-
-  @@unique([projectId, userId])
-  @@index([userId])
-}
-
-// Histórico de mudanças de status de um projeto, com autor e observação opcional.
-model ProjectStatusHistory {
-  id          String         @id @default(cuid())
-  projectId   String
-  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  oldStatus   ProjectStatus?
-  newStatus   ProjectStatus
-  changedById String
-  changedBy   User           @relation(fields: [changedById], references: [id])
-  changedAt   DateTime       @default(now())
-  notes       String?        @db.VarChar(500)
-
-  @@index([projectId, changedAt])
+  @@index([ferramenta])
 }
 
 // Task 2.6 — Modelos `Announcement`, `Poll`, `PollOption`, `PollVote`.

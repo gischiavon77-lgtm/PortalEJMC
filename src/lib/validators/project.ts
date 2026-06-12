@@ -1,12 +1,8 @@
 /**
- * Validadores Zod para o módulo Projetos — Task 13.1.
+ * Validadores Zod para o módulo Projetos (redesenhado).
  *
- * Cobrem os payloads de:
- *   - `GET   /api/projects?status=&page=&pageSize=` → `listProjectsQuerySchema`
- *   - `PATCH /api/projects/:id/status`              → `updateProjectStatusSchema`
- *
- * Regras (design.md → UpdateProjectStatusRequest):
- *   - `status` → um dos valores de `ProjectStatus` enum do Prisma.
+ * Arquivo mantido para compatibilidade de imports — as validações
+ * agora estão inline nos route handlers (multipart/form-data).
  */
 
 import { z } from 'zod';
@@ -15,12 +11,7 @@ import { z } from 'zod';
 
 export const PROJECT_DEFAULT_PAGE_SIZE = 50;
 
-export const PROJECT_STATUSES = ['EM_ANDAMENTO', 'CONCLUIDO', 'CONGELADO', 'CANCELADO'] as const;
-
 export const PROJECT_VALIDATION_MESSAGES = {
-  status: {
-    invalid: 'Status inválido. Use: EM_ANDAMENTO, CONCLUIDO, CONGELADO ou CANCELADO.',
-  },
   page: {
     invalid: 'O número da página deve ser um inteiro positivo.',
   },
@@ -32,17 +23,9 @@ export const PROJECT_VALIDATION_MESSAGES = {
 // ─── Schemas ─────────────────────────────────────────────────────────
 
 /**
- * Query params de GET /api/projects. Aceita:
- *   - `status`   → filtro opcional por status do projeto.
- *   - `page`     → inteiro ≥ 1 (default 1).
- *   - `pageSize` → inteiro 1–100 (default 50).
+ * Query params de GET /api/projects (mantido para uso futuro).
  */
 export const listProjectsQuerySchema = z.object({
-  status: z
-    .enum(PROJECT_STATUSES, {
-      message: PROJECT_VALIDATION_MESSAGES.status.invalid,
-    })
-    .optional(),
   page: z
     .string()
     .optional()
@@ -62,15 +45,3 @@ export const listProjectsQuerySchema = z.object({
 });
 
 export type ListProjectsQueryInput = z.infer<typeof listProjectsQuerySchema>;
-
-/**
- * Payload de PATCH /api/projects/:id/status.
- * Campo `status` obrigatório — deve ser um dos valores do enum.
- */
-export const updateProjectStatusSchema = z.object({
-  status: z.enum(PROJECT_STATUSES, {
-    message: PROJECT_VALIDATION_MESSAGES.status.invalid,
-  }),
-});
-
-export type UpdateProjectStatusInput = z.infer<typeof updateProjectStatusSchema>;
