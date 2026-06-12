@@ -204,9 +204,9 @@ model KpiValue {
 model Project {
   id          String   @id @default(cuid())
   name        String   @db.VarChar(200)
-  ferramenta  String   @db.VarChar(200) // portfolio service name
+  ferramenta  String   @default("") @db.VarChar(200) // portfolio service name
   progress    Int      @default(0) // 0-100
-  team        String   @db.Text // comma-separated names
+  team        String   @default("") @db.Text // comma-separated names
   price       Decimal  @db.Decimal(12, 2) @default(0)
   proposalUrl String?  @db.Text // base64 PDF data URL
   createdAt   DateTime @default(now())
