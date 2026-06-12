@@ -42,14 +42,12 @@ export interface ActivityListProps {
 }
 
 const DEFAULT_TITLE = 'Atividades do mês';
-const DEFAULT_EMPTY_MESSAGE =
-  'Sem atividades registradas neste mês.';
+const DEFAULT_EMPTY_MESSAGE = 'Sem atividades registradas neste mês.';
 
 /** Rótulo curto exibido como "tag" do tipo de cada atividade. */
 const TYPE_LABELS: Record<DashboardActivityType, string> = {
   event: 'Cronograma',
   announcement: 'Comunicado',
-  'project-status': 'Projeto',
   'goal-update': 'Meta',
 };
 
@@ -61,7 +59,6 @@ const TYPE_LABELS: Record<DashboardActivityType, string> = {
 const TYPE_BADGE: Record<DashboardActivityType, string> = {
   event: 'bg-red-core/10 text-red-core',
   announcement: 'bg-amber-100 text-amber-700',
-  'project-status': 'bg-sky-100 text-sky-700',
   'goal-update': 'bg-emerald-100 text-emerald-700',
 };
 
@@ -100,10 +97,7 @@ export function ActivityList({
 
       <Card.Body padding="none">
         {isEmpty ? (
-          <p
-            role="status"
-            className="px-4 py-8 text-center text-sm text-text-secondary sm:px-5"
-          >
+          <p role="status" className="px-4 py-8 text-center text-sm text-text-secondary sm:px-5">
             {emptyMessage}
           </p>
         ) : (
@@ -181,12 +175,6 @@ function ActivityIcon({ type }: { type: DashboardActivityType }) {
       return (
         <svg {...common}>
           <path d="M3 11v2a2 2 0 002 2h2l5 4V5L7 9H5a2 2 0 00-2 2z" />
-        </svg>
-      );
-    case 'project-status':
-      return (
-        <svg {...common}>
-          <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
         </svg>
       );
     case 'goal-update':
