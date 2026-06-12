@@ -203,8 +203,8 @@ export async function getDashboardSummary(now: Date = new Date()): Promise<Dashb
 
   const tasks = [
     safeCount(() => prisma.user.count({ where: { status: 'ACTIVE' } })),
-    safeCount(() => prisma.project.count({ where: { status: 'EM_ANDAMENTO' } })),
-    safeCount(() => prisma.project.count({ where: { status: 'CONGELADO' } })),
+    safeCount(() => prisma.project.count({ where: { progress: { lt: 100 } } })),
+    safeCount(() => prisma.project.count({ where: { progress: 0 } })),
     readMonthlyKpiValue(KPI_NAMES.monthlyRevenue, start, end),
     readMonthlyKpiValue(KPI_NAMES.revenueGoal, start, end),
     readMonthlyKpiValue(KPI_NAMES.monthlyLeads, start, end),
