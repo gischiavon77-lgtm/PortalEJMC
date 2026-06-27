@@ -64,6 +64,7 @@ import { signOut, useSession } from 'next-auth/react';
 
 import { Sidebar } from './Sidebar';
 import { NotificationBell } from './NotificationBell';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface PortalShellProps {
   children: ReactNode;
@@ -73,6 +74,7 @@ export function PortalShell({ children }: PortalShellProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const { data: session } = useSession();
+  const { user: profile } = useCurrentUser();
 
   // Tecla Escape fecha o drawer (apenas quando aberto, para evitar
   // listeners desnecessários). Limpamos o handler no cleanup.
@@ -160,15 +162,15 @@ export function PortalShell({ children }: PortalShellProps) {
               aria-label="Menu do perfil"
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/40"
             >
-              {session?.user?.image ? (
+              {(profile?.avatarUrl ?? session?.user?.image) ? (
                 <img
-                  src={session.user.image}
-                  alt={session.user.name ?? 'Avatar'}
+                  src={(profile?.avatarUrl ?? session?.user?.image) as string}
+                  alt={profile?.name ?? session?.user?.name ?? 'Avatar'}
                   className="h-8 w-8 rounded-full object-cover"
                 />
               ) : (
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-red-core to-red-vivid text-[11px] font-bold text-white">
-                  {getInitials(session?.user?.name ?? session?.user?.email ?? '?')}
+                  {getInitials(profile?.name ?? session?.user?.name ?? session?.user?.email ?? '?')}
                 </span>
               )}
             </button>

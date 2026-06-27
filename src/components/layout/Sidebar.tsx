@@ -67,6 +67,7 @@ import { signOut, useSession } from 'next-auth/react';
 import type { Area, UserRole } from '@prisma/client';
 
 import { hasPermission, type PermissionUser } from '@/lib/permissions';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 import { MENU_ITEMS, type SidebarIconName, type SidebarItem } from './sidebar-items';
 
@@ -88,6 +89,7 @@ interface SidebarProps {
 export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
+  const { user: profile } = useCurrentUser();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const isAuthenticated = status === 'authenticated' && Boolean(session?.user);
@@ -203,10 +205,10 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
                 aria-label="Ir para perfil"
                 className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-bright/60"
               >
-                {session.user.image ? (
+                {(profile?.avatarUrl ?? session.user.image) ? (
                   <img
-                    src={session.user.image}
-                    alt={session.user.name ?? 'Avatar'}
+                    src={(profile?.avatarUrl ?? session.user.image) as string}
+                    alt={profile?.name ?? session.user.name ?? 'Avatar'}
                     className="h-9 w-9 rounded-full object-cover"
                   />
                 ) : (
@@ -214,16 +216,18 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
                     className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-red-core to-red-vivid text-xs font-bold text-white"
                     aria-hidden="true"
                   >
-                    {getInitials(session.user.name ?? session.user.email ?? '?')}
+                    {getInitials(profile?.name ?? session.user.name ?? session.user.email ?? '?')}
                   </div>
                 )}
               </Link>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-semibold text-white">
-                  {session.user.name ?? 'Usuário'}
+                  {profile?.name ?? session.user.name ?? 'Usuário'}
                 </p>
                 <p className="truncate text-[11px] uppercase tracking-[1.5px] text-white/45">
-                  {formatAreaLabel(session.user.area)}
+                  {profile?.position?.trim()
+                    ? profile.position
+                    : formatAreaLabel(profile?.area ?? session.user.area)}
                 </p>
               </div>
             </div>

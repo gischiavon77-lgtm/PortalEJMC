@@ -235,6 +235,10 @@ function AvatarSection({
       } else {
         setMessage({ type: 'success', text: data.message || 'Foto de perfil atualizada!' });
         setAvatarUrl(data.avatarUrl);
+        // Notifica sidebar/topbar para recarregar o avatar.
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('ejmc:profile-updated'));
+        }
       }
     } catch {
       setMessage({ type: 'error', text: 'Erro de conexão. Tente novamente.' });
