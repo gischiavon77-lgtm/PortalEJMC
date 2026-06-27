@@ -55,6 +55,47 @@ function progressBarColor(progress: number): string {
   return 'bg-green-500';
 }
 
+/**
+ * Abre a proposta (PDF) em uma nova aba.
+ *
+ * A proposta é armazenada como data URL base64 (`data:application/pdf;base64,...`).
+ * Navegadores bloqueiam abrir `data:` URLs diretamente em nova aba
+ * (resultando em "about:blank#blocked"). Para contornar, convertemos
+ * o data URL em um Blob e abrimos uma `blob:` URL, que não é bloqueada.
+ */
+function openProposal(dataUrl: string): void {
+  try {
+    // Aceita data URLs (base64) e também URLs http(s) (caso futuro).
+    if (!dataUrl.startsWith('data:')) {
+      window.open(dataUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    const [meta, base64] = dataUrl.split(',');
+    const mimeMatch = meta.match(/data:([^;]+)/);
+    const mime = mimeMatch ? mimeMatch[1] : 'application/pdf';
+
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    const blob = new Blob([bytes], { type: mime });
+    const blobUrl = URL.createObjectURL(blob);
+    const win = window.open(blobUrl, '_blank', 'noopener,noreferrer');
+    // Revoga o objeto após um tempo para liberar memória sem cortar
+    // o carregamento da aba recém-aberta.
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+    // Fallback: se o popup foi bloqueado, navega na própria aba.
+    if (!win) {
+      window.location.href = blobUrl;
+    }
+  } catch {
+    // Em caso de falha de decodificação, tenta abrir o data URL direto.
+    window.open(dataUrl, '_blank', 'noopener,noreferrer');
+  }
+}
+
 export function ProjectsShell({ projects }: ProjectsShellProps) {
   const router = useRouter();
 
@@ -216,14 +257,13 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
                       {formatBRL(project.price)}
                     </span>
                     {project.proposalUrl && (
-                      <a
-                        href={project.proposalUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={() => openProposal(project.proposalUrl!)}
                         className="text-blue-600 hover:underline text-xs"
                       >
                         📄 Ver Proposta
-                      </a>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -328,14 +368,13 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
                       </td>
                       <td className="px-4 py-3 align-middle">
                         {project.proposalUrl ? (
-                          <a
-                            href={project.proposalUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            type="button"
+                            onClick={() => openProposal(project.proposalUrl!)}
                             className="text-blue-600 hover:underline text-xs whitespace-nowrap"
                           >
                             📄 Ver Proposta
-                          </a>
+                          </button>
                         ) : (
                           <span className="text-text-muted text-xs">—</span>
                         )}
