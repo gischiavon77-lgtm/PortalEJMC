@@ -28,6 +28,7 @@ interface NotificationItem {
 }
 
 const STORAGE_KEY = 'ejmc:notifications:lastSeen';
+const STORAGE_KEY_CLEARED = 'ejmc:notifications:clearedAt';
 const POLL_INTERVAL_MS = 60_000;
 
 interface NotificationBellProps {
@@ -41,19 +42,26 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [open, setOpen] = useState(false);
   const [lastSeen, setLastSeen] = useState<number>(0);
+  // Itens criados até este instante ficam ocultos ("limpos"). Itens
+  // novos (criados depois) voltam a aparecer normalmente.
+  const [clearedAt, setClearedAt] = useState<number>(0);
   // `markRef` guarda o lastSeen vigente no instante em que o popover
   // abriu, para que os itens continuem destacados como "novo" mesmo
   // após zerarmos o badge.
   const markRef = useRef<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Carrega o marcador de leitura do localStorage.
+  // Carrega o marcador de leitura e de limpeza do localStorage.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const stored = window.localStorage.getItem(STORAGE_KEY);
     const value = stored ? Number(stored) : 0;
     setLastSeen(Number.isNaN(value) ? 0 : value);
     markRef.current = Number.isNaN(value) ? 0 : value;
+
+    const storedCleared = window.localStorage.getItem(STORAGE_KEY_CLEARED);
+    const clearedValue = storedCleared ? Number(storedCleared) : 0;
+    setClearedAt(Number.isNaN(clearedValue) ? 0 : clearedValue);
   }, []);
 
   const fetchNotifications = useCallback(async () => {
@@ -92,7 +100,11 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
     };
   }, [open]);
 
-  const unreadCount = items.filter((it) => new Date(it.createdAt).getTime() > lastSeen).length;
+  const visibleItems = items.filter((it) => new Date(it.createdAt).getTime() > clearedAt);
+
+  const unreadCount = visibleItems.filter(
+    (it) => new Date(it.createdAt).getTime() > lastSeen,
+  ).length;
 
   function handleToggle() {
     setOpen((prev) => {
@@ -116,6 +128,16 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
   function handleItemClick(item: NotificationItem) {
     setOpen(false);
     router.push(item.href);
+  }
+
+  function handleClear() {
+    const now = Date.now();
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY_CLEARED, String(now));
+      window.localStorage.setItem(STORAGE_KEY, String(now));
+    }
+    setClearedAt(now);
+    setLastSeen(now);
   }
 
   const iconColor =
@@ -167,85 +189,114 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
           <div className="flex items-center justify-between border-b border-border-light px-4 py-3">
             <p className="text-sm font-bold text-text-primary">Notificações</p>
             <span className="text-[11px] font-medium uppercase tracking-[1.5px] text-text-muted">
-              {items.length} {items.length === 1 ? 'aviso' : 'avisos'}
+              {visibleItems.length} {visibleItems.length === 1 ? 'aviso' : 'avisos'}
             </span>
           </div>
 
-          {items.length === 0 ? (
+          {visibleItems.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-text-muted">
               Nenhuma notificação por enquanto.
             </p>
           ) : (
-            <ul className="max-h-[22rem] overflow-y-auto py-1">
-              {items.map((item) => {
-                const isNew = new Date(item.createdAt).getTime() > markRef.current;
-                return (
-                  <li key={`${item.type}-${item.id}`}>
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={() => handleItemClick(item)}
-                      className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-none"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                          item.type === 'poll'
-                            ? 'bg-amber-100 text-amber-600'
-                            : 'bg-red-vivid/10 text-red-vivid'
-                        }`}
+            <>
+              <ul className="max-h-[22rem] overflow-y-auto py-1">
+                {visibleItems.map((item) => {
+                  const isNew = new Date(item.createdAt).getTime() > markRef.current;
+                  return (
+                    <li key={`${item.type}-${item.id}`}>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => handleItemClick(item)}
+                        className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-none"
                       >
-                        {item.type === 'poll' ? (
-                          <svg
-                            viewBox="0 0 24 24"
-                            width="16"
-                            height="16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth={1.8}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M9 11l3 3 8-8" />
-                            <path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9" />
-                          </svg>
-                        ) : (
-                          <svg
-                            viewBox="0 0 24 24"
-                            width="16"
-                            height="16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth={1.8}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <path d="M3 11v2a2 2 0 002 2h2l5 4V5L7 9H5a2 2 0 00-2 2z" />
-                            <path d="M16 8a4 4 0 010 8" />
-                          </svg>
-                        )}
-                      </span>
-                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                        <span className="flex items-center gap-2">
-                          <span className="text-[11px] font-semibold uppercase tracking-[1px] text-text-muted">
-                            {item.type === 'poll' ? 'Nova enquete' : 'Novo comunicado'}
-                          </span>
-                          {isNew && (
-                            <span className="inline-flex h-1.5 w-1.5 shrink-0 rounded-full bg-red-vivid" />
+                        <span
+                          aria-hidden="true"
+                          className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                            item.type === 'poll'
+                              ? 'bg-amber-100 text-amber-600'
+                              : 'bg-red-vivid/10 text-red-vivid'
+                          }`}
+                        >
+                          {item.type === 'poll' ? (
+                            <svg
+                              viewBox="0 0 24 24"
+                              width="16"
+                              height="16"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.8}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M9 11l3 3 8-8" />
+                              <path d="M20 12v7a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9" />
+                            </svg>
+                          ) : (
+                            <svg
+                              viewBox="0 0 24 24"
+                              width="16"
+                              height="16"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth={1.8}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M3 11v2a2 2 0 002 2h2l5 4V5L7 9H5a2 2 0 00-2 2z" />
+                              <path d="M16 8a4 4 0 010 8" />
+                            </svg>
                           )}
                         </span>
-                        <span className="truncate text-sm font-medium text-text-primary">
-                          {item.title}
+                        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                          <span className="flex items-center gap-2">
+                            <span className="text-[11px] font-semibold uppercase tracking-[1px] text-text-muted">
+                              {item.type === 'poll' ? 'Nova enquete' : 'Novo comunicado'}
+                            </span>
+                            {isNew && (
+                              <span className="inline-flex h-1.5 w-1.5 shrink-0 rounded-full bg-red-vivid" />
+                            )}
+                          </span>
+                          <span className="truncate text-sm font-medium text-text-primary">
+                            {item.title}
+                          </span>
+                          <span className="text-[11px] text-text-muted">
+                            {formatRelative(item.createdAt)}
+                          </span>
                         </span>
-                        <span className="text-[11px] text-text-muted">
-                          {formatRelative(item.createdAt)}
-                        </span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+
+              {/* Rodapé: limpar notificações */}
+              <div className="border-t border-border-light p-2">
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[1px] text-text-muted transition-colors hover:bg-gray-50 hover:text-red-vivid focus-visible:bg-gray-50 focus-visible:outline-none"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                    <path d="M10 11v6M14 11v6" />
+                    <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+                  </svg>
+                  Limpar notificações
+                </button>
+              </div>
+            </>
           )}
         </div>
       )}
