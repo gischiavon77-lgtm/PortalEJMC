@@ -63,6 +63,7 @@ import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 
 import { Sidebar } from './Sidebar';
+import { NotificationBell } from './NotificationBell';
 
 interface PortalShellProps {
   children: ReactNode;
@@ -148,28 +149,8 @@ export function PortalShell({ children }: PortalShellProps) {
 
         {/* Right section: notification bell + avatar */}
         <div className="flex items-center gap-2">
-          {/* Notification bell (placeholder) */}
-          <span
-            className="flex h-8 w-8 items-center justify-center rounded-full text-text-muted"
-            aria-label="Notificações"
-            role="button"
-            tabIndex={0}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.8}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
-              <path d="M13.73 21a2 2 0 01-3.46 0" />
-            </svg>
-          </span>
+          {/* Notification bell (funcional) */}
+          <NotificationBell tone="light" />
 
           {/* User avatar with dropdown */}
           <div className="relative">
@@ -240,7 +221,9 @@ export function PortalShell({ children }: PortalShellProps) {
       {/* ─── Conteúdo principal ───
           `flex-1` ocupa o espaço restante em desktop/tablet. Em
           mobile, `pt-14` reserva espaço para a topbar fixa. Padding
-          horizontal cresce em telas maiores para dar respiro. */}
+          horizontal cresce em telas maiores para dar respiro. O sino
+          de notificações vive na topbar (visível em todas as larguras
+          dado o breakpoint `mobile` = min-width 320px). */}
       <main className="flex-1 px-4 py-6 mobile:pt-20 sm:px-6 lg:px-8">{children}</main>
     </div>
   );
