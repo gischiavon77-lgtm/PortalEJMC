@@ -37,6 +37,8 @@ interface CarouselConfig {
   direction: 'forward' | 'reverse';
   labelColor: string;
   glowGradient: string;
+  /** Sombra (glow) aplicada ao nome — mesma cor da categoria. */
+  nameShadow: string;
 }
 
 // ─── Slot Definitions ────────────────────────────────────────────────
@@ -82,22 +84,28 @@ const CAROUSELS: CarouselConfig[] = [
     title: '✨ DESTAQUES',
     slots: DESTAQUES_SLOTS,
     direction: 'forward',
-    labelColor: 'text-amber-400',
-    glowGradient: 'from-[#c0182e] to-amber-500',
+    // Prateado
+    labelColor: 'text-gray-300',
+    glowGradient: 'from-gray-200 to-gray-500',
+    nameShadow: '0 0 14px rgba(209,213,219,0.85)',
   },
   {
     title: '🏆 REFERÊNCIAS',
     slots: REFERENCIAS_SLOTS,
     direction: 'reverse',
-    labelColor: 'text-red-500',
-    glowGradient: 'from-[#c0182e] to-orange-500',
+    // Dourado
+    labelColor: 'text-amber-400',
+    glowGradient: 'from-amber-300 to-yellow-600',
+    nameShadow: '0 0 14px rgba(251,191,36,0.85)',
   },
   {
     title: '🎖️ PRÊMIO CULTURA',
     slots: PREMIOS_SLOTS,
     direction: 'forward',
-    labelColor: 'text-gray-300',
-    glowGradient: 'from-white/60 to-gray-400',
+    // Vermelho
+    labelColor: 'text-red-500',
+    glowGradient: 'from-[#c0182e] to-red-700',
+    nameShadow: '0 0 14px rgba(232,32,58,0.85)',
   },
 ];
 
@@ -199,6 +207,7 @@ function CarouselSection({
                   onEdit={() => onEdit(s.slot)}
                   labelColor={config.labelColor}
                   glowGradient={config.glowGradient}
+                  nameShadow={config.nameShadow}
                 />
               ))}
           {/* Duplicated set for seamless loop */}
@@ -212,6 +221,7 @@ function CarouselSection({
                 onEdit={() => onEdit(s.slot)}
                 labelColor={config.labelColor}
                 glowGradient={config.glowGradient}
+                nameShadow={config.nameShadow}
               />
             ))}
         </div>
@@ -229,6 +239,7 @@ function HighlightCard({
   onEdit,
   labelColor,
   glowGradient,
+  nameShadow,
 }: {
   config: SlotConfig;
   highlight: Highlight | null;
@@ -236,6 +247,7 @@ function HighlightCard({
   onEdit: () => void;
   labelColor: string;
   glowGradient: string;
+  nameShadow: string;
 }) {
   const hasPhoto = !!highlight?.photoUrl;
 
@@ -277,7 +289,10 @@ function HighlightCard({
         </div>
 
         {/* Name */}
-        <p className="mt-3 text-center font-heading text-sm font-bold text-white truncate w-full">
+        <p
+          className={`mt-3 text-center font-heading text-sm font-bold truncate w-full ${labelColor}`}
+          style={{ textShadow: nameShadow }}
+        >
           {highlight?.name ?? '—'}
         </p>
 
