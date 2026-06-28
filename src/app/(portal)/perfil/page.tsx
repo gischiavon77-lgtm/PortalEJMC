@@ -98,6 +98,7 @@ export default async function PerfilPage() {
         avatarUrl={profileUser.avatarUrl}
         area={profileUser.area}
         position={profileUser.position}
+        role={profileUser.role}
       />
 
       <div className="rounded-xl border border-border-light bg-surface-card p-6 shadow-sm">

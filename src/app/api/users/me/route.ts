@@ -88,6 +88,20 @@ export const PATCH = withAuth(null, async (req: NextRequest, { session }) => {
   if (parsed.phone !== undefined) data.phone = parsed.phone;
   if (parsed.cpf !== undefined) data.cpf = parsed.cpf;
 
+  // Cargo (position): MEMBRO tem cargo fixo "Trainee" e não pode editar.
+  // Demais papéis editam livremente. Lemos o papel ATUAL do banco para
+  // não depender de sessão possivelmente desatualizada.
+  const dbUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+  const role = dbUser?.role ?? session.user.role;
+  if (role === 'MEMBRO') {
+    data.position = 'Trainee';
+  } else if (parsed.position !== undefined) {
+    data.position = parsed.position;
+  }
+
   if (Object.keys(data).length === 0) {
     return NextResponse.json(
       { error: true, code: 'NO_CHANGES', message: 'Nenhum campo para atualizar.' },

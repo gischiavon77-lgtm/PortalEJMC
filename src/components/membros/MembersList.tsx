@@ -33,10 +33,11 @@
  *     validação prévia. Adiar a otimização de imagens é deliberado.
  */
 
-import type { Area } from '@prisma/client';
+import type { Area, UserRole } from '@prisma/client';
 
 import { Badge } from '@/components/ui';
 import { AREA_LABELS } from '@/lib/goals';
+import { effectivePosition } from '@/lib/position';
 
 export interface MemberItem {
   id: string;
@@ -44,6 +45,7 @@ export interface MemberItem {
   position: string | null;
   area: Area | null;
   avatarUrl: string | null;
+  role?: UserRole | null;
 }
 
 export interface MembersListProps {
@@ -114,8 +116,10 @@ export function MembersList({ members }: MembersListProps) {
                 <p className="truncate font-heading text-base font-semibold text-text-primary">
                   {member.name}
                 </p>
-                {member.position && (
-                  <p className="truncate text-sm text-text-secondary">{member.position}</p>
+                {effectivePosition(member.role, member.position) && (
+                  <p className="truncate text-sm text-text-secondary">
+                    {effectivePosition(member.role, member.position)}
+                  </p>
                 )}
                 <div className="mt-0.5">
                   <AreaBadge area={member.area} />
@@ -164,7 +168,7 @@ export function MembersList({ members }: MembersListProps) {
                   </div>
                 </td>
                 <td className="px-4 py-3 align-middle text-text-secondary">
-                  {member.position ?? '—'}
+                  {effectivePosition(member.role, member.position) || '—'}
                 </td>
                 <td className="px-4 py-3 align-middle">
                   <AreaBadge area={member.area} />

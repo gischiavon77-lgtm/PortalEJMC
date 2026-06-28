@@ -76,6 +76,7 @@ interface MemberDto {
   area: Area | null;
   position: string | null;
   avatarUrl: string | null;
+  role: import('@prisma/client').UserRole;
 }
 
 async function listMembersHandler(req: NextRequest): Promise<Response> {
@@ -117,6 +118,7 @@ async function listMembersHandler(req: NextRequest): Promise<Response> {
       area: true,
       position: true,
       avatarUrl: true,
+      role: true,
     },
   });
 
@@ -126,15 +128,14 @@ async function listMembersHandler(req: NextRequest): Promise<Response> {
   // n ≤ 80, custo desprezível.
   const members: MemberDto[] = dbMembers
     .slice()
-    .sort((a, b) =>
-      a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }),
-    )
+    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' }))
     .map((m) => ({
       id: m.id,
       name: m.name,
       area: m.area,
       position: m.position,
       avatarUrl: m.avatarUrl,
+      role: m.role,
     }));
 
   return NextResponse.json({ members }, { status: 200 });

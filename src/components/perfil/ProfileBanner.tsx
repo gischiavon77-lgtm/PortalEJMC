@@ -10,14 +10,17 @@
  */
 
 import type { Area } from '@prisma/client';
+import type { UserRole } from '@prisma/client';
 
 import { getAreaTheme } from '@/lib/area-theme';
+import { effectivePosition } from '@/lib/position';
 
 export interface ProfileBannerProps {
   name: string;
   avatarUrl: string | null;
   area: Area | null;
   position: string | null;
+  role: UserRole;
 }
 
 function getInitials(value: string): string {
@@ -30,9 +33,10 @@ function getInitials(value: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export function ProfileBanner({ name, avatarUrl, area, position }: ProfileBannerProps) {
+export function ProfileBanner({ name, avatarUrl, area, position, role }: ProfileBannerProps) {
   const theme = getAreaTheme(area);
-  const subtitle = position?.trim() ? position : theme.label;
+  const cargo = effectivePosition(role, position);
+  const subtitle = cargo || theme.label;
 
   return (
     <div className="overflow-hidden rounded-xl border border-border-light bg-surface-card shadow-sm">

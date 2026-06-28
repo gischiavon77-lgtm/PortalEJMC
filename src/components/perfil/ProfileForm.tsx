@@ -20,6 +20,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { updateProfileSchema, validateCpf, validatePhone } from '@/lib/validators/profile';
+import { canEditOwnPosition, TRAINEE_LABEL } from '@/lib/position';
 
 // ─── Labels ──────────────────────────────────────────────────────────────────
 
@@ -88,11 +89,12 @@ interface FieldErrors {
 export function ProfileForm({ user }: { user: ProfileUser }) {
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
-  const [phone, setPhone] = useState(
-    user.phone ? formatPhoneDisplay(user.phone) : '',
-  );
-  const [cpf, setCpf] = useState(
-    user.cpf ? formatCpfDisplay(user.cpf) : '',
+  const [phone, setPhone] = useState(user.phone ? formatPhoneDisplay(user.phone) : '');
+  const [cpf, setCpf] = useState(user.cpf ? formatCpfDisplay(user.cpf) : '');
+
+  const canEditPosition = canEditOwnPosition(user.role);
+  const [position, setPosition] = useState(
+    user.role === 'MEMBRO' ? TRAINEE_LABEL : (user.position ?? ''),
   );
 
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -126,8 +128,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 
     const phoneDigits = phone.replace(/\D/g, '');
     if (phoneDigits && !validatePhone(phoneDigits)) {
-      newErrors.phone =
-        'Informe um telefone brasileiro válido com DDD (ex: 11 99999-9999).';
+      newErrors.phone = 'Informe um telefone brasileiro válido com DDD (ex: 11 99999-9999).';
     }
 
     const cpfDigits = cpf.replace(/\D/g, '');
@@ -153,6 +154,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
           email: email.trim(),
           phone: phone || undefined,
           cpf: cpf || undefined,
+          position: canEditPosition ? position.trim() || undefined : undefined,
         });
 
         const res = await fetch('/api/users/me', {
@@ -199,11 +201,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      noValidate
-      className="flex w-full flex-col gap-8"
-    >
+    <form onSubmit={handleSubmit} noValidate className="flex w-full flex-col gap-8">
       {/* Banner de sucesso (Task 11.6) */}
       {success && (
         <div
@@ -218,12 +216,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           Perfil atualizado com sucesso.
         </div>
@@ -256,14 +249,15 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-text-primary">Cargo</span>
             <div className="flex h-10 items-center rounded-md border border-border-light bg-surface-bg px-3 text-sm text-text-secondary">
-              {user.position ?? '—'}
+              {user.role === 'MEMBRO' ? TRAINEE_LABEL : (user.position ?? '—')}
             </div>
+            {user.role === 'MEMBRO' && (
+              <span className="text-xs text-text-muted">Membros têm o cargo fixo de Trainee.</span>
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-text-primary">
-              Nível de acesso
-            </span>
+            <span className="text-sm font-medium text-text-primary">Nível de acesso</span>
             <div className="flex h-10 items-center rounded-md border border-border-light bg-surface-bg px-3 text-sm text-text-secondary">
               {ROLE_LABELS[user.role]}
             </div>
@@ -323,6 +317,17 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
             autoComplete="off"
             inputMode="numeric"
           />
+
+          {canEditPosition && (
+            <Input
+              label="Cargo"
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
+              placeholder="Ex.: Coordenador de Vendas"
+              maxLength={100}
+              helperText="Seu cargo na empresa"
+            />
+          )}
         </div>
       </fieldset>
 

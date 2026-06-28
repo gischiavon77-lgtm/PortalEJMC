@@ -29,8 +29,7 @@ export const PROFILE_VALIDATION_MESSAGES = {
     invalid: 'Informe um email válido.',
   },
   phone: {
-    invalid:
-      'Informe um telefone brasileiro válido com DDD (ex: 11 99999-9999).',
+    invalid: 'Informe um telefone brasileiro válido com DDD (ex: 11 99999-9999).',
   },
   cpf: {
     invalid: 'Informe um CPF válido (11 dígitos com dígitos verificadores).',
@@ -58,9 +57,7 @@ export function validateCpf(raw: string): boolean {
   if (/^(\d)\1{10}$/.test(digits)) return false;
 
   const calcDigit = (slice: string, weights: number[]): number => {
-    const sum = slice
-      .split('')
-      .reduce((acc, d, i) => acc + parseInt(d, 10) * weights[i]!, 0);
+    const sum = slice.split('').reduce((acc, d, i) => acc + parseInt(d, 10) * weights[i]!, 0);
     const remainder = sum % 11;
     return remainder < 2 ? 0 : 11 - remainder;
   };
@@ -128,6 +125,14 @@ export const updateProfileSchema = z.object({
       message: PROFILE_VALIDATION_MESSAGES.cpf.invalid,
     })
     .transform((v) => (v === '' ? undefined : onlyDigits(v)))
+    .optional(),
+
+  // Cargo (apenas para papéis != MEMBRO; o servidor ignora/força conforme o papel).
+  position: z
+    .string()
+    .trim()
+    .max(100, { message: 'O cargo deve ter no máximo 100 caracteres.' })
+    .transform((v) => (v === '' ? undefined : v))
     .optional(),
 });
 

@@ -68,6 +68,7 @@ import type { Area, UserRole } from '@prisma/client';
 
 import { hasPermission, type PermissionUser } from '@/lib/permissions';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { effectivePosition } from '@/lib/position';
 
 import { MENU_ITEMS, type SidebarIconName, type SidebarItem } from './sidebar-items';
 
@@ -225,9 +226,8 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
                   {profile?.name ?? session.user.name ?? 'Usuário'}
                 </p>
                 <p className="truncate text-[11px] uppercase tracking-[1.5px] text-white/45">
-                  {profile?.position?.trim()
-                    ? profile.position
-                    : formatAreaLabel((profile?.area as Area | null) ?? session.user.area)}
+                  {effectivePosition(profile?.role as UserRole, profile?.position) ||
+                    formatAreaLabel((profile?.area as Area | null) ?? session.user.area)}
                 </p>
               </div>
             </div>
