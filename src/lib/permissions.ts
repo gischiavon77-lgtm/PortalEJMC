@@ -141,9 +141,11 @@ export type Action =
   | 'member:manage'
   // Comunicados (Req 15) — Coordenador+ publica.
   | 'announcement:create'
+  | 'announcement:delete'
   // Enquetes (Req 16) — Diretor/Gerente criam e encerram (não-monotônico).
   | 'poll:create'
   | 'poll:close'
+  | 'poll:delete'
   // Pontuação / Infrações (Req 18) — equipe GP + Diretor+.
   | 'infraction:create'
   | 'infraction:delete'
@@ -204,11 +206,13 @@ export const PERMISSION_MATRIX: Record<Action, UserRole[]> = {
 
   // ─── Comunicados (Coordenador+, Req 15.2) ──────────────────────────
   'announcement:create': ['ADMIN', 'DIRETOR', 'GERENTE', 'COORDENADOR'],
+  'announcement:delete': ['ADMIN', 'DIRETOR', 'GERENTE', 'COORDENADOR'],
 
   // ─── Enquetes (Diretor + Gerente, Req 16.1, 16.5, 16.6) ────────────
   // Coordenador NÃO entra (regra não-monotônica deliberada).
   'poll:create': ['ADMIN', 'DIRETOR', 'GERENTE'],
   'poll:close': ['ADMIN', 'DIRETOR', 'GERENTE'],
+  'poll:delete': ['ADMIN', 'DIRETOR', 'GERENTE'],
 
   // ─── Pontuação (Req 18) ────────────────────────────────────────────
   // Registro: somente equipe GP (Req 18.1) — qualquer papel desde que

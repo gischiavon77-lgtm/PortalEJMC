@@ -45,6 +45,7 @@ export function ComunicadosShell({ announcements, pagination }: ComunicadosShell
 
   // Permissão de criação: Coordenador+ (Task 14.5)
   const { allowed: canCreate, isLoading: permissionLoading } = usePermission('announcement:create');
+  const { allowed: canDelete } = usePermission('announcement:delete');
 
   // Estado do modal de criação
   const [createOpen, setCreateOpen] = useState(false);
@@ -73,6 +74,21 @@ export function ComunicadosShell({ announcements, pagination }: ComunicadosShell
   function handleCreated() {
     router.refresh();
     setToast({ message: 'Comunicado publicado com sucesso!', visible: true });
+  }
+
+  async function handleDelete(announcement: AnnouncementItem) {
+    if (!confirm(`Deseja realmente excluir o comunicado "${announcement.title}"?`)) return;
+    try {
+      const res = await fetch(`/api/announcements/${announcement.id}`, { method: 'DELETE' });
+      if (res.ok) {
+        router.refresh();
+        setToast({ message: 'Comunicado excluído.', visible: true });
+      } else {
+        setToast({ message: 'Erro ao excluir comunicado.', visible: true });
+      }
+    } catch {
+      setToast({ message: 'Erro de conexão. Tente novamente.', visible: true });
+    }
   }
 
   const isEmpty = announcements.length === 0 && pagination.total === 0;
@@ -126,7 +142,12 @@ export function ComunicadosShell({ announcements, pagination }: ComunicadosShell
         <>
           <div className="flex flex-col gap-4" role="feed" aria-label="Mural de comunicados">
             {announcements.map((announcement) => (
-              <AnnouncementCard key={announcement.id} announcement={announcement} />
+              <AnnouncementCard
+                key={announcement.id}
+                announcement={announcement}
+                canDelete={canDelete}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
 

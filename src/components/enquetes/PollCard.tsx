@@ -39,8 +39,10 @@ export interface PollItem {
 export interface PollCardProps {
   poll: PollItem;
   canClose: boolean;
+  canDelete?: boolean;
   onVote: (pollId: string, optionId: string) => Promise<void>;
   onClose: (pollId: string) => Promise<void>;
+  onDelete?: (pollId: string) => Promise<void>;
 }
 
 function formatDate(isoDate: string): string {
@@ -54,9 +56,17 @@ function formatDate(isoDate: string): string {
   });
 }
 
-export function PollCard({ poll, canClose, onVote, onClose }: PollCardProps) {
+export function PollCard({
+  poll,
+  canClose,
+  canDelete = false,
+  onVote,
+  onClose,
+  onDelete,
+}: PollCardProps) {
   const [votingOptionId, setVotingOptionId] = useState<string | null>(null);
   const [closing, setClosing] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const totalVotes = poll.options.reduce((sum, opt) => sum + opt.voteCount, 0);
   const isActive = poll.status === 'ACTIVE';
@@ -78,6 +88,16 @@ export function PollCard({ poll, canClose, onVote, onClose }: PollCardProps) {
       await onClose(poll.id);
     } finally {
       setClosing(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!onDelete) return;
+    setDeleting(true);
+    try {
+      await onDelete(poll.id);
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -219,18 +239,33 @@ export function PollCard({ poll, canClose, onVote, onClose }: PollCardProps) {
       </div>
 
       {/* Actions */}
-      {isActive && canClose && (
-        <div className="mt-4 flex justify-end border-t border-border-light pt-3">
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            onClick={handleClose}
-            loading={closing}
-            disabled={closing}
-          >
-            Encerrar enquete
-          </Button>
+      {((isActive && canClose) || canDelete) && (
+        <div className="mt-4 flex justify-end gap-2 border-t border-border-light pt-3">
+          {canDelete && onDelete && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-red-vivid hover:bg-red-vivid/10"
+              onClick={handleDelete}
+              loading={deleting}
+              disabled={deleting}
+            >
+              Excluir
+            </Button>
+          )}
+          {isActive && canClose && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={handleClose}
+              loading={closing}
+              disabled={closing}
+            >
+              Encerrar enquete
+            </Button>
+          )}
         </div>
       )}
 

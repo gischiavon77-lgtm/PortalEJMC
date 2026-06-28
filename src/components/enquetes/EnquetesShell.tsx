@@ -31,6 +31,7 @@ export function EnquetesShell({ polls }: EnquetesShellProps) {
   // Permissions
   const { allowed: canCreate, isLoading: createLoading } = usePermission('poll:create');
   const { allowed: canClose, isLoading: closeLoading } = usePermission('poll:close');
+  const { allowed: canDelete } = usePermission('poll:delete');
 
   // State
   const [createOpen, setCreateOpen] = useState(false);
@@ -94,6 +95,22 @@ export function EnquetesShell({ polls }: EnquetesShellProps) {
     showToast('Enquete criada com sucesso!');
   }
 
+  async function handleDelete(pollId: string) {
+    if (!confirm('Deseja realmente excluir esta enquete? Os votos também serão removidos.')) return;
+    try {
+      const res = await fetch(`/api/polls/${pollId}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        showToast(data?.message ?? 'Não foi possível excluir a enquete.');
+        return;
+      }
+      router.refresh();
+      showToast('Enquete excluída com sucesso!');
+    } catch {
+      showToast('Erro de conexão. Tente novamente.');
+    }
+  }
+
   const isEmpty = polls.length === 0;
   const permissionsLoading = createLoading || closeLoading;
 
@@ -141,8 +158,10 @@ export function EnquetesShell({ polls }: EnquetesShellProps) {
               key={poll.id}
               poll={poll}
               canClose={!permissionsLoading && canClose}
+              canDelete={canDelete}
               onVote={handleVote}
               onClose={handleClose}
+              onDelete={handleDelete}
             />
           ))}
         </div>
