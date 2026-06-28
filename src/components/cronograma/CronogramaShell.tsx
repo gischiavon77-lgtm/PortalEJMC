@@ -50,6 +50,7 @@ import {
 } from './calendar-utils';
 import { CalendarGrid } from './CalendarGrid';
 import { EventForm } from './EventForm';
+import { EventDetailModal } from './EventDetailModal';
 
 export interface CronogramaShellProps {
   /** Ano da visualização atual (4 dígitos). */
@@ -60,25 +61,20 @@ export interface CronogramaShellProps {
   events: CalendarEvent[];
 }
 
-export function CronogramaShell({
-  year,
-  month,
-  events,
-}: CronogramaShellProps) {
+export function CronogramaShell({ year, month, events }: CronogramaShellProps) {
   const router = useRouter();
-  const { allowed: canManage, isLoading: permissionLoading } = usePermission(
-    'calendar:create',
-  );
+  const { allowed: canManage, isLoading: permissionLoading } = usePermission('calendar:create');
 
   // Estado do modal — `mode`:
   //   - 'closed': modal fechado.
   //   - 'create': modal aberto em modo criação (sem evento).
   //   - 'edit'  : modal aberto em modo edição com evento selecionado.
-  const [modalMode, setModalMode] = useState<'closed' | 'create' | 'edit'>(
-    'closed',
-  );
+  const [modalMode, setModalMode] = useState<'closed' | 'create' | 'edit'>('closed');
   const [activeEvent, setActiveEvent] = useState<CalendarEvent | null>(null);
   const [defaultDate, setDefaultDate] = useState<Date | null>(null);
+  // Evento exibido na caixa de detalhes (somente leitura, para quem
+  // não pode editar).
+  const [detailEvent, setDetailEvent] = useState<CalendarEvent | null>(null);
 
   // Memoizamos a matriz e o agrupamento — re-render barato, mas isso
   // evita rebuilding em cada interação client-side (ex.: abrir modal).
@@ -124,6 +120,16 @@ export function CronogramaShell({
     setModalMode('edit');
   }
 
+  // Clique em evento: quem pode gerenciar abre a edição; quem não
+  // pode, abre a caixa de detalhes (somente leitura).
+  function handleEventClick(event: CalendarEvent) {
+    if (canManage) {
+      openEdit(event);
+    } else {
+      setDetailEvent(event);
+    }
+  }
+
   function closeModal() {
     setModalMode('closed');
     setActiveEvent(null);
@@ -152,18 +158,12 @@ export function CronogramaShell({
           >
             {MONTH_NAMES[month]} de {year}
           </h1>
-          <p className="text-text-secondary">
-            Eventos sincronizados com o Google Calendar.
-          </p>
+          <p className="text-text-secondary">Eventos sincronizados com o Google Calendar.</p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {/* Controles de navegação entre meses (Task 7.8) */}
-          <div
-            className="flex items-center gap-2"
-            role="group"
-            aria-label="Navegação entre meses"
-          >
+          <div className="flex items-center gap-2" role="group" aria-label="Navegação entre meses">
             <Button
               type="button"
               variant="secondary"
@@ -205,18 +205,12 @@ export function CronogramaShell({
                   aria-hidden="true"
                   className="inline-flex h-2 w-2 rounded-full bg-red-vivid"
                 />
-                {failedSyncCount} {failedSyncCount === 1 ? 'falha' : 'falhas'} de
-                sincronização
+                {failedSyncCount} {failedSyncCount === 1 ? 'falha' : 'falhas'} de sincronização
               </span>
             )}
 
             {!permissionLoading && canManage && (
-              <Button
-                type="button"
-                variant="primary"
-                size="sm"
-                onClick={() => openCreate(null)}
-              >
+              <Button type="button" variant="primary" size="sm" onClick={() => openCreate(null)}>
                 + Novo evento
               </Button>
             )}
@@ -228,20 +222,24 @@ export function CronogramaShell({
       <CalendarGrid
         cells={cells}
         eventsByDay={eventsByDay}
-        onEventClick={canManage ? openEdit : undefined}
+        onEventClick={handleEventClick}
         onDayClick={canManage ? (date) => openCreate(date) : undefined}
       />
 
       {/* Mensagem de leitura-somente para Membros (Req 8.5/8.6) */}
       {!permissionLoading && !canManage && (
-        <p
-          role="note"
-          className="text-xs text-text-muted"
-        >
-          Visualização somente leitura. Apenas Diretor, Gerente e Coordenador
-          podem criar, editar ou excluir eventos.
+        <p role="note" className="text-xs text-text-muted">
+          Visualização somente leitura. Clique em um evento para ver os detalhes. Apenas Diretor,
+          Gerente e Coordenador podem criar, editar ou excluir eventos.
         </p>
       )}
+
+      {/* Caixa de detalhes do evento (somente leitura) — disponível a todos. */}
+      <EventDetailModal
+        open={detailEvent !== null}
+        onClose={() => setDetailEvent(null)}
+        event={detailEvent}
+      />
 
       {/* ─── Modal de criar/editar evento (Task 7.6) ───
           Renderizado apenas quando o usuário tem permissão. Isso evita
