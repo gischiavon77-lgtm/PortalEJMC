@@ -37,51 +37,40 @@ export function ProfileBanner({ name, avatarUrl, area, position }: ProfileBanner
   return (
     <div className="overflow-hidden rounded-xl border border-border-light bg-surface-card shadow-sm">
       {/* Banner colorido por área */}
-      <div className={`relative h-36 overflow-hidden bg-gradient-to-r ${theme.gradient} sm:h-44`}>
-        {/* Vários animaizinhos da área espalhados pelo banner */}
-        <div
-          className="pointer-events-none absolute inset-0 flex flex-wrap content-center items-center justify-center gap-x-4 gap-y-2 overflow-hidden p-2 opacity-25 select-none"
+      <div className={`relative h-32 overflow-hidden bg-gradient-to-r ${theme.gradient} sm:h-40`}>
+        {/* Animal da área em marca d'água */}
+        <span
+          className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 select-none text-7xl opacity-40 drop-shadow-lg sm:text-8xl"
           aria-hidden="true"
         >
-          {Array.from({ length: 28 }).map((_, i) => (
-            <span
-              key={i}
-              className="text-2xl sm:text-3xl"
-              style={{ transform: `rotate(${(i % 3) - 1}0deg)` }}
-            >
-              {theme.emoji}
-            </span>
-          ))}
-        </div>
-
+          {theme.emoji}
+        </span>
         {/* Etiqueta da área */}
-        <span className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-[1.5px] text-white backdrop-blur-sm">
+        <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-[1.5px] text-white backdrop-blur-sm">
           <span aria-hidden="true">{theme.emoji}</span>
           {theme.label}
         </span>
+      </div>
 
-        {/* Foto em destaque, na frente do banner */}
-        <div className="absolute inset-x-0 -bottom-12 z-20 flex justify-center sm:-bottom-14">
+      {/* Foto (completa, sobreposta na frente do banner via margem negativa) + nome */}
+      <div className="flex flex-col items-center gap-1 px-6 pb-6 text-center">
+        <div className="relative z-10 -mt-14 sm:-mt-16">
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={avatarUrl}
               alt={`Foto de ${name}`}
-              className="h-24 w-24 rounded-full border-4 border-surface-card bg-surface-card object-cover shadow-xl sm:h-28 sm:w-28"
+              className="h-28 w-28 rounded-full border-4 border-surface-card bg-surface-card object-cover shadow-xl sm:h-32 sm:w-32"
             />
           ) : (
             <div
-              className={`flex h-24 w-24 items-center justify-center rounded-full border-4 border-surface-card bg-gradient-to-br ${theme.gradient} text-2xl font-bold text-white shadow-xl sm:h-28 sm:w-28`}
+              className={`flex h-28 w-28 items-center justify-center rounded-full border-4 border-surface-card bg-gradient-to-br ${theme.gradient} text-3xl font-bold text-white shadow-xl sm:h-32 sm:w-32`}
               aria-hidden="true"
             >
               {getInitials(name)}
             </div>
           )}
         </div>
-      </div>
-
-      {/* Nome + cargo (espaço reservado para a foto sobreposta) */}
-      <div className="flex flex-col items-center gap-1 px-6 pb-6 pt-16 text-center sm:pt-[4.5rem]">
         <h2 className="font-heading text-xl font-bold text-text-primary">{name || 'Usuário'}</h2>
         <p className="text-sm font-medium uppercase tracking-[1.5px] text-text-muted">{subtitle}</p>
       </div>
