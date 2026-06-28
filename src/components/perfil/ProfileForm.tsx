@@ -14,6 +14,7 @@
  */
 
 import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Area, UserRole } from '@prisma/client';
 import { z } from 'zod';
 
@@ -87,6 +88,7 @@ interface FieldErrors {
 // ─── Componente ──────────────────────────────────────────────────────────────
 
 export function ProfileForm({ user }: { user: ProfileUser }) {
+  const router = useRouter();
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
   const [phone, setPhone] = useState(user.phone ? formatPhoneDisplay(user.phone) : '');
@@ -185,6 +187,12 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 
         setSuccess(true);
         setTimeout(() => setSuccess(false), 4000);
+        // Atualiza os dados exibidos (banner, campos institucionais) e
+        // notifica sidebar/topbar para refletir o novo cargo/nome.
+        router.refresh();
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new Event('ejmc:profile-updated'));
+        }
       } catch (err) {
         if (err instanceof z.ZodError) {
           const fieldErrors: FieldErrors = {};
@@ -246,15 +254,15 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-text-primary">Cargo</span>
-            <div className="flex h-10 items-center rounded-md border border-border-light bg-surface-bg px-3 text-sm text-text-secondary">
-              {user.role === 'MEMBRO' ? TRAINEE_LABEL : (user.position ?? '—')}
-            </div>
-            {user.role === 'MEMBRO' && (
+          {user.role === 'MEMBRO' && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium text-text-primary">Cargo</span>
+              <div className="flex h-10 items-center rounded-md border border-border-light bg-surface-bg px-3 text-sm text-text-secondary">
+                {TRAINEE_LABEL}
+              </div>
               <span className="text-xs text-text-muted">Membros têm o cargo fixo de Trainee.</span>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-text-primary">Nível de acesso</span>
