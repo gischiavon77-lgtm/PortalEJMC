@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { AlbumShell } from '@/components/membros/AlbumShell';
+import { MembrosView } from '@/components/membros/MembrosView';
 
 /**
  * `/membros` — Álbum de Figurinhas (membros por gestão e área).
@@ -44,5 +44,5 @@ export default async function MembrosPage(props: MembrosPageProps) {
   const gestoes = gestoesResult.map((r) => r.gestao);
   const currentGestao = rawGestao && gestoes.includes(rawGestao) ? rawGestao : gestoes[0] || null;
 
-  return <AlbumShell gestoes={gestoes} initialGestao={currentGestao} />;
+  return <MembrosView gestoes={gestoes} initialGestao={currentGestao} />;
 }
