@@ -64,9 +64,6 @@ export default function LoginPage() {
           className="mt-6 font-heading text-[32px] font-black leading-none tracking-[-0.5px] text-white"
         >
           EJMC
-          <span className="ml-0.5 align-super text-[18px] font-normal italic leading-none text-red-bright">
-            Jr.
-          </span>
         </h1>
         <p className="mt-2 text-[11px] font-medium uppercase tracking-[3px] text-white/35">
           Portal Interno
