@@ -142,7 +142,7 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
       <div className="flex flex-col items-center border-b border-white/[0.08] px-4 py-6">
         <div className="logo-emblem h-14 w-14">
           <Image
-            src="/logoejmc.svg"
+            src="/logoejmc.png"
             alt="Logo EJMC"
             width={56}
             height={56}

@@ -148,7 +148,7 @@ export default function ForbiddenPage() {
           <header className="mb-8 flex flex-col items-center text-center animate-fade-up opacity-0 [animation-delay:0.15s]">
             <div className="logo-emblem h-[100px] w-[100px]">
               <Image
-                src="/logoejmc.svg"
+                src="/logoejmc.png"
                 alt="Logo EJMC"
                 width={120}
                 height={120}
