@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { ProfileForm } from '@/components/perfil/ProfileForm';
+import { ProfileBanner } from '@/components/perfil/ProfileBanner';
 import type { ProfileUser } from '@/components/perfil/ProfileForm';
 
 /**
@@ -91,6 +92,13 @@ export default async function PerfilPage() {
         </h1>
         <p className="text-text-secondary">Gerencie suas informações pessoais de contato.</p>
       </header>
+
+      <ProfileBanner
+        name={profileUser.name}
+        avatarUrl={profileUser.avatarUrl}
+        area={profileUser.area}
+        position={profileUser.position}
+      />
 
       <div className="rounded-xl border border-border-light bg-surface-card p-6 shadow-sm">
         <ProfileForm user={profileUser} />
