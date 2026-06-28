@@ -12,6 +12,17 @@ const config: Config = {
         'red-vivid': '#e8203a',
         'red-bright': '#ff3d54',
         cream: '#fff8f5',
+        // Superfícies/texto/bordas do portal autenticado. Espelham as
+        // CSS variables de globals.css. Sem este mapeamento, classes como
+        // `bg-surface-sidebar`/`bg-surface-card`/`text-text-primary` não
+        // geram CSS (ficam transparentes/sem cor).
+        'surface-bg': '#faf8f6',
+        'surface-card': '#ffffff',
+        'surface-sidebar': '#1a0a0d',
+        'text-primary': '#1a0a0d',
+        'text-secondary': '#5c3a3f',
+        'text-muted': '#9a7a7f',
+        'border-light': '#f0e8e5',
       },
       fontFamily: {
         heading: ['"Playfair Display"', 'serif'],
