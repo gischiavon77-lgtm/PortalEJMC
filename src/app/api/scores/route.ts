@@ -15,8 +15,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { ZodError } from 'zod';
 
-import { withAuth } from '@/lib/api-auth';
-import { hasPermission, type PermissionUser } from '@/lib/permissions';
+import { withAuth, loadPermissionUser } from '@/lib/api-auth';
+import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import {
   createInfractionSchema,
@@ -45,12 +45,10 @@ async function getHandler(
   let targetUserId = ctx.session.user.id;
 
   if (requestedUserId && requestedUserId !== ctx.session.user.id) {
-    // Viewing another user's scores requires GP + Diretor permission
-    const permUser: PermissionUser = {
-      role: ctx.session.user.role,
-      area: ctx.session.user.area,
-    };
-    if (!hasPermission(permUser, 'infraction:delete')) {
+    // Viewing another user's scores requires GP (área) ou Diretor+.
+    // Lê a área ATUAL do banco para não depender de sessão antiga.
+    const permUser = await loadPermissionUser(ctx.session.user.id);
+    if (!permUser || !hasPermission(permUser, 'infraction:delete')) {
       return NextResponse.json(
         { error: true, code: 'FORBIDDEN', message: 'Acesso negado.' },
         { status: 403 },
@@ -98,6 +96,16 @@ async function createHandler(
   req: NextRequest,
   ctx: { session: import('next-auth').Session },
 ): Promise<Response> {
+  // Permissão lida da área ATUAL no banco (GP pode registrar mesmo que
+  // a sessão tenha sido emitida antes da atribuição da área).
+  const permUser = await loadPermissionUser(ctx.session.user.id);
+  if (!permUser || !hasPermission(permUser, 'infraction:create')) {
+    return NextResponse.json(
+      { error: true, code: 'FORBIDDEN', message: 'Acesso negado.' },
+      { status: 403 },
+    );
+  }
+
   let rawBody: unknown;
   try {
     rawBody = await req.json();
@@ -207,4 +215,4 @@ async function createHandler(
   );
 }
 
-export const POST = withAuth('infraction:create', createHandler);
+export const POST = withAuth(null, createHandler);

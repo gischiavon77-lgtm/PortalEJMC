@@ -44,9 +44,18 @@ export default async function PontuacaoPage() {
     redirect('/login');
   }
 
+  // Lê role + área ATUAIS do banco (não da sessão, que pode estar
+  // desatualizada se a área foi alterada após o login). Garante que
+  // membros recém-movidos para Gestão de Pessoas vejam/registrem pontos
+  // sem precisar relogar.
+  const dbUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true, area: true },
+  });
+
   const permUser: PermissionUser = {
-    role: session.user.role,
-    area: session.user.area,
+    role: dbUser?.role ?? session.user.role,
+    area: dbUser?.area ?? session.user.area,
   };
 
   const canViewAll = hasPermission(permUser, 'infraction:delete');

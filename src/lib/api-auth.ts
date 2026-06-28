@@ -99,10 +99,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 import type { Session } from 'next-auth';
 
 import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 import {
   hasPermission,
   type Action,
   type PermissionContext,
+  type PermissionUser,
 } from '@/lib/permissions';
 
 /**
@@ -139,25 +141,15 @@ export class ForbiddenError extends Error {
  * Exportada para handlers que preferem o estilo retorno-direto em vez
  * do throw — a forma do payload é a mesma usada por `withAuth`.
  */
-export function unauthorizedResponse(
-  message = 'Autenticação necessária.',
-): NextResponse {
-  return NextResponse.json(
-    { error: true, code: 'UNAUTHORIZED', message },
-    { status: 401 },
-  );
+export function unauthorizedResponse(message = 'Autenticação necessária.'): NextResponse {
+  return NextResponse.json({ error: true, code: 'UNAUTHORIZED', message }, { status: 401 });
 }
 
 /**
  * Constrói a resposta 403 JSON no formato unificado do design.
  */
-export function forbiddenResponse(
-  message = 'Acesso negado.',
-): NextResponse {
-  return NextResponse.json(
-    { error: true, code: 'FORBIDDEN', message },
-    { status: 403 },
-  );
+export function forbiddenResponse(message = 'Acesso negado.'): NextResponse {
+  return NextResponse.json({ error: true, code: 'FORBIDDEN', message }, { status: 403 });
 }
 
 /**
@@ -175,6 +167,26 @@ export async function requireSession(): Promise<Session> {
     throw new UnauthorizedError();
   }
   return session;
+}
+
+/**
+ * Carrega `role` + `area` ATUAIS do usuário direto do banco.
+ *
+ * Útil quando uma permissão depende de atributos que podem ter mudado
+ * após o login (ex.: um admin move um usuário para a área de Gestão de
+ * Pessoas). O JWT só é reemitido no próximo login, então confiar em
+ * `session.user.area` pode negar acesso a quem já tem o atributo no
+ * banco. Esta função evita exigir re-login para refletir a mudança.
+ *
+ * Retorna `null` se o usuário não existir mais.
+ */
+export async function loadPermissionUser(userId: string): Promise<PermissionUser | null> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, area: true },
+  });
+  if (!user) return null;
+  return { role: user.role, area: user.area };
 }
 
 /**
@@ -263,10 +275,7 @@ export function withAuth<P = unknown>(
   action: Action | null,
   handler: AuthenticatedHandler<P>,
   getContext?: ContextResolver<P>,
-): (
-  req: NextRequest,
-  routeContext?: NextRouteContext<P>,
-) => Promise<Response> {
+): (req: NextRequest, routeContext?: NextRouteContext<P>) => Promise<Response> {
   return async (req, routeContext) => {
     const ctx: NextRouteContext<P> = routeContext ?? {};
 
@@ -277,9 +286,7 @@ export function withAuth<P = unknown>(
       }
 
       if (action !== null) {
-        const permissionContext = getContext
-          ? await getContext(req, ctx)
-          : undefined;
+        const permissionContext = getContext ? await getContext(req, ctx) : undefined;
         if (!hasPermission(session.user, action, permissionContext)) {
           return forbiddenResponse();
         }

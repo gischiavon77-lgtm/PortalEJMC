@@ -10,7 +10,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { withAuth } from '@/lib/api-auth';
+import { withAuth, loadPermissionUser } from '@/lib/api-auth';
+import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 import { getCurrentSemester, isValidSemester } from '@/lib/validators/score';
 
@@ -18,8 +19,17 @@ export const runtime = 'nodejs';
 
 async function handler(
   req: NextRequest,
-  _ctx: { session: import('next-auth').Session },
+  ctx: { session: import('next-auth').Session },
 ): Promise<Response> {
+  // Visualizar todos exige GP (área atual no banco) ou Diretor+.
+  const permUser = await loadPermissionUser(ctx.session.user.id);
+  if (!permUser || !hasPermission(permUser, 'infraction:delete')) {
+    return NextResponse.json(
+      { error: true, code: 'FORBIDDEN', message: 'Acesso negado.' },
+      { status: 403 },
+    );
+  }
+
   const { searchParams } = new URL(req.url);
   const semesterParam = searchParams.get('semester');
 
@@ -54,4 +64,4 @@ async function handler(
   return NextResponse.json({ members, semester }, { status: 200 });
 }
 
-export const GET = withAuth('infraction:delete', handler);
+export const GET = withAuth(null, handler);

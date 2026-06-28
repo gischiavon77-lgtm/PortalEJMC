@@ -12,7 +12,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { withAuth } from '@/lib/api-auth';
+import { withAuth, loadPermissionUser } from '@/lib/api-auth';
+import { hasPermission } from '@/lib/permissions';
 import { prisma } from '@/lib/prisma';
 
 export const runtime = 'nodejs';
@@ -23,6 +24,15 @@ async function deleteHandler(
   _req: NextRequest,
   ctx: { session: import('next-auth').Session; params?: RouteParams },
 ): Promise<Response> {
+  // Excluir exige GP (área atual no banco) ou Diretor+.
+  const permUser = await loadPermissionUser(ctx.session.user.id);
+  if (!permUser || !hasPermission(permUser, 'infraction:delete')) {
+    return NextResponse.json(
+      { error: true, code: 'FORBIDDEN', message: 'Acesso negado.' },
+      { status: 403 },
+    );
+  }
+
   const params = await ctx.params!;
   const infractionId = params.id;
 
@@ -57,7 +67,4 @@ async function deleteHandler(
   );
 }
 
-export const DELETE = withAuth(
-  'infraction:delete',
-  deleteHandler as Parameters<typeof withAuth>[1],
-);
+export const DELETE = withAuth(null, deleteHandler as Parameters<typeof withAuth>[1]);
