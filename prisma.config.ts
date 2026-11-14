@@ -19,7 +19,13 @@ import { defineConfig, env } from 'prisma/config';
 export default defineConfig({
   schema: './prisma/schema.prisma',
   datasource: {
-    url: env('DATABASE_URL'),
+    // A Prisma CLI (migrate deploy, migrate dev, db seed) usa esta URL.
+    // Migrações precisam de conexão direta com o Postgres; com o pooler do
+    // Supabase em modo transação (porta 6543, `?pgbouncer=true`) o
+    // `migrate deploy` pode travar ou falhar. Se `DIRECT_URL` estiver
+    // definida, ela tem prioridade; senão, vale `DATABASE_URL` como antes.
+    // A aplicação em si (src/lib/prisma.ts) continua usando `DATABASE_URL`.
+    url: process.env.DIRECT_URL || env('DATABASE_URL'),
   },
   migrations: {
     path: './prisma/migrations',

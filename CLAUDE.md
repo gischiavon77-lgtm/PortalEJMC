@@ -12,7 +12,7 @@ Portal web interno da empresa júnior EJMC (até ~80 usuários): dashboard, cron
 Nesta ordem:
 
 1. Atualizar o Next.js e tratar o `npm audit`.
-2. Trocar o build `prisma db push --accept-data-loss` por `prisma migrate deploy` e gerar a migração que falta.
+2. Trocar o build `prisma db push --accept-data-loss` por `prisma migrate deploy` e gerar a migração que falta. **Feito no código** (script de build e migração `20260612000000_redesign_project`). O baseline já foi feito no banco do `.env` (as 5 migrações constam como aplicadas). Falta confirmar que a Vercel usa esse mesmo banco em produção e nos previews; se usar outro, ele precisa do mesmo baseline (ver `docs/DEPLOY.md`).
 3. Mover PDFs e fotos em base64 do banco para o Supabase Storage.
 4. Reconsultar cargo e status no banco a cada requisição, em vez de confiar no JWT.
 5. Remover a senha padrão do admin do seed e alinhar o `docs/DEPLOY.md`.
@@ -20,6 +20,16 @@ Nesta ordem:
 7. Cadastro por código de ativação.
 8. LGPD: política de privacidade, revisão do CPF e RLS no Supabase.
 9. Atualizar o `docs/SETUP.md`.
+
+## Funcionalidades planejadas
+
+Ainda não implementadas:
+
+1. Sidebar fixa.
+2. Página inicial em feed: posts com foto e curtidas, e coluna lateral com mural de avisos, destaque do mês e próximos eventos. Substitui a página inicial atual.
+3. Projetos com imagem, descrição, status, contadores e equipe ligada a usuários.
+4. Categorias nos eventos do calendário.
+5. Organograma por área gerado a partir dos usuários, com data de entrada. O álbum continua como histórico por gestão.
 
 ## Stack
 
@@ -51,7 +61,9 @@ npx prisma db seed                  # tsx prisma/seed.ts
 npx prisma studio
 ```
 
-**Cuidado com `npm run build`**: o script é `prisma generate && prisma db push --accept-data-loss && next build`. Ele aplica o schema direto no banco apontado por `DATABASE_URL` e pode apagar dados. Não rode localmente apontando para o banco de produção. Para checar tipos sem tocar no banco, use `npx tsc --noEmit`.
+**Cuidado com `npm run build`**: o script é `prisma generate && prisma migrate deploy && next build`. O `migrate deploy` aplica no banco apontado por `DATABASE_URL` as migrações pendentes de `prisma/migrations/`. Ele não apaga dados por conta própria, mas executa o SQL que estiver nas migrações. Não rode localmente apontando para o banco de produção. Para compilar sem tocar no banco, use `npx next build`; para checar tipos, `npx tsc --noEmit`.
+
+**Mudança de schema**: edite `prisma/schema.prisma`, rode `npx prisma migrate dev --name <nome>` contra um banco de desenvolvimento e commite a pasta gerada em `prisma/migrations/`. Nunca use `prisma db push` em banco compartilhado. `npm run db:status` mostra as migrações pendentes (só leitura).
 
 O build da Vercel ignora erros de ESLint (`ignoreDuringBuilds: true`), então rode `npm run lint` manualmente.
 
@@ -60,6 +72,7 @@ O build da Vercel ignora erros de ESLint (`ignoreDuringBuilds: true`), então ro
 Copie `.env.local.example` para `.env.local`. Variáveis: `DATABASE_URL`, `AUTH_SECRET`/`NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `APP_BASE_URL`, `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `GOOGLE_CALENDAR_ID`, `GOOGLE_SERVICE_ACCOUNT_KEY` (ou `..._KEY_FILE`).
 
 - A URL do banco fica em `prisma.config.ts`, nunca em `schema.prisma` (exigência do Prisma 7).
+- `DIRECT_URL` (opcional): conexão direta usada só pela Prisma CLI nas migrações; tem prioridade sobre `DATABASE_URL` quando definida.
 - Sem as variáveis do Google Calendar, o cronograma funciona em modo no-op (eventos só no banco local).
 - Setup detalhado: `docs/SETUP.md`. Deploy: `docs/DEPLOY.md`.
 
@@ -123,7 +136,7 @@ Fonte única: `src/lib/permissions.ts`.
 - Client singleton em `src/lib/prisma.ts` (`import { prisma } from '@/lib/prisma'`); força `sslmode=require`.
 - Modelos: `User`, `Event`, `Goal`, `GoalUpdate`, `Kpi`, `KpiValue`, `Project`, `Announcement`, `Poll`, `PollOption`, `PollVote`, `Infraction`, `InfractionConfig`, `Reservation`, `Service`, `Highlight`, `AlbumMember`.
 - Imagens e PDFs (avatar, fotos do álbum e destaques, proposta do projeto) são gravados como data URL base64 em colunas `Text`. Não há storage externo.
-- Em produção o schema é sincronizado por `db push` no build. As pastas em `prisma/migrations/` não cobrem todas as mudanças recentes.
+- Em produção o schema é atualizado por `prisma migrate deploy` no build. `prisma/migrations/` cobre o schema atual. A migração `20260612000000_redesign_project` é idempotente porque a mudança já tinha sido aplicada em produção via `db push`.
 
 ### Regras de domínio que vivem em `src/lib`
 

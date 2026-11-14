@@ -164,6 +164,10 @@ Se não tiver `openssl`, use: https://generate-secret.vercel.app/32
 - Verifique se `DATABASE_URL` está configurada corretamente na Vercel
 - O formato deve incluir `?pgbouncer=true` para Supabase com connection pooling
 
+### Build falha com `P3005` (The database schema is not empty)
+
+- O banco não tem histórico de migrações. Siga a seção "Baseline" em "Migrações do banco".
+
 ### Erro "NEXTAUTH_URL must be set"
 
 - Adicione `NEXTAUTH_URL` com a URL completa do deploy (com https://)
@@ -183,6 +187,58 @@ Se não tiver `openssl`, use: https://generate-secret.vercel.app/32
 
 - Supabase: use a connection string com pooler (porta 6543) para a aplicação
 - Use a connection string direta (porta 5432) apenas para migrations
+
+---
+
+## Migrações do banco
+
+O build (`npm run build`) roda `prisma generate && prisma migrate deploy && next build`. O `migrate deploy` aplica, no banco configurado, as migrações de `prisma/migrations/` que ainda não foram aplicadas. Ele não compara o schema com o banco nem apaga nada por conta própria: executa só o SQL das migrações pendentes. Se uma migração falhar, o build falha e o site continua na versão anterior.
+
+### Como mudar o schema
+
+1. Edite `prisma/schema.prisma`.
+2. Rode `npx prisma migrate dev --name <nome>` apontando para um banco de **desenvolvimento** (nunca o de produção).
+3. Revise o SQL gerado em `prisma/migrations/<data>_<nome>/migration.sql`, principalmente `DROP` e `ALTER ... DROP COLUMN`.
+4. Commite a pasta da migração junto com o schema. O próximo deploy aplica a migração.
+
+Não use `prisma db push` em banco compartilhado ou de produção.
+
+### Conferir o estado do banco (só leitura)
+
+```bash
+npm run db:status
+```
+
+Mostra quais migrações estão aplicadas e quais estão pendentes no banco de `DATABASE_URL` (ou `DIRECT_URL`).
+
+### Baseline: banco que foi criado ou alterado com `db push`
+
+Antes desta mudança, o build usava `prisma db push`. Se o banco não tiver a tabela de histórico `_prisma_migrations`, o `migrate deploy` falha com o erro `P3005` ("The database schema is not empty"). Nesse caso, é preciso dizer uma única vez ao Prisma que as migrações existentes já estão aplicadas. Confirme antes que o banco está igual ao `schema.prisma`:
+
+```bash
+# Deve imprimir "No difference detected"
+npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma
+```
+
+Depois marque cada migração como aplicada (só grava no histórico, não altera tabelas):
+
+```bash
+npx prisma migrate resolve --applied 20260607202623_init
+npx prisma migrate resolve --applied 20260609180517_add_album_member
+npx prisma migrate resolve --applied 20260609195114_add_album_order
+npx prisma migrate resolve --applied 20260610231933_add_highlights
+npx prisma migrate resolve --applied 20260612000000_redesign_project
+```
+
+Se o banco já tiver `_prisma_migrations` com as quatro primeiras, não é preciso baseline: a migração `20260612000000_redesign_project` é idempotente e passa sem alterar nada num banco que já recebeu a mudança via `db push`.
+
+### Conexão direta para migrações (`DIRECT_URL`)
+
+Migrações precisam de conexão direta com o Postgres. Se `DATABASE_URL` na Vercel for a do pooler em modo transação (porta 6543, `?pgbouncer=true`), crie também a variável `DIRECT_URL` com a conexão direta ou de sessão (porta 5432). A Prisma CLI usa `DIRECT_URL` quando ela existe; a aplicação continua usando `DATABASE_URL`.
+
+### Preview deploys
+
+Cada branch enviada ao GitHub gera um preview na Vercel, e o build do preview também roda `migrate deploy`. Se os previews usarem o mesmo banco da produção, uma migração nova numa branch é aplicada na produção antes do merge. Para evitar isso, configure um `DATABASE_URL` separado para o ambiente Preview na Vercel.
 
 ---
 
