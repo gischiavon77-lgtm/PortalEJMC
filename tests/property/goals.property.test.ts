@@ -104,9 +104,9 @@ describe('Property 10: Meta vencida', () => {
   it('overdue iff deadline < now AND progress < 100', () => {
     fc.assert(
       fc.property(
-        fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') }),
+        fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31'), noInvalidDate: true }),
         fc.integer({ min: 0, max: 100 }),
-        fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') }),
+        fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31'), noInvalidDate: true }),
         (deadline, progress, now) => {
           const goal = { deadline, progress };
           const result = isGoalOverdue(goal, now);
@@ -125,8 +125,8 @@ describe('Property 10: Meta vencida', () => {
   it('completed goals (100%) are never overdue', () => {
     fc.assert(
       fc.property(
-        fc.date({ min: new Date('2020-01-01'), max: new Date('2025-01-01') }),
-        fc.date({ min: new Date('2025-01-02'), max: new Date('2030-12-31') }),
+        fc.date({ min: new Date('2020-01-01'), max: new Date('2025-01-01'), noInvalidDate: true }),
+        fc.date({ min: new Date('2025-01-02'), max: new Date('2030-12-31'), noInvalidDate: true }),
         (deadline, now) => {
           // deadline is in the past relative to now
           const goal = { deadline, progress: 100 };
@@ -140,7 +140,7 @@ describe('Property 10: Meta vencida', () => {
   it('goals with future deadline are never overdue', () => {
     fc.assert(
       fc.property(
-        fc.date({ min: new Date('2025-06-01'), max: new Date('2030-12-31') }),
+        fc.date({ min: new Date('2025-06-01'), max: new Date('2030-12-31'), noInvalidDate: true }),
         fc.integer({ min: 0, max: 99 }),
         (deadline, progress) => {
           // now is before the deadline
@@ -183,32 +183,46 @@ describe('Property 11: Validação de metas', () => {
 
   it('name exceeding 100 chars is rejected', () => {
     fc.assert(
-      fc.property(fc.string({ minLength: 101, maxLength: 200 }), (name) => {
-        const futureDeadline = new Date(Date.now() + 86400000 * 30).toISOString();
-        const result = createGoalSchema.safeParse({
-          name,
-          description: 'Valid description',
-          type: 'GENERAL',
-          deadline: futureDeadline,
-        });
-        expect(result.success).toBe(false);
-      }),
+      // O schema aplica `trim` antes de medir: filtramos pelo tamanho
+      // sem espaços nas pontas para gerar só nomes realmente longos demais.
+      fc.property(
+        fc
+          .string({ minLength: 101, maxLength: 200 })
+          .filter((s) => s.trim().length > GOAL_NAME_MAX_LENGTH),
+        (name) => {
+          const futureDeadline = new Date(Date.now() + 86400000 * 30).toISOString();
+          const result = createGoalSchema.safeParse({
+            name,
+            description: 'Valid description',
+            type: 'GENERAL',
+            deadline: futureDeadline,
+          });
+          expect(result.success).toBe(false);
+        },
+      ),
       { numRuns: NUM_RUNS },
     );
   });
 
   it('description exceeding 500 chars is rejected', () => {
     fc.assert(
-      fc.property(fc.string({ minLength: 501, maxLength: 600 }), (description) => {
-        const futureDeadline = new Date(Date.now() + 86400000 * 30).toISOString();
-        const result = createGoalSchema.safeParse({
-          name: 'Valid name',
-          description,
-          type: 'GENERAL',
-          deadline: futureDeadline,
-        });
-        expect(result.success).toBe(false);
-      }),
+      // O schema aplica `trim` antes de medir, então o que conta é o
+      // tamanho sem espaços nas pontas (501 espaços viram string vazia).
+      fc.property(
+        fc
+          .string({ minLength: 501, maxLength: 600 })
+          .filter((s) => s.trim().length > GOAL_DESCRIPTION_MAX_LENGTH),
+        (description) => {
+          const futureDeadline = new Date(Date.now() + 86400000 * 30).toISOString();
+          const result = createGoalSchema.safeParse({
+            name: 'Valid name',
+            description,
+            type: 'GENERAL',
+            deadline: futureDeadline,
+          });
+          expect(result.success).toBe(false);
+        },
+      ),
       { numRuns: NUM_RUNS },
     );
   });
@@ -216,7 +230,7 @@ describe('Property 11: Validação de metas', () => {
   it('past deadline is rejected', () => {
     fc.assert(
       fc.property(
-        fc.date({ min: new Date('2020-01-01'), max: new Date('2024-01-01') }),
+        fc.date({ min: new Date('2020-01-01'), max: new Date('2024-01-01'), noInvalidDate: true }),
         (pastDate) => {
           const result = createGoalSchema.safeParse({
             name: 'Valid name',

@@ -36,8 +36,11 @@ vi.mock('next-auth/react', () => ({
   signOut: signOutMock,
 }));
 
+// `useRouter` é usado pelo `NotificationBell` (topbar) para navegar ao
+// clicar em um aviso; aqui basta um router inerte.
 vi.mock('next/navigation', () => ({
   usePathname: usePathnameMock,
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: vi.fn() }),
 }));
 
 vi.mock('next/image', () => ({

@@ -49,9 +49,10 @@ vi.mock('@prisma/client', () => ({
 }));
 
 // ─── Mock do singleton do Prisma usado pelo handler ───────────────────
-const { findUniqueMock, createMock } = vi.hoisted(() => ({
+const { findUniqueMock, createMock, updateMock } = vi.hoisted(() => ({
   findUniqueMock: vi.fn(),
   createMock: vi.fn(),
+  updateMock: vi.fn(),
 }));
 
 vi.mock('@/lib/prisma', () => ({
@@ -59,6 +60,7 @@ vi.mock('@/lib/prisma', () => ({
     user: {
       findUnique: (...args: unknown[]) => findUniqueMock(...args),
       create: (...args: unknown[]) => createMock(...args),
+      update: (...args: unknown[]) => updateMock(...args),
     },
   },
 }));
@@ -84,11 +86,14 @@ function buildRequest(body: unknown): Request {
 beforeEach(() => {
   findUniqueMock.mockReset();
   createMock.mockReset();
+  updateMock.mockReset();
 });
 
 describe('POST /api/auth/register — unicidade de email', () => {
   it('retorna 409 EMAIL_TAKEN quando o email já está cadastrado (pré-check)', async () => {
-    findUniqueMock.mockResolvedValueOnce({ id: 'existing-user-id' });
+    // O handler lê o `status` da conta existente: ACTIVE/PENDING bloqueiam
+    // o cadastro; INACTIVE/REJECTED podem solicitar acesso de novo.
+    findUniqueMock.mockResolvedValueOnce({ id: 'existing-user-id', status: 'ACTIVE' });
 
     const response = await POST(buildRequest(validBody));
     const payload = await response.json();
@@ -100,14 +105,49 @@ describe('POST /api/auth/register — unicidade de email', () => {
     });
     // O pré-check evita custo desnecessário de bcrypt/create.
     expect(createMock).not.toHaveBeenCalled();
+    expect(updateMock).not.toHaveBeenCalled();
   });
 
-  it('compara emails de forma case-insensitive (normaliza para lowercase antes do findUnique)', async () => {
-    findUniqueMock.mockResolvedValueOnce({ id: 'existing-user-id' });
+  it('retorna 409 EMAIL_TAKEN quando a conta existente ainda está pendente', async () => {
+    findUniqueMock.mockResolvedValueOnce({ id: 'existing-user-id', status: 'PENDING' });
 
-    const response = await POST(
-      buildRequest({ ...validBody, email: '  Foo@Bar.COM  ' }),
-    );
+    const response = await POST(buildRequest(validBody));
+    const payload = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(payload.code).toBe('EMAIL_TAKEN');
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
+  it.each(['INACTIVE', 'REJECTED'])(
+    'reabre a solicitação (201, PENDING) quando a conta existente está %s',
+    async (status) => {
+      findUniqueMock.mockResolvedValueOnce({ id: 'existing-user-id', status });
+      updateMock.mockResolvedValueOnce({
+        id: 'existing-user-id',
+        email: 'ana@ejmc.com.br',
+        status: 'PENDING',
+      });
+
+      const response = await POST(buildRequest(validBody));
+      const payload = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(payload.status).toBe('PENDING');
+      // Atualiza a conta existente em vez de criar outra.
+      expect(createMock).not.toHaveBeenCalled();
+      expect(updateMock).toHaveBeenCalledTimes(1);
+      expect(updateMock.mock.calls[0][0]).toMatchObject({
+        where: { id: 'existing-user-id' },
+        data: { status: 'PENDING', failedAttempts: 0, lockedUntil: null },
+      });
+    },
+  );
+
+  it('compara emails de forma case-insensitive (normaliza para lowercase antes do findUnique)', async () => {
+    findUniqueMock.mockResolvedValueOnce({ id: 'existing-user-id', status: 'ACTIVE' });
+
+    const response = await POST(buildRequest({ ...validBody, email: '  Foo@Bar.COM  ' }));
     const payload = await response.json();
 
     expect(response.status).toBe(409);
@@ -115,7 +155,7 @@ describe('POST /api/auth/register — unicidade de email', () => {
     // Confirma que o handler delega ao Prisma já com o email normalizado.
     expect(findUniqueMock).toHaveBeenCalledWith({
       where: { email: 'foo@bar.com' },
-      select: { id: true },
+      select: { id: true, status: true },
     });
   });
 

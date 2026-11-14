@@ -109,7 +109,7 @@ describe('Property 16: Cálculo de pontuação', () => {
 
   it('empty infractions list yields zero score', () => {
     fc.assert(
-      fc.property(fc.constant([]), (infractions: Infraction[]) => {
+      fc.property(fc.constant<Infraction[]>([]), (infractions) => {
         expect(calculateTotalScore(infractions)).toBe(0);
       }),
       { numRuns: NUM_RUNS },

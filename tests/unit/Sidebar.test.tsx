@@ -22,7 +22,7 @@
  */
 
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import type { Session } from 'next-auth';
 
 // Mocks hoisted: vi.mock é içado para o topo do módulo, então as
@@ -128,11 +128,12 @@ describe('Sidebar — filtragem por permissão', () => {
     // restritos — usamos o próprio catálogo como referência para que
     // o teste continue válido se a lista crescer.
     const publicItems = MENU_ITEMS.filter((item) => !item.requiredAction);
+    // Restringimos a busca ao <nav>: o rodapé da Sidebar também tem um
+    // link para o perfil (avatar, `aria-label="Ir para perfil"`), que
+    // casaria com o rótulo "Perfil" e tornaria a consulta ambígua.
+    const nav = within(screen.getByRole('navigation', { name: /navegação principal/i }));
     for (const item of publicItems) {
-      // Cada link é referenciado pelo seu rótulo. Usamos `getAllByText`
-      // porque o rodapé pode conter o nome do usuário e outros textos;
-      // confiamos no `role: 'link'` para a verificação semântica.
-      const link = screen.getByRole('link', { name: new RegExp(item.label, 'i') });
+      const link = nav.getByRole('link', { name: new RegExp(item.label, 'i') });
       expect(link).toHaveAttribute('href', item.href);
     }
   });

@@ -7,8 +7,8 @@
  *   1. Coletar email + senha e disparar `signIn('credentials', …)` do
  *      NextAuth v5, com `redirect: false` para que possamos exibir
  *      mensagens específicas via `?error=<code>` antes de navegar.
- *   2. Disparar `signIn('google', { callbackUrl: '/dashboard' })` para o
- *      fluxo OAuth.
+ *   2. (O botão "Entrar com Google" foi removido da tela; o login é só
+ *      por email e senha.)
  *   3. Mapear os códigos de erro emitidos pelo `auth.ts`
  *      (`AUTH_ERROR_CODES`) para mensagens amigáveis em pt-BR — tanto
  *      os que chegam como `?error=...` (depois de redirect) quanto os
@@ -23,10 +23,8 @@
  *     o tratamento de erros aconteça inline (sem reload da página). Em
  *     caso de sucesso, navegamos manualmente para o `callbackUrl`,
  *     respeitando `?callbackUrl=` da URL ou caindo em `/dashboard`.
- *   - Para o Google, deixamos o `redirect` padrão (true): o NextAuth
- *     já redireciona o usuário ao provedor e, em caso de erro,
- *     devolve para `/login?error=<code>`, que esta página lê na primeira
- *     renderização (via `searchParams`/`useSearchParams`).
+ *   - Erros que chegam por redirect (`/login?error=<code>`) são lidos na
+ *     primeira renderização (via `searchParams`/`useSearchParams`).
  *   - A mensagem genérica de credenciais inválidas (Property 1 / Req 1.2)
  *     é a default — qualquer erro não-mapeado também cai nela, evitando
  *     enumeração de contas.
@@ -40,11 +38,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 
-import {
-  ERROR_MESSAGES,
-  GENERIC_CREDENTIALS_MESSAGE,
-  resolveErrorMessage,
-} from './login-error-messages';
+import { GENERIC_CREDENTIALS_MESSAGE, resolveErrorMessage } from './login-error-messages';
 
 const DEFAULT_CALLBACK_URL = '/dashboard';
 
@@ -59,7 +53,6 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(() =>
     resolveErrorMessage(initialErrorCode),
   );
@@ -113,21 +106,6 @@ export function LoginForm() {
     }
   }
 
-  async function handleGoogleSignIn() {
-    if (isGoogleLoading) return;
-    setIsGoogleLoading(true);
-    setErrorMessage(null);
-    try {
-      // Mantemos `redirect: true` (default) — o NextAuth navega o
-      // navegador ao Google. Em caso de falha, o callback retorna o
-      // usuário a `/login?error=<code>` e a página exibe a mensagem.
-      await signIn('google', { callbackUrl });
-    } catch {
-      setIsGoogleLoading(false);
-      setErrorMessage(ERROR_MESSAGES.OAuthSignin);
-    }
-  }
-
   return (
     <form
       noValidate
@@ -169,7 +147,7 @@ export function LoginForm() {
             setEmail(event.target.value);
             if (errorMessage) setErrorMessage(null);
           }}
-          disabled={isSubmitting || isGoogleLoading}
+          disabled={isSubmitting}
           aria-label="Email"
           className="glass-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px] focus-ring-red"
         />
@@ -203,7 +181,7 @@ export function LoginForm() {
             setPassword(event.target.value);
             if (errorMessage) setErrorMessage(null);
           }}
-          disabled={isSubmitting || isGoogleLoading}
+          disabled={isSubmitting}
           aria-label="Senha"
           className="glass-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px] focus-ring-red"
         />
@@ -213,7 +191,7 @@ export function LoginForm() {
           aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
           aria-pressed={showPassword}
           className="absolute right-3.5 z-10 flex items-center rounded-md p-1 text-white/30 transition-colors hover:text-white/70 focus:outline-none focus-visible:text-white/70"
-          disabled={isSubmitting || isGoogleLoading}
+          disabled={isSubmitting}
           tabIndex={0}
         >
           {showPassword ? (
@@ -255,7 +233,7 @@ export function LoginForm() {
       <button
         type="submit"
         className="btn-light mt-1.5 animate-fade-up opacity-0 [animation-delay:0.4s]"
-        disabled={isSubmitting || isGoogleLoading}
+        disabled={isSubmitting}
         aria-busy={isSubmitting}
       >
         {isSubmitting ? (

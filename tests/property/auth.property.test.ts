@@ -299,7 +299,9 @@ describe('Property 4: Validação de cadastro', () => {
   it('name longer than 150 chars is rejected', () => {
     fc.assert(
       fc.property(
-        fc.string({ minLength: 151, maxLength: 200 }),
+        // O schema aplica `trim` antes de medir: só nomes com mais de 150
+        // caracteres depois do trim são, de fato, longos demais.
+        fc.string({ minLength: 151, maxLength: 200 }).filter((s) => s.trim().length > 150),
         validEmail,
         validPassword,
         (name, email, password) => {
