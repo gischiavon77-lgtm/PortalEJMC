@@ -99,7 +99,7 @@ export default async function PerfilPage() {
         role={profileUser.role}
       />
 
-      <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
+      <div className="rounded-xl border border-border bg-surface hover-card p-6 shadow-sm">
         <ProfileForm user={profileUser} />
       </div>
     </section>

@@ -59,12 +59,9 @@
  */
 
 import { useEffect, useState, type ReactNode } from 'react';
-import Link from 'next/link';
-import { signOut, useSession } from 'next-auth/react';
 
 import { Sidebar } from './Sidebar';
 import { NotificationBell } from './NotificationBell';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface PortalShellProps {
   children: ReactNode;
@@ -72,9 +69,6 @@ interface PortalShellProps {
 
 export function PortalShell({ children }: PortalShellProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
-  const { data: session } = useSession();
-  const { user: profile } = useCurrentUser();
 
   // Tecla Escape fecha o drawer (apenas quando aberto, para evitar
   // listeners desnecessários). Limpamos o handler no cleanup.
@@ -108,14 +102,14 @@ export function PortalShell({ children }: PortalShellProps) {
 
   return (
     <div className="min-h-screen bg-bg text-text">
-      {/* ─── Barra superior ───
-          Fixa no topo. No celular (< 768px) traz o botão do menu, a
-          marca, o sino e o avatar. A partir do tablet começa depois da
-          sidebar fixa e mostra só o sino e o avatar, à direita.
-          Z-index 30 fica abaixo da Sidebar (z-40), que a cobre quando
-          o menu abre no celular. */}
+      {/* ─── Barra superior (só no celular) ───
+          Abaixo de 768px a sidebar fica recolhida, então esta barra traz
+          o botão do menu, a marca e o sino. A partir do tablet ela não
+          existe: a sidebar fixa já mostra tudo (inclusive o sino, o
+          avatar e o botão de sair). Z-index 30 fica abaixo da Sidebar
+          (z-40), que a cobre quando o menu abre. */}
       <header
-        className="fixed inset-x-0 top-0 z-30 flex h-topbar items-center justify-between border-b border-border bg-bg px-3 tablet:left-sidebar tablet:px-6"
+        className="fixed inset-x-0 top-0 z-30 flex h-topbar items-center justify-between border-b border-border bg-bg px-3 tablet:hidden"
         aria-label="Barra superior"
       >
         <button
@@ -124,7 +118,7 @@ export function PortalShell({ children }: PortalShellProps) {
           aria-label="Abrir menu de navegação"
           aria-expanded={isOpen}
           aria-controls="portal-sidebar"
-          className="flex h-11 w-11 items-center justify-center rounded-md text-text transition-colors hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 tablet:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-md text-text transition-colors hover:bg-surface-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
         >
           <svg
             viewBox="0 0 24 24"
@@ -147,53 +141,10 @@ export function PortalShell({ children }: PortalShellProps) {
           EJMC
         </span>
 
-        {/* Lado direito: sino de notificações + avatar */}
+        {/* Lado direito: sino de notificações */}
         <div className="ml-auto flex items-center gap-2">
           {/* Notification bell (funcional) */}
           <NotificationBell tone="dark" />
-
-          {/* User avatar with dropdown */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setAvatarMenuOpen((v) => !v)}
-              aria-label="Menu do perfil"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
-            >
-              {(profile?.avatarUrl ?? session?.user?.image) ? (
-                <img
-                  src={(profile?.avatarUrl ?? session?.user?.image) as string}
-                  alt={profile?.name ?? session?.user?.name ?? 'Avatar'}
-                  className="h-8 w-8 rounded-full object-cover"
-                />
-              ) : (
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-raised text-[11px] font-bold text-white">
-                  {getInitials(profile?.name ?? session?.user?.name ?? session?.user?.email ?? '?')}
-                </span>
-              )}
-            </button>
-            {avatarMenuOpen && (
-              <div className="absolute right-0 top-10 z-50 w-40 rounded-lg border border-border bg-surface py-1">
-                <Link
-                  href="/perfil"
-                  onClick={() => setAvatarMenuOpen(false)}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-text hover:bg-surface-raised"
-                >
-                  Meu Perfil
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAvatarMenuOpen(false);
-                    signOut({ callbackUrl: '/login' });
-                  }}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-brand/20"
-                >
-                  Sair
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       </header>
 
@@ -220,24 +171,11 @@ export function PortalShell({ children }: PortalShellProps) {
 
       {/* ─── Conteúdo principal ───
           `tablet:pl-sidebar` abre espaço para a sidebar fixa e
-          `pt-topbar` para a barra superior. O padding horizontal
+          `pt-topbar` para a barra superior, que só existe no celular. O padding horizontal
           cresce em telas maiores para dar respiro. */}
-      <div className="pt-topbar tablet:pl-sidebar">
+      <div className="pt-topbar tablet:pl-sidebar tablet:pt-0">
         <main className="px-4 py-6 sm:px-6 desktop:px-8 desktop:py-8">{children}</main>
       </div>
     </div>
   );
-}
-
-/**
- * Extrai até duas iniciais de um nome ou email para o avatar fallback.
- */
-function getInitials(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return '?';
-  const base = trimmed.includes('@') ? trimmed.split('@')[0] : trimmed;
-  const parts = base.split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return '?';
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }

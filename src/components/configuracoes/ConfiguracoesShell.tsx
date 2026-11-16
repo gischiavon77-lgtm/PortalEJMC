@@ -100,7 +100,7 @@ function ChangePasswordSection() {
   return (
     <section
       aria-labelledby="password-heading"
-      className="rounded-xl border border-border bg-surface p-6 shadow-sm"
+      className="rounded-xl border border-border bg-surface hover-card p-6 shadow-sm"
     >
       <h2 id="password-heading" className="mb-4 font-heading text-xl font-semibold text-text">
         Alterar Senha
@@ -260,7 +260,7 @@ function AvatarSection({
   return (
     <section
       aria-labelledby="avatar-heading"
-      className="rounded-xl border border-border bg-surface p-6 shadow-sm"
+      className="rounded-xl border border-border bg-surface hover-card p-6 shadow-sm"
     >
       <h2 id="avatar-heading" className="mb-4 font-heading text-xl font-semibold text-text">
         Foto de Perfil
@@ -326,7 +326,7 @@ function AdminSection() {
   return (
     <section
       aria-labelledby="admin-heading"
-      className="rounded-xl border border-border bg-surface p-6 shadow-sm"
+      className="rounded-xl border border-border bg-surface hover-card p-6 shadow-sm"
     >
       <h2 id="admin-heading" className="mb-4 font-heading text-xl font-semibold text-text">
         Administração

@@ -248,7 +248,7 @@ function HighlightCard({
     <div
       className={`flex-shrink-0 snap-center ${config.wide ? 'w-80 sm:w-[400px]' : 'w-56 sm:w-64'}`}
     >
-      <div className="relative flex flex-col items-center rounded-lg bg-surface border border-border p-4 transition hover:border-border">
+      <div className="relative flex flex-col items-center rounded-lg bg-surface border border-border hover-card p-4 transition hover:border-border">
         {/* Glow effect */}
         <div className="relative w-full">
           {/* Photo container */}
@@ -307,7 +307,7 @@ function SkeletonCard({ config }: { config: SlotConfig }) {
     <div
       className={`flex-shrink-0 snap-center ${config.wide ? 'w-80 sm:w-[400px]' : 'w-56 sm:w-64'}`}
     >
-      <div className="flex flex-col items-center rounded-lg bg-surface border border-border p-4">
+      <div className="flex flex-col items-center rounded-lg bg-surface border border-border hover-card p-4">
         <div
           className={`w-full ${config.aspectRatio} rounded-xl bg-surface-raised animate-pulse`}
         />

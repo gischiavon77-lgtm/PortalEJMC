@@ -39,7 +39,7 @@ export function ProfileBanner({ name, avatarUrl, area, position, role }: Profile
   const subtitle = cargo || theme.label;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-border bg-surface hover-card shadow-sm">
       {/* Banner neutro, com um fio discreto na cor da área */}
       <div className="relative h-32 overflow-hidden bg-surface-raised sm:h-40">
         <span className={`absolute inset-x-0 bottom-0 h-0.5 ${theme.accent}`} aria-hidden="true" />

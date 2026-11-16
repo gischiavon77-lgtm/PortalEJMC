@@ -51,7 +51,7 @@ export function MemberScoreList({ members, onViewMember }: MemberScoreListProps)
           type="button"
           role="listitem"
           onClick={() => onViewMember(member.id, member.name)}
-          className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4 text-left transition-colors hover:border-brand hover:bg-brand/20 sm:flex-row sm:items-center sm:gap-4"
+          className="flex flex-col gap-1 rounded-lg border border-border bg-surface hover-card p-4 text-left transition-colors hover:border-brand hover:bg-brand/20 sm:flex-row sm:items-center sm:gap-4"
         >
           <span className="flex-1 text-sm font-medium text-text">{member.name}</span>
           <span className="w-32 text-center text-xs text-text-faint sm:block">

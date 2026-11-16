@@ -38,8 +38,10 @@ vi.mock('next-auth/react', () => ({
   signOut: signOutMock,
 }));
 
+// `useRouter` é usado pelo `NotificationBell`, que agora fica no topo da Sidebar.
 vi.mock('next/navigation', () => ({
   usePathname: usePathnameMock,
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn(), replace: vi.fn() }),
 }));
 
 // `next/image` precisa de runtime do Next; substituímos por <img> neutro.

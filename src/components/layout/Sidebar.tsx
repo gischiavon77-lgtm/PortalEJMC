@@ -70,6 +70,7 @@ import { hasPermission, type PermissionUser } from '@/lib/permissions';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { effectivePosition } from '@/lib/position';
 
+import { NotificationBell } from './NotificationBell';
 import { MENU_ITEMS, type SidebarIconName, type SidebarItem } from './sidebar-items';
 
 /** Rótulo do papel, usado na etiqueta do topo quando não há cargo preenchido. */
@@ -165,7 +166,7 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
           className="h-10 w-10 shrink-0 object-contain"
           priority
         />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="font-heading text-lg font-bold leading-none text-text">EJMC</p>
           {roleTag && (
             <span
@@ -175,6 +176,10 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
               <span className="truncate">{roleTag}</span>
             </span>
           )}
+        </div>
+        {/* Sino de notificações. No celular ele fica na barra superior. */}
+        <div className="hidden shrink-0 tablet:block">
+          <NotificationBell tone="dark" align="left" />
         </div>
       </div>
 

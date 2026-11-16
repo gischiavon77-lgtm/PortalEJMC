@@ -184,7 +184,7 @@ export function UserTable({ users, status, onActionComplete, onActionError }: Us
         </thead>
         <tbody className="divide-y divide-border">
           {users.map((user) => (
-            <tr key={user.id} className="hover:bg-bg/30 transition-colors">
+            <tr key={user.id} className="transition-colors hover:bg-surface-hover">
               <td className="px-4 py-3 font-medium text-text">{user.name}</td>
               <td className="px-4 py-3 text-text-soft">{user.email}</td>
               <td className="px-4 py-3">

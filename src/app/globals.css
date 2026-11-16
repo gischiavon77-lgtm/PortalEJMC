@@ -29,6 +29,7 @@
   --bg: #0a0a0b;
   --surface: #141416;
   --surface-raised: #1c1c1f;
+  --surface-hover: #0c0c0e;
   --border: #26262a;
 
   /* Texto */
@@ -84,6 +85,22 @@
 }
 
 @layer components {
+  /*
+   * Destaque ao passar o mouse: a caixa escurece e a borda fica no
+   * vermelho da marca. Usar em cards e caixas de conteúdo
+   * (`className="... hover-card"`). Não usar em modais, menus suspensos
+   * nem em contêineres de tabela.
+   */
+  .hover-card {
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .hover-card:hover {
+    background-color: var(--surface-hover);
+    border-color: var(--brand);
+  }
+
   /* ─── Telas públicas (login, cadastro, 403) ─── */
   .auth-card {
     background: var(--surface);

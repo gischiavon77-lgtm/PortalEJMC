@@ -51,7 +51,7 @@ export function AnnouncementCard({
 }: AnnouncementCardProps) {
   return (
     <article
-      className="rounded-lg border border-border bg-surface p-5 shadow-sm transition-shadow"
+      className="rounded-lg border border-border bg-surface hover-card p-5 shadow-sm transition-shadow"
       aria-labelledby={`announcement-title-${announcement.id}`}
     >
       <header className="mb-3 flex items-start justify-between gap-3">

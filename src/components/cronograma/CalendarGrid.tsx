@@ -97,7 +97,9 @@ export function CalendarGrid({ cells, eventsByDay, onEventClick, onDayClick }: C
                 data-date={cell.key}
                 data-in-month={cell.inCurrentMonth ? 'true' : 'false'}
                 className={cn(
-                  'flex min-h-[110px] flex-col gap-1 border-border p-1.5 sm:p-2',
+                  'flex min-h-[110px] flex-col gap-1 border-border p-1.5 transition-colors sm:p-2',
+                  // Destaque ao passar o mouse: a célula escurece.
+                  'hover:bg-surface-hover',
                   !isLastCol && 'border-r',
                   !isLastRow && 'border-b',
                   cell.inCurrentMonth ? 'bg-surface' : 'bg-bg/60',
@@ -118,7 +120,9 @@ export function CalendarGrid({ cells, eventsByDay, onEventClick, onDayClick }: C
                       'inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-semibold tabular-nums',
                       cell.inCurrentMonth ? 'text-text' : 'text-text-faint',
                       cell.isToday && 'bg-brand text-white shadow-sm',
-                      onDayClick && !cell.isToday && 'transition-colors hover:bg-border',
+                      onDayClick &&
+                        !cell.isToday &&
+                        'transition-colors hover:bg-brand hover:text-white',
                       !onDayClick && 'cursor-default',
                     )}
                   >

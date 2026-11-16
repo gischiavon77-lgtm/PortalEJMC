@@ -103,7 +103,7 @@ export function PollCard({
 
   return (
     <article
-      className="rounded-lg border border-border bg-surface p-5 shadow-sm transition-shadow"
+      className="rounded-lg border border-border bg-surface hover-card p-5 shadow-sm transition-shadow"
       aria-labelledby={`poll-title-${poll.id}`}
     >
       {/* Header */}

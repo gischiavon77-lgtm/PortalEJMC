@@ -25,7 +25,8 @@ const config: Config = {
         // ─── Superfícies ───
         bg: '#0a0a0b', // fundo da página
         surface: '#141416', // cards, sidebar, modais
-        'surface-raised': '#1c1c1f', // hover, campos de formulário, linhas destacadas
+        'surface-raised': '#1c1c1f', // campos de formulário, itens de menu em hover
+        'surface-hover': '#0c0c0e', // card ou linha sob o mouse: mais escuro que o card
         border: '#26262a', // borda de 1px de cards, campos e divisórias
 
         // ─── Texto ───

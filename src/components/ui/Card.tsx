@@ -57,7 +57,7 @@ export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'>
 }
 
 const VARIANT_CLASSES: Record<CardVariant, string> = {
-  solid: 'bg-surface border border-border',
+  solid: 'bg-surface border border-border hover-card',
   outlined: 'bg-transparent border border-border',
   subtle: 'bg-bg border border-transparent',
 };

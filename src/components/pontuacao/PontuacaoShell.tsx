@@ -181,7 +181,7 @@ export function PontuacaoShell({
       {/* Own score view */}
       {viewMode === 'own' && (
         <div className="flex flex-col gap-4">
-          <div className="rounded-lg border border-border bg-surface p-4">
+          <div className="rounded-lg border border-border bg-surface hover-card p-4">
             <p className="text-sm text-text-soft">Pontuação acumulada no semestre</p>
             <p className="text-3xl font-bold text-text">
               {ownTotalPoints} {ownTotalPoints === 1 ? 'ponto' : 'pontos'}
@@ -209,7 +209,7 @@ export function PontuacaoShell({
             </Button>
             <span className="text-lg font-semibold text-text">{selectedMember.name}</span>
           </div>
-          <div className="rounded-lg border border-border bg-surface p-4">
+          <div className="rounded-lg border border-border bg-surface hover-card p-4">
             <p className="text-sm text-text-soft">Pontuação acumulada no semestre</p>
             <p className="text-3xl font-bold text-text">
               {loadingMember

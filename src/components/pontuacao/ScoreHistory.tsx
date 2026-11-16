@@ -47,7 +47,7 @@ export function ScoreHistory({ infractions, canDelete, onDelete }: ScoreHistoryP
         <div
           key={infraction.id}
           role="listitem"
-          className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
+          className="flex flex-col gap-2 rounded-lg border border-border bg-surface hover-card p-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div className="flex flex-col gap-1">
             <div className="flex flex-wrap items-center gap-2">

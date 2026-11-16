@@ -34,10 +34,20 @@ const POLL_INTERVAL_MS = 60_000;
 interface NotificationBellProps {
   /** Cor do ícone — 'light' para fundos claros (topbar), 'dark' para a sidebar escura. */
   tone?: 'light' | 'dark';
+  /**
+   * Para que lado o painel abre. `right` (padrão) alinha pela direita do
+   * sino; `left` alinha pela esquerda — usado na sidebar, onde o sino
+   * fica colado à borda esquerda da tela.
+   */
+  align?: 'left' | 'right';
   className?: string;
 }
 
-export function NotificationBell({ tone = 'light', className }: NotificationBellProps) {
+export function NotificationBell({
+  tone = 'light',
+  align = 'right',
+  className,
+}: NotificationBellProps) {
   const router = useRouter();
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [open, setOpen] = useState(false);
@@ -184,7 +194,7 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
         <div
           role="menu"
           aria-label="Lista de notificações"
-          className="absolute right-0 top-11 z-50 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-surface"
+          className={`absolute top-11 z-50 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-surface ${align === 'left' ? 'left-0' : 'right-0'}`}
         >
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
             <p className="text-sm font-bold text-text">Notificações</p>

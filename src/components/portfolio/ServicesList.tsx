@@ -44,7 +44,10 @@ export function ServicesList({ services, canManage, onEdit }: ServicesListProps)
         aria-label="Serviços (visualização em cartões)"
       >
         {services.map((service) => (
-          <li key={service.id} className="rounded-lg border border-border bg-surface p-4 shadow-sm">
+          <li
+            key={service.id}
+            className="rounded-lg border border-border bg-surface hover-card p-4 shadow-sm"
+          >
             <div className="flex flex-col gap-2">
               <div className="flex items-start justify-between gap-2">
                 <p className="font-heading text-base font-semibold text-text">{service.name}</p>
@@ -66,7 +69,7 @@ export function ServicesList({ services, canManage, onEdit }: ServicesListProps)
       </ul>
 
       {/* ─── Desktop/Tablet: tabela (escondido em <768px) ─── */}
-      <div className="hidden tablet:block w-full overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+      <div className="hidden tablet:block w-full overflow-hidden rounded-lg border border-border bg-surface hover-card shadow-sm">
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">
             Lista de serviços do portfólio, ordenada alfabeticamente por nome.

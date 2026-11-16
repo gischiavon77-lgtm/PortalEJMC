@@ -28,7 +28,7 @@ export function StatCard({ value, label, hint, icon, className }: StatCardProps)
   return (
     <div
       className={cn(
-        'flex items-start justify-between gap-3 rounded-lg border border-border bg-surface p-4 sm:p-5',
+        'flex items-start justify-between gap-3 hover-card rounded-lg border border-border bg-surface p-4 sm:p-5',
         className,
       )}
     >

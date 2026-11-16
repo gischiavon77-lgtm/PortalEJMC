@@ -84,7 +84,7 @@ export function AreaPage({
   );
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-surface">
+    <div className="overflow-hidden rounded-lg border border-border bg-surface hover-card">
       {/* Fio discreto na cor da área + cabeçalho neutro */}
       <div className={`h-0.5 ${config.accentBar}`} aria-hidden="true" />
       <div className="relative border-b border-border px-6 py-5">

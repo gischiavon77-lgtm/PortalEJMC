@@ -475,7 +475,9 @@ export function PortfolioInterativo() {
           </button>
 
           {/* Header */}
-          <div className={`mb-8 rounded-lg border border-border bg-surface p-6 text-text`}>
+          <div
+            className={`mb-8 rounded-lg border border-border bg-surface hover-card p-6 text-text`}
+          >
             <p className="mb-1 text-sm font-medium opacity-80">
               {area.emoji} {area.name}
             </p>
@@ -521,7 +523,7 @@ export function PortfolioInterativo() {
                 {service.subServices.map((sub, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl border border-border bg-surface p-5 shadow-sm"
+                    className="rounded-xl border border-border bg-surface hover-card p-5 shadow-sm"
                   >
                     <h3 className={`mb-3 font-heading text-base font-bold text-text`}>
                       {sub.name}
@@ -581,7 +583,9 @@ export function PortfolioInterativo() {
           </button>
 
           {/* Area Header */}
-          <div className={`mb-8 rounded-lg border border-border bg-surface p-6 text-text`}>
+          <div
+            className={`mb-8 rounded-lg border border-border bg-surface hover-card p-6 text-text`}
+          >
             <div className="flex items-center gap-3">
               <span className="text-4xl">{area.emoji}</span>
               <div>

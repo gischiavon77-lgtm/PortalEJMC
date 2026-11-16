@@ -61,7 +61,7 @@ export function StickerCard({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`group relative overflow-hidden rounded-lg border ${borderColor} bg-surface transition-colors duration-200 hover:border-text-faint ${
+      className={`group relative overflow-hidden rounded-lg border ${borderColor} bg-surface hover-card ${
         isDragging ? 'opacity-50 scale-95' : ''
       } ${isDragOver ? 'border-l-blue-500 border-l-[3px]' : ''} ${
         draggable ? 'cursor-grab active:cursor-grabbing' : ''

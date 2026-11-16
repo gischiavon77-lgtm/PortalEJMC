@@ -291,7 +291,7 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
                   {projects.map((project) => (
                     <tr
                       key={project.id}
-                      className="border-b border-border last:border-b-0 transition-colors hover:bg-cream/40"
+                      className="border-b border-border last:border-b-0 transition-colors hover:bg-surface-hover"
                     >
                       <td className="px-4 py-3 align-middle font-medium text-text">
                         {project.name}
