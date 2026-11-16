@@ -22,6 +22,11 @@
  * Idempotência: todas as operações usam `upsert` (ou findFirst+create)
  * para que executar o seed múltiplas vezes não duplique dados.
  *
+ * Senha do administrador: vem OBRIGATORIAMENTE da variável de ambiente
+ * `SEED_ADMIN_PASSWORD`. Não existe senha padrão no código — sem a
+ * variável, o seed para antes de tocar no banco. A senha só é usada na
+ * CRIAÇÃO do admin; se ele já existir, a senha atual é mantida.
+ *
  * Execução: `npx prisma db seed` (configurado em package.json `prisma.seed`).
  */
 
@@ -34,7 +39,8 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 const DEFAULT_ADMIN_EMAIL = 'admin@ejmc.com';
-const DEFAULT_ADMIN_PASSWORD_FALLBACK = 'Admin@123';
+const ADMIN_PASSWORD_ENV = 'SEED_ADMIN_PASSWORD';
+const ADMIN_PASSWORD_MIN_LENGTH = 8;
 const BCRYPT_ROUNDS = 10;
 
 type KpiSeed = {
@@ -57,8 +63,35 @@ const INFRACTION_POINTS: Record<InfractionType, number> = {
   [InfractionType.DRESS_CODE]: 1,
 };
 
-async function seedAdminUser(): Promise<void> {
-  const password = process.env.SEED_ADMIN_PASSWORD ?? DEFAULT_ADMIN_PASSWORD_FALLBACK;
+/**
+ * Lê a senha do admin de `SEED_ADMIN_PASSWORD`. Lança erro com instrução
+ * clara se a variável não existir, estiver vazia ou for curta demais.
+ * Chamada no início de `main`, antes de qualquer escrita no banco.
+ */
+function requireAdminPassword(): string {
+  const password = process.env[ADMIN_PASSWORD_ENV];
+
+  if (!password || password.trim() === '') {
+    throw new Error(
+      [
+        `A variável de ambiente ${ADMIN_PASSWORD_ENV} não está definida.`,
+        'O seed não tem senha padrão: defina a senha do administrador antes de rodar.',
+        `  PowerShell: $env:${ADMIN_PASSWORD_ENV}="uma-senha-forte"; npx prisma db seed`,
+        `  bash:       ${ADMIN_PASSWORD_ENV}="uma-senha-forte" npx prisma db seed`,
+      ].join('\n'),
+    );
+  }
+
+  if (password.length < ADMIN_PASSWORD_MIN_LENGTH) {
+    throw new Error(
+      `${ADMIN_PASSWORD_ENV} deve ter pelo menos ${ADMIN_PASSWORD_MIN_LENGTH} caracteres.`,
+    );
+  }
+
+  return password;
+}
+
+async function seedAdminUser(password: string): Promise<void> {
   const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
   const admin = await prisma.user.upsert({
@@ -124,9 +157,12 @@ async function seedInfractionConfig(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  // Valida a senha ANTES de qualquer escrita: se faltar, nada é semeado.
+  const adminPassword = requireAdminPassword();
+
   console.log('▶ Iniciando seed do Portal EJMC');
 
-  await seedAdminUser();
+  await seedAdminUser(adminPassword);
   await seedKpis();
   await seedInfractionConfig();
 
@@ -139,7 +175,8 @@ async function main(): Promise<void> {
 
 main()
   .catch((error) => {
-    console.error('✗ Erro durante o seed:', error);
+    console.error('✗ Erro durante o seed:');
+    console.error(error instanceof Error ? error.message : error);
     process.exit(1);
   })
   .finally(async () => {

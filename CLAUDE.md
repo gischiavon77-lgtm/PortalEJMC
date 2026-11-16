@@ -7,15 +7,24 @@ Portal web interno da empresa júnior EJMC (até ~80 usuários): dashboard, cron
 - Sempre explicar as mudanças em português.
 - Nunca alterar o arquivo `.env`.
 
+## Situação do deploy (atualizado em 2026-11-15)
+
+Não existe produção hoje. O projeto antigo na Vercel foi apagado e o banco antigo expirou. O deploy será feito do zero, com um banco novo.
+
+- Num banco novo e vazio, o `prisma migrate deploy` do build aplica as 5 migrações de `prisma/migrations/` desde o início. Não é preciso baseline.
+- Depois das migrações, rode `npx prisma db seed` com `SEED_ADMIN_PASSWORD` definida para criar os dados iniciais (admin `admin@ejmc.com`).
+- Não há dados antigos a preservar nem a migrar.
+- O passo a passo está em `docs/DEPLOY.md`.
+
 ## Pendências prioritárias
 
 Nesta ordem:
 
 1. Atualizar o Next.js e tratar o `npm audit`.
-2. Trocar o build `prisma db push --accept-data-loss` por `prisma migrate deploy` e gerar a migração que falta. **Feito no código** (script de build e migração `20260612000000_redesign_project`). O baseline já foi feito no banco do `.env` (as 5 migrações constam como aplicadas). Falta confirmar que a Vercel usa esse mesmo banco em produção e nos previews; se usar outro, ele precisa do mesmo baseline (ver `docs/DEPLOY.md`).
+2. ~~Trocar o build `prisma db push --accept-data-loss` por `prisma migrate deploy` e gerar a migração que falta.~~ **Concluída** (commit `7d065a8`): o build usa `prisma migrate deploy` e a migração `20260612000000_redesign_project` cobre o redesenho de `Project`. Como o deploy será do zero, não resta baseline a fazer.
 3. Mover PDFs e fotos em base64 do banco para o Supabase Storage.
 4. Reconsultar cargo e status no banco a cada requisição, em vez de confiar no JWT.
-5. Remover a senha padrão do admin do seed e alinhar o `docs/DEPLOY.md`.
+5. ~~Remover a senha padrão do admin do seed e alinhar o `docs/DEPLOY.md`.~~ **Concluída**: o seed exige `SEED_ADMIN_PASSWORD` e falha sem ela.
 6. Ajustar o SSL em `src/lib/prisma.ts`.
 7. Cadastro por código de ativação.
 8. LGPD: política de privacidade, revisão do CPF e RLS no Supabase.
@@ -39,7 +48,7 @@ Ainda não implementadas:
 - **Zod 4** para validação, **Tailwind 3** para estilo
 - **Resend** (emails), **googleapis** (Google Calendar via Service Account)
 - Testes: **Vitest** (jsdom) + Testing Library + **fast-check**; **Playwright** para E2E
-- Deploy: **Vercel** (push em `main` publica; branches geram preview)
+- Deploy: **Vercel** (ainda sem projeto criado; ver "Situação do deploy"). Depois de configurado, push em `main` publica e branches geram preview.
 
 ## Comandos
 
@@ -57,11 +66,11 @@ npm run test:e2e:install                        # baixa os browsers do Playwrigh
 npx prisma validate
 npx prisma generate                 # também roda no postinstall
 npx prisma migrate dev --name <nome>
-npx prisma db seed                  # tsx prisma/seed.ts
+npx prisma db seed                  # tsx prisma/seed.ts; exige SEED_ADMIN_PASSWORD (sem senha padrão)
 npx prisma studio
 ```
 
-**Cuidado com `npm run build`**: o script é `prisma generate && prisma migrate deploy && next build`. O `migrate deploy` aplica no banco apontado por `DATABASE_URL` as migrações pendentes de `prisma/migrations/`. Ele não apaga dados por conta própria, mas executa o SQL que estiver nas migrações. Não rode localmente apontando para o banco de produção. Para compilar sem tocar no banco, use `npx next build`; para checar tipos, `npx tsc --noEmit`.
+**Cuidado com `npm run build`**: o script é `prisma generate && prisma migrate deploy && next build`. O `migrate deploy` aplica no banco apontado por `DATABASE_URL` as migrações pendentes de `prisma/migrations/`. Ele não apaga dados por conta própria, mas executa o SQL que estiver nas migrações. Não rode localmente apontando para um banco que não seja de desenvolvimento. Para compilar sem tocar no banco, use `npx next build`; para checar tipos, `npx tsc --noEmit`.
 
 **Mudança de schema**: edite `prisma/schema.prisma`, rode `npx prisma migrate dev --name <nome>` contra um banco de desenvolvimento e commite a pasta gerada em `prisma/migrations/`. Nunca use `prisma db push` em banco compartilhado. `npm run db:status` mostra as migrações pendentes (só leitura).
 
@@ -136,7 +145,7 @@ Fonte única: `src/lib/permissions.ts`.
 - Client singleton em `src/lib/prisma.ts` (`import { prisma } from '@/lib/prisma'`); força `sslmode=require`.
 - Modelos: `User`, `Event`, `Goal`, `GoalUpdate`, `Kpi`, `KpiValue`, `Project`, `Announcement`, `Poll`, `PollOption`, `PollVote`, `Infraction`, `InfractionConfig`, `Reservation`, `Service`, `Highlight`, `AlbumMember`.
 - Imagens e PDFs (avatar, fotos do álbum e destaques, proposta do projeto) são gravados como data URL base64 em colunas `Text`. Não há storage externo.
-- Em produção o schema é atualizado por `prisma migrate deploy` no build. `prisma/migrations/` cobre o schema atual. A migração `20260612000000_redesign_project` é idempotente porque a mudança já tinha sido aplicada em produção via `db push`.
+- O schema do banco é atualizado por `prisma migrate deploy` no build. `prisma/migrations/` cobre o schema atual. A migração `20260612000000_redesign_project` é idempotente porque a mudança tinha sido aplicada no banco antigo via `db push`; num banco novo ela aplica o redesenho normalmente.
 
 ### Regras de domínio que vivem em `src/lib`
 
@@ -171,7 +180,7 @@ O código evoluiu depois das specs. **Em caso de conflito, o código vale.** Dif
 - Estilo com classes Tailwind e tokens do tema (`red-core`, `surface-card`, `text-primary`, `border-light`; fontes `font-heading`, `font-body`). Um token novo precisa ser mapeado em `tailwind.config.ts`, senão a classe não gera CSS.
 - Responsivo a partir de 320px; breakpoints `tablet` (768px) e `desktop` (1024px); alvos de toque de 44px no mobile.
 - Reaproveite `@/components/ui` antes de criar componente base novo.
-- Commits: Conventional Commits em pt-BR, sem acentos (`feat: ...`, `fix: ...`, `style: ...`). Trabalho corrente na branch `ajustes`; `main` é produção.
+- Commits: Conventional Commits em pt-BR, sem acentos (`feat: ...`, `fix: ...`, `style: ...`). Trabalho corrente na branch `ajustes`; `main` será a branch de produção quando o deploy existir.
 
 ## Testes
 

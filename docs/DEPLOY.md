@@ -57,13 +57,19 @@ npx prisma generate
 # Aplicar as migrations no banco de produção
 npx prisma migrate deploy
 
-# Rodar o seed (admin padrão + dados iniciais)
+# Rodar o seed (admin + dados iniciais).
+# A senha do admin vem da variável SEED_ADMIN_PASSWORD (obrigatória, mínimo
+# de 8 caracteres). Não existe senha padrão: sem a variável, o seed falha.
+# Windows (PowerShell):
+$env:SEED_ADMIN_PASSWORD="escolha-uma-senha-forte"
 npx prisma db seed
 ```
 
+> Não grave `SEED_ADMIN_PASSWORD` em arquivo versionado. Ela só é usada na criação do admin; se o admin já existir, a senha dele não é alterada.
+>
 > O seed cria:
 >
-> - 1 usuário Admin (email: `admin@ejmc.com.br`, senha: `Admin123!`)
+> - 1 usuário Admin (email: `admin@ejmc.com`, senha: a que você definiu em `SEED_ADMIN_PASSWORD`)
 > - KPIs pré-definidos
 > - Configuração de pontos por infração
 > - 7 computadores para reserva
@@ -150,9 +156,9 @@ Se não tiver `openssl`, use: https://generate-secret.vercel.app/32
 
 1. Acesse `https://seu-projeto.vercel.app/login`
 2. Faça login com as credenciais do admin criado no seed:
-   - **Email**: `admin@ejmc.com.br`
-   - **Senha**: `Admin123!`
-3. Vá em **Admin** e altere a senha do admin
+   - **Email**: `admin@ejmc.com`
+   - **Senha**: a que você definiu em `SEED_ADMIN_PASSWORD` ao rodar o seed
+3. Vá em **Configurações** e troque a senha do admin
 4. Crie contas para os membros ou deixe que se cadastrem
 
 ---
