@@ -5,7 +5,7 @@
  *
  * O JWT/sessão do portal é deliberadamente mínimo (`id`, `role`, `area`,
  * `status`) para manter o cookie pequeno e evitar o erro 494 na Vercel
- * — por isso `name`, `position` (cargo) e `avatarUrl` (base64) NÃO ficam
+ * — por isso `name`, `position` (cargo) e `avatarUrl` (URL da rota de download) NÃO ficam
  * na sessão. Este hook busca esses campos sob demanda em
  * `GET /api/users/me`.
  *

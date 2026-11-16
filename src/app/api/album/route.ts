@@ -3,13 +3,21 @@
  *
  * GET — lista todos os membros do álbum para uma gestão, agrupados por área.
  * POST — adiciona um novo membro ao álbum (Admin/Diretor via `album:manage`).
+ *
+ * A foto (PNG, JPG ou WEBP, máx. 4 MB, validada pelo conteúdo) vai para o
+ * bucket de imagens do Storage; o banco guarda só o caminho. As respostas
+ * trazem `photoUrl` apontando para `/api/files/album/:id`.
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { withAuth } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
-import type { Area } from '@prisma/client';
+import { albumPhotoUrlFor } from '@/lib/file-urls';
+import { deleteFile } from '@/lib/storage';
+import { storeUpload } from '@/lib/upload-handler';
+import { IMAGE_MIMES } from '@/lib/validators/upload';
+import type { AlbumMember, Area } from '@prisma/client';
 
 export const runtime = 'nodejs';
 
@@ -22,8 +30,14 @@ const VALID_AREAS: Area[] = [
   'ADM_FIN',
 ];
 
-const MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+/**
+ * Formato enviado ao cliente: o caminho do bucket (`photoPath`) não sai
+ * do servidor; no lugar vai `photoUrl`, a URL da rota de download.
+ */
+function serializeMember(member: AlbumMember) {
+  const { photoPath, ...rest } = member;
+  return { ...rest, photoUrl: albumPhotoUrlFor(member.id, photoPath) };
+}
 
 // ─── GET ─────────────────────────────────────────────────────────────
 
@@ -47,13 +61,13 @@ async function listHandler(
   });
 
   // Agrupar por área
-  const grouped: Record<string, typeof members> = {};
+  const grouped: Record<string, ReturnType<typeof serializeMember>[]> = {};
   for (const area of VALID_AREAS) {
     grouped[area] = [];
   }
   for (const member of members) {
     if (grouped[member.area]) {
-      grouped[member.area].push(member);
+      grouped[member.area].push(serializeMember(member));
     }
   }
 
@@ -102,41 +116,38 @@ async function createHandler(
   }
 
   // Processar foto (opcional)
-  let photoUrl: string | null = null;
-  if (photo && photo.size > 0) {
-    if (!ACCEPTED_TYPES.includes(photo.type)) {
-      return NextResponse.json(
-        {
-          error: true,
-          code: 'VALIDATION_ERROR',
-          message: 'Tipo de imagem não suportado. Aceitos: PNG, JPG, JPEG, WEBP.',
-        },
-        { status: 400 },
-      );
+  let photoPath: string | null = null;
+  if (photo instanceof File && photo.size > 0) {
+    const stored = await storeUpload(photo, {
+      bucket: 'images',
+      folder: 'album',
+      allowed: IMAGE_MIMES,
+      formatsLabel: 'PNG, JPG ou WEBP',
+    });
+    if (!stored.ok) {
+      return stored.response;
     }
-    if (photo.size > MAX_PHOTO_SIZE) {
-      return NextResponse.json(
-        { error: true, code: 'VALIDATION_ERROR', message: 'Foto deve ter no máximo 5MB.' },
-        { status: 400 },
-      );
-    }
-
-    const buffer = Buffer.from(await photo.arrayBuffer());
-    const base64 = buffer.toString('base64');
-    photoUrl = `data:${photo.type};base64,${base64}`;
+    photoPath = stored.path;
   }
 
-  const created = await prisma.albumMember.create({
-    data: {
-      name: name!.trim(),
-      position: position!.trim(),
-      area: area as Area,
-      gestao: gestao!,
-      photoUrl,
-    },
-  });
+  let created: AlbumMember;
+  try {
+    created = await prisma.albumMember.create({
+      data: {
+        name: name!.trim(),
+        position: position!.trim(),
+        area: area as Area,
+        gestao: gestao!,
+        photoPath,
+      },
+    });
+  } catch (err) {
+    // O banco não aceitou: remove a foto recém-enviada para não ficar órfã.
+    await deleteFile('images', photoPath);
+    throw err;
+  }
 
-  return NextResponse.json({ member: created }, { status: 201 });
+  return NextResponse.json({ member: serializeMember(created) }, { status: 201 });
 }
 
 export const POST = withAuth('album:manage', createHandler);

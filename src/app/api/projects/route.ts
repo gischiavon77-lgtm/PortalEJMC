@@ -1,6 +1,9 @@
 /**
  * `GET /api/projects` — Lista todos os projetos (ordenados por nome).
- * `POST /api/projects` — Cria um novo projeto (Admin/Diretor via album:manage).
+ *   Qualquer usuário autenticado. A listagem NÃO traz o PDF da proposta
+ *   nem o caminho dele: só `hasProposal`. O download é feito em
+ *   `GET /api/projects/:id/proposal`.
+ * `POST /api/projects` — Cria um novo projeto (Admin/Diretor via project:write).
  *
  * POST aceita multipart/form-data com campos:
  *   - name (string, required)
@@ -8,17 +11,20 @@
  *   - progress (number, 0-100, default 0)
  *   - team (string, comma-separated names)
  *   - price (number)
- *   - proposal (file, PDF, optional, max 10MB)
+ *   - proposal (file, PDF, optional, max 4 MB) — validado pelo conteúdo
+ *     e gravado no bucket privado de propostas do Storage.
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { withAuth } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
+import { PROJECT_PUBLIC_SELECT, serializeProject } from '@/lib/projects';
+import { deleteFile } from '@/lib/storage';
+import { storeUpload } from '@/lib/upload-handler';
+import { PDF_MIMES } from '@/lib/validators/upload';
 
 export const runtime = 'nodejs';
-
-const MAX_PROPOSAL_SIZE = 10 * 1024 * 1024; // 10MB
 
 // ─── GET ─────────────────────────────────────────────────────────────
 
@@ -28,35 +34,10 @@ async function listHandler(
 ): Promise<Response> {
   const projects = await prisma.project.findMany({
     orderBy: { name: 'asc' },
-    select: {
-      id: true,
-      name: true,
-      ferramenta: true,
-      progress: true,
-      team: true,
-      price: true,
-      proposalUrl: true,
-      createdAt: true,
-      updatedAt: true,
-    },
+    select: PROJECT_PUBLIC_SELECT,
   });
 
-  return NextResponse.json(
-    {
-      projects: projects.map((p) => ({
-        id: p.id,
-        name: p.name,
-        ferramenta: p.ferramenta,
-        progress: p.progress,
-        team: p.team,
-        price: Number(p.price),
-        proposalUrl: p.proposalUrl,
-        createdAt: p.createdAt.toISOString(),
-        updatedAt: p.updatedAt.toISOString(),
-      })),
-    },
-    { status: 200 },
-  );
+  return NextResponse.json({ projects: projects.map(serializeProject) }, { status: 200 });
 }
 
 export const GET = withAuth(null, listHandler);
@@ -121,18 +102,6 @@ async function createHandler(
     }
   }
 
-  let proposalUrl: string | null = null;
-  if (proposalFile && proposalFile.size > 0) {
-    if (proposalFile.type !== 'application/pdf') {
-      errors.push({ path: 'proposal', message: 'A proposta deve ser um arquivo PDF.' });
-    } else if (proposalFile.size > MAX_PROPOSAL_SIZE) {
-      errors.push({ path: 'proposal', message: 'O arquivo da proposta deve ter no máximo 10MB.' });
-    } else {
-      const buffer = Buffer.from(await proposalFile.arrayBuffer());
-      proposalUrl = `data:application/pdf;base64,${buffer.toString('base64')}`;
-    }
-  }
-
   if (errors.length > 0) {
     return NextResponse.json(
       {
@@ -145,33 +114,41 @@ async function createHandler(
     );
   }
 
-  const project = await prisma.project.create({
-    data: {
-      name,
-      ferramenta,
-      progress,
-      team,
-      price,
-      proposalUrl,
-    },
-  });
+  // Só envia o PDF ao Storage depois que os demais campos passaram na
+  // validação, para não gravar arquivo de um cadastro que será recusado.
+  let proposalPath: string | null = null;
+  if (proposalFile instanceof File && proposalFile.size > 0) {
+    const stored = await storeUpload(proposalFile, {
+      bucket: 'proposals',
+      folder: 'propostas',
+      allowed: PDF_MIMES,
+      formatsLabel: 'PDF',
+    });
+    if (!stored.ok) {
+      return stored.response;
+    }
+    proposalPath = stored.path;
+  }
 
-  return NextResponse.json(
-    {
-      project: {
-        id: project.id,
-        name: project.name,
-        ferramenta: project.ferramenta,
-        progress: project.progress,
-        team: project.team,
-        price: Number(project.price),
-        proposalUrl: project.proposalUrl,
-        createdAt: project.createdAt.toISOString(),
-        updatedAt: project.updatedAt.toISOString(),
+  try {
+    const project = await prisma.project.create({
+      data: {
+        name,
+        ferramenta,
+        progress,
+        team,
+        price,
+        proposalPath,
       },
-    },
-    { status: 201 },
-  );
+      select: PROJECT_PUBLIC_SELECT,
+    });
+
+    return NextResponse.json({ project: serializeProject(project) }, { status: 201 });
+  } catch (err) {
+    // O banco não aceitou: remove o PDF recém-enviado para não ficar órfão.
+    await deleteFile('proposals', proposalPath);
+    throw err;
+  }
 }
 
-export const POST = withAuth('album:manage', createHandler);
+export const POST = withAuth('project:write', createHandler);

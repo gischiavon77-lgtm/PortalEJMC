@@ -151,6 +151,10 @@ export type Action =
   | 'infraction:delete'
   // Projetos (Req 14) — somente Admin altera status.
   | 'project:updateStatus'
+  // Projetos — Admin/Diretor cadastram, editam e excluem projetos e são
+  // os únicos que baixam a proposta comercial (PDF em bucket privado).
+  | 'project:write'
+  | 'project:readProposal'
   // Portfólio de serviços (Req 13) — Admin/Diretor mantêm o catálogo.
   | 'service:write'
   // Administração de usuários (Req 4) — Admin gerencia, aprova, cria.
@@ -224,6 +228,9 @@ export const PERMISSION_MATRIX: Record<Action, UserRole[]> = {
 
   // ─── Projetos (Admin, Req 14.4) ────────────────────────────────────
   'project:updateStatus': ['ADMIN'],
+  // Cadastro/edição/exclusão de projetos e leitura da proposta (PDF).
+  'project:write': ['ADMIN', 'DIRETOR'],
+  'project:readProposal': ['ADMIN', 'DIRETOR'],
 
   // ─── Portfólio (Admin/Diretor, Req 13.3) ───────────────────────────
   'service:write': ['ADMIN', 'DIRETOR'],

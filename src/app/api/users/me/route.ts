@@ -12,6 +12,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { ZodError } from 'zod';
 
 import { withAuth } from '@/lib/api-auth';
+import { avatarUrlFor } from '@/lib/file-urls';
 import { prisma } from '@/lib/prisma';
 import { updateProfileSchema } from '@/lib/validators/profile';
 
@@ -31,7 +32,7 @@ export const GET = withAuth(null, async (_req, { session }) => {
       position: true,
       phone: true,
       cpf: true,
-      avatarUrl: true,
+      avatarPath: true,
       status: true,
       createdAt: true,
     },
@@ -44,8 +45,17 @@ export const GET = withAuth(null, async (_req, { session }) => {
     );
   }
 
-  return NextResponse.json({ user }, { status: 200 });
+  return NextResponse.json({ user: withAvatarUrl(user) }, { status: 200 });
 });
+
+/**
+ * Troca o caminho do bucket (`avatarPath`, que não sai do servidor)
+ * por `avatarUrl`, a URL da rota de download do avatar.
+ */
+function withAvatarUrl<T extends { id: string; avatarPath: string | null }>(user: T) {
+  const { avatarPath, ...rest } = user;
+  return { ...rest, avatarUrl: avatarUrlFor(user.id, avatarPath) };
+}
 
 // ─── PATCH /api/users/me ──────────────────────────────────────────────────────
 
@@ -160,10 +170,10 @@ export const PATCH = withAuth(null, async (req: NextRequest, { session }) => {
       position: true,
       phone: true,
       cpf: true,
-      avatarUrl: true,
+      avatarPath: true,
       status: true,
     },
   });
 
-  return NextResponse.json({ user: updated }, { status: 200 });
+  return NextResponse.json({ user: withAvatarUrl(updated) }, { status: 200 });
 });

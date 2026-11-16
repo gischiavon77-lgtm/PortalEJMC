@@ -3,11 +3,13 @@
  *
  * Tasks 18.1, 18.3 / Módulo Configurações:
  *   - Aceita multipart/form-data com campo "avatar" (File).
- *   - Valida tipo MIME: apenas PNG e JPG.
- *   - Valida tamanho: máximo 5 MB.
- *   - Armazena como data URL (base64) no campo `avatarUrl` do usuário.
- *   - Retorna 400 se formato inválido ou tamanho excedido.
- *   - Retorna 200 com a nova URL do avatar em sucesso.
+ *   - Valida o tipo pelo CONTEÚDO do arquivo (assinatura): só PNG e JPG.
+ *   - Valida tamanho: máximo 4 MB (ver `@/lib/validators/upload`).
+ *   - Envia o arquivo ao bucket de imagens do Storage e grava no banco
+ *     apenas o caminho (`User.avatarPath`). A foto anterior é removida.
+ *   - Retorna 400 se formato inválido ou tamanho excedido; 503 se o
+ *     Storage não estiver configurado.
+ *   - Retorna 200 com a URL do avatar (rota `/api/files/avatar/:id`).
  *
  * Task 18.5: mensagens de sucesso/erro em pt-BR.
  */
@@ -16,14 +18,14 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { withAuth } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
-import { AVATAR_ALLOWED_MIMES, AVATAR_MAX_SIZE_BYTES } from '@/lib/validators/settings';
+import { avatarUrlFor } from '@/lib/file-urls';
+import { deleteFile } from '@/lib/storage';
+import { storeUpload } from '@/lib/upload-handler';
+import { AVATAR_MIMES } from '@/lib/validators/upload';
 
 export const runtime = 'nodejs';
 
-/**
- * Aumenta o limite de body para 6 MB nesta rota (avatar de até 5 MB +
- * overhead do multipart encoding).
- */
+/** Tempo máximo da função: cobre o envio do arquivo ao Storage. */
 export const maxDuration = 30;
 
 export const PATCH = withAuth(null, async (req: NextRequest, { session }) => {
@@ -55,47 +57,42 @@ export const PATCH = withAuth(null, async (req: NextRequest, { session }) => {
     );
   }
 
-  // ─── 2. Validar tipo MIME ─────────────────────────────────────────
-  const mimeType = file.type;
-  if (!AVATAR_ALLOWED_MIMES.includes(mimeType as (typeof AVATAR_ALLOWED_MIMES)[number])) {
-    return NextResponse.json(
-      {
-        error: true,
-        code: 'INVALID_FORMAT',
-        message: 'Formato não suportado. Use PNG ou JPG.',
-      },
-      { status: 400 },
-    );
-  }
-
-  // ─── 3. Validar tamanho ───────────────────────────────────────────
-  if (file.size > AVATAR_MAX_SIZE_BYTES) {
-    return NextResponse.json(
-      {
-        error: true,
-        code: 'FILE_TOO_LARGE',
-        message: 'A foto deve ter no máximo 5 MB.',
-      },
-      { status: 400 },
-    );
-  }
-
-  // ─── 4. Converter para base64 data URL ─────────────────────────────
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  const base64 = buffer.toString('base64');
-  const dataUrl = `data:${mimeType};base64,${base64}`;
-
-  // ─── 5. Atualizar no banco ─────────────────────────────────────────
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: { avatarUrl: dataUrl },
+  // ─── 2. Validar (tipo pelo conteúdo + tamanho) e enviar ao Storage ─
+  const stored = await storeUpload(file, {
+    bucket: 'images',
+    folder: 'avatars',
+    allowed: AVATAR_MIMES,
+    formatsLabel: 'PNG ou JPG',
   });
+  if (!stored.ok) {
+    return stored.response;
+  }
+
+  // ─── 3. Gravar o caminho no banco ─────────────────────────────────
+  const userId = session.user.id;
+  const previous = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { avatarPath: true },
+  });
+
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { avatarPath: stored.path },
+    });
+  } catch (err) {
+    // O banco não aceitou: remove o arquivo recém-enviado para não ficar órfão.
+    await deleteFile('images', stored.path);
+    throw err;
+  }
+
+  // ─── 4. Remover a foto anterior do Storage ────────────────────────
+  await deleteFile('images', previous?.avatarPath);
 
   return NextResponse.json(
     {
       message: 'Foto de perfil atualizada!',
-      avatarUrl: dataUrl,
+      avatarUrl: avatarUrlFor(userId, stored.path),
     },
     { status: 200 },
   );

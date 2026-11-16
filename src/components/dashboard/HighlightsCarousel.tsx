@@ -12,6 +12,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { usePermission } from '@/hooks/usePermission';
+import { UPLOAD_MAX_BYTES, UPLOAD_MAX_LABEL } from '@/lib/validators/upload';
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -356,6 +357,13 @@ function UploadModal({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
+    // Mesmo limite do servidor: avisa antes de tentar enviar.
+    if (f && f.size > UPLOAD_MAX_BYTES) {
+      setError(`A foto deve ter no máximo ${UPLOAD_MAX_LABEL}.`);
+      e.target.value = '';
+      return;
+    }
+    setError(null);
     setFile(f);
     if (f) {
       const reader = new FileReader();
@@ -478,7 +486,9 @@ function UploadModal({
               onChange={handleFileChange}
               className="w-full text-sm text-white/70 file:mr-3 file:rounded-lg file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white file:cursor-pointer hover:file:bg-white/20"
             />
-            <p className="mt-1 text-[11px] text-white/40">PNG, JPG ou WEBP. Máximo 5MB.</p>
+            <p className="mt-1 text-[11px] text-white/40">
+              PNG, JPG ou WEBP. Máximo {UPLOAD_MAX_LABEL}.
+            </p>
           </div>
 
           {error && <p className="text-sm text-red-400">{error}</p>}

@@ -22,7 +22,7 @@ Nesta ordem:
 
 1. Atualizar o Next.js e tratar o `npm audit`.
 2. ~~Trocar o build `prisma db push --accept-data-loss` por `prisma migrate deploy` e gerar a migração que falta.~~ **Concluída** (commit `7d065a8`): o build usa `prisma migrate deploy` e a migração `20260612000000_redesign_project` cobre o redesenho de `Project`. Como o deploy será do zero, não resta baseline a fazer.
-3. Mover PDFs e fotos em base64 do banco para o Supabase Storage.
+3. ~~Mover PDFs e fotos em base64 do banco para o Supabase Storage.~~ **Concluída no código** (ver "Arquivos (Supabase Storage)"). Falta criar os dois buckets privados e definir `SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` no ambiente; ainda não foi testado contra um Supabase real.
 4. ~~Reconsultar cargo e status no banco a cada requisição, em vez de confiar no JWT.~~ **Concluída**: o callback `jwt` confere o usuário no banco a cada leitura de sessão (`src/lib/session-refresh.ts`).
 5. ~~Remover a senha padrão do admin do seed e alinhar o `docs/DEPLOY.md`.~~ **Concluída**: o seed exige `SEED_ADMIN_PASSWORD` e falha sem ela.
 6. Ajustar o SSL em `src/lib/prisma.ts`.
@@ -47,6 +47,7 @@ Ainda não implementadas:
 - **NextAuth v5 (beta)** — Credentials + Google, sessão JWT
 - **Zod 4** para validação, **Tailwind 3** para estilo
 - **Resend** (emails), **googleapis** (Google Calendar via Service Account)
+- **Supabase Storage** via `@supabase/supabase-js` (só no servidor; exige Node 22+)
 - Testes: **Vitest** (jsdom) + Testing Library + **fast-check**; **Playwright** para E2E
 - Deploy: **Vercel** (ainda sem projeto criado; ver "Situação do deploy"). Depois de configurado, push em `main` publica e branches geram preview.
 
@@ -82,6 +83,7 @@ Copie `.env.local.example` para `.env.local`. Variáveis: `DATABASE_URL`, `AUTH_
 
 - A URL do banco fica em `prisma.config.ts`, nunca em `schema.prisma` (exigência do Prisma 7).
 - `DIRECT_URL` (opcional): conexão direta usada só pela Prisma CLI nas migrações; tem prioridade sobre `DATABASE_URL` quando definida.
+- `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY`: Storage de arquivos, só no servidor. Nunca criar versão `NEXT_PUBLIC_`. Opcionais: `SUPABASE_BUCKET_IMAGES`, `SUPABASE_BUCKET_PROPOSALS`. Sem elas, upload e download respondem 503.
 - Sem as variáveis do Google Calendar, o cronograma funciona em modo no-op (eventos só no banco local).
 - Setup detalhado: `docs/SETUP.md`. Deploy: `docs/DEPLOY.md`.
 
@@ -146,8 +148,20 @@ Fonte única: `src/lib/permissions.ts`.
 
 - Client singleton em `src/lib/prisma.ts` (`import { prisma } from '@/lib/prisma'`); força `sslmode=require`.
 - Modelos: `User`, `Event`, `Goal`, `GoalUpdate`, `Kpi`, `KpiValue`, `Project`, `Announcement`, `Poll`, `PollOption`, `PollVote`, `Infraction`, `InfractionConfig`, `Reservation`, `Service`, `Highlight`, `AlbumMember`.
-- Imagens e PDFs (avatar, fotos do álbum e destaques, proposta do projeto) são gravados como data URL base64 em colunas `Text`. Não há storage externo.
+- Imagens e PDFs ficam no Supabase Storage; o banco guarda só o caminho (`User.avatarPath`, `AlbumMember.photoPath`, `Highlight.photoPath`, `Project.proposalPath`). Ver "Arquivos (Supabase Storage)".
 - O schema do banco é atualizado por `prisma migrate deploy` no build. `prisma/migrations/` cobre o schema atual. A migração `20260612000000_redesign_project` é idempotente porque a mudança tinha sido aplicada no banco antigo via `db push`; num banco novo ela aplica o redesenho normalmente.
+
+### Arquivos (Supabase Storage)
+
+- Dois buckets **privados**, sem policies: `portal-imagens` (`avatars/`, `album/`, `destaques/`) e `portal-propostas` (`propostas/`).
+- `src/lib/storage.ts` é o único módulo que conhece a chave de serviço. Só pode ser importado por route handlers e Server Components.
+- O navegador nunca acessa o Storage. Upload e download passam pelas rotas do portal, que conferem login/permissão antes.
+- **Upload**: a rota chama `storeUpload` (`src/lib/upload-handler.ts`), que valida e envia; depois grava o caminho no banco e remove o arquivo anterior com `deleteFile`. Se o banco falhar, o arquivo recém-enviado é removido.
+- **Validação** (`src/lib/validators/upload.ts`): tipo decidido pelo conteúdo do arquivo (assinatura), nunca por `file.type`; limite de 4 MB por causa do teto de ~4,5 MB por requisição na Vercel.
+- **Download**: `GET /api/files/{avatar|album|destaque}/:id` (qualquer usuário logado) e `GET /api/projects/:id/proposal` (`project:readProposal`, Admin e Diretor). O caminho do arquivo é sempre lido do banco; o cliente só informa o id.
+- **URLs para a tela**: as APIs devolvem `avatarUrl`/`photoUrl` já apontando para as rotas de download (`src/lib/file-urls.ts`). O caminho do bucket nunca vai ao cliente.
+- **Projetos**: a listagem envia só `hasProposal` (`src/lib/projects.ts`). Escrita em projetos usa `project:write`.
+- O login Google não copia mais a foto do Google para o avatar.
 
 ### Regras de domínio que vivem em `src/lib`
 
@@ -165,7 +179,7 @@ Fonte única: `src/lib/permissions.ts`.
 
 O código evoluiu depois das specs. **Em caso de conflito, o código vale.** Diferenças conhecidas:
 
-- `Project` foi redesenhado: `ferramenta`, `progress`, `team` (texto), `price`, `proposalUrl`. Não existem mais `ProjectStatus`, `ProjectMember` nem `ProjectStatusHistory`.
+- `Project` foi redesenhado: `ferramenta`, `progress`, `team` (texto), `price`, `proposalPath`. Não existem mais `ProjectStatus`, `ProjectMember` nem `ProjectStatusHistory`.
 - Nomes de campo: `Event.startsAt/endsAt`, `Reservation.reservedDate`, `Infraction.userId/occurredAt/semester`, `KpiValue.recordedAt/recordedById`, `GoalUpdate.oldProgress/newProgress`.
 - A matriz RBAC usa lista explícita de papéis + predicados em OU, não `minLevel` + `customCheck`. As ações são `recurso:verbo`, não `recurso.verbo`.
 - Módulos fora das specs: álbum de figurinhas (`AlbumMember`, `/api/album`), destaques do dashboard (`Highlight`, `/api/highlights`), sino de notificações (`/api/notifications`), exclusão de comunicados/enquetes/metas.

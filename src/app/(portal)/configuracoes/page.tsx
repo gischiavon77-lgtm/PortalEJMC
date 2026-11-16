@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/lib/auth';
+import { avatarUrlFor } from '@/lib/file-urls';
 import { prisma } from '@/lib/prisma';
 import { ConfiguracoesShell } from '@/components/configuracoes/ConfiguracoesShell';
 import type { ConfiguracoesUser } from '@/components/configuracoes/ConfiguracoesShell';
@@ -38,7 +39,7 @@ export default async function ConfiguracoesPage() {
         name: true,
         email: true,
         role: true,
-        avatarUrl: true,
+        avatarPath: true,
       },
     });
 
@@ -51,7 +52,7 @@ export default async function ConfiguracoesPage() {
       name: user.name,
       email: user.email,
       role: user.role,
-      avatarUrl: user.avatarUrl,
+      avatarUrl: avatarUrlFor(user.id, user.avatarPath),
     };
   } catch (err) {
     console.error('[configuracoes] DB error:', err);

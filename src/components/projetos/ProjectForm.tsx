@@ -13,6 +13,8 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 import { Button, Input, Modal } from '@/components/ui';
 
+import { UPLOAD_MAX_BYTES, UPLOAD_MAX_LABEL } from '@/lib/validators/upload';
+
 import type { ProjectItem } from './ProjectsShell';
 
 // ─── Ferramenta dropdown options (hardcoded from portfolio) ───
@@ -42,7 +44,8 @@ const FERRAMENTAS = [
   'Reestruturação Financeira',
 ] as const;
 
-const MAX_PROPOSAL_SIZE = 10 * 1024 * 1024; // 10MB
+// Mesmo limite aplicado no servidor (ver `@/lib/validators/upload`).
+const MAX_PROPOSAL_SIZE = UPLOAD_MAX_BYTES;
 
 type FormErrors = Partial<
   Record<'name' | 'ferramenta' | 'progress' | 'team' | 'price' | 'proposal' | '_global', string>
@@ -119,7 +122,7 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
       if (proposalFile.type !== 'application/pdf') {
         next.proposal = 'Apenas arquivos PDF são aceitos.';
       } else if (proposalFile.size > MAX_PROPOSAL_SIZE) {
-        next.proposal = 'O arquivo deve ter no máximo 10MB.';
+        next.proposal = `O arquivo deve ter no máximo ${UPLOAD_MAX_LABEL}.`;
       }
     }
 
@@ -330,7 +333,7 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
         {/* Proposta Comercial (PDF upload) */}
         <div className="flex w-full flex-col gap-1.5">
           <label htmlFor="project-proposal" className="text-sm font-medium text-text-primary">
-            Proposta Comercial (PDF, máx. 10MB)
+            Proposta Comercial (PDF, máx. {UPLOAD_MAX_LABEL})
           </label>
           <input
             id="project-proposal"
@@ -345,7 +348,7 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
             disabled={submitting}
             className="text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-red-core/10 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-red-core hover:file:bg-red-core/20"
           />
-          {isEditing && editProject?.proposalUrl && !proposalFile && (
+          {isEditing && editProject?.hasProposal && !proposalFile && (
             <p className="text-xs text-text-muted">
               📄 Proposta existente. Selecione um novo arquivo para substituir.
             </p>

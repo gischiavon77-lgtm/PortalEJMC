@@ -22,19 +22,14 @@ import { useRouter } from 'next/navigation';
 import { Button, Toast } from '@/components/ui';
 import { usePermission } from '@/hooks/usePermission';
 
+import { proposalUrlFor } from '@/lib/file-urls';
+import type { ProjectItem } from '@/lib/projects';
+
 import { ProjectForm } from './ProjectForm';
 
-export interface ProjectItem {
-  id: string;
-  name: string;
-  ferramenta: string;
-  progress: number;
-  team: string;
-  price: number;
-  proposalUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+// O formato do projeto é definido em `@/lib/projects` (compartilhado com
+// a API). Reexportado aqui para os componentes vizinhos.
+export type { ProjectItem };
 
 export interface ProjectsShellProps {
   projects: ProjectItem[];
@@ -58,48 +53,21 @@ function progressBarColor(progress: number): string {
 /**
  * Abre a proposta (PDF) em uma nova aba.
  *
- * A proposta é armazenada como data URL base64 (`data:application/pdf;base64,...`).
- * Navegadores bloqueiam abrir `data:` URLs diretamente em nova aba
- * (resultando em "about:blank#blocked"). Para contornar, convertemos
- * o data URL em um Blob e abrimos uma `blob:` URL, que não é bloqueada.
+ * O PDF não vem mais na listagem: fica no bucket privado do Storage e é
+ * servido por `GET /api/projects/:id/proposal`, que confere a permissão
+ * `project:readProposal` a cada download. Aqui só abrimos essa rota; o
+ * cookie de sessão vai junto por ser a mesma origem.
  */
-function openProposal(dataUrl: string): void {
-  try {
-    // Aceita data URLs (base64) e também URLs http(s) (caso futuro).
-    if (!dataUrl.startsWith('data:')) {
-      window.open(dataUrl, '_blank', 'noopener,noreferrer');
-      return;
-    }
-
-    const [meta, base64] = dataUrl.split(',');
-    const mimeMatch = meta.match(/data:([^;]+)/);
-    const mime = mimeMatch ? mimeMatch[1] : 'application/pdf';
-
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i += 1) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    const blob = new Blob([bytes], { type: mime });
-    const blobUrl = URL.createObjectURL(blob);
-    const win = window.open(blobUrl, '_blank', 'noopener,noreferrer');
-    // Revoga o objeto após um tempo para liberar memória sem cortar
-    // o carregamento da aba recém-aberta.
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
-    // Fallback: se o popup foi bloqueado, navega na própria aba.
-    if (!win) {
-      window.location.href = blobUrl;
-    }
-  } catch {
-    // Em caso de falha de decodificação, tenta abrir o data URL direto.
-    window.open(dataUrl, '_blank', 'noopener,noreferrer');
-  }
+function openProposal(projectId: string): void {
+  window.open(proposalUrlFor(projectId), '_blank', 'noopener,noreferrer');
 }
 
 export function ProjectsShell({ projects }: ProjectsShellProps) {
   const router = useRouter();
 
-  const { allowed: canManage, isLoading: permissionLoading } = usePermission('album:manage');
+  const { allowed: canManage, isLoading: permissionLoading } = usePermission('project:write');
+  // Só quem pode baixar a proposta vê o botão; a rota revalida de qualquer forma.
+  const { allowed: canReadProposal } = usePermission('project:readProposal');
 
   // Modal state
   const [formOpen, setFormOpen] = useState(false);
@@ -256,10 +224,10 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
                     <span className="font-medium text-text-primary">
                       {formatBRL(project.price)}
                     </span>
-                    {project.proposalUrl && (
+                    {project.hasProposal && canReadProposal && (
                       <button
                         type="button"
-                        onClick={() => openProposal(project.proposalUrl!)}
+                        onClick={() => openProposal(project.id)}
                         className="text-blue-600 hover:underline text-xs"
                       >
                         📄 Ver Proposta
@@ -367,10 +335,10 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
                         {formatBRL(project.price)}
                       </td>
                       <td className="px-4 py-3 align-middle">
-                        {project.proposalUrl ? (
+                        {project.hasProposal && canReadProposal ? (
                           <button
                             type="button"
-                            onClick={() => openProposal(project.proposalUrl!)}
+                            onClick={() => openProposal(project.id)}
                             className="text-blue-600 hover:underline text-xs whitespace-nowrap"
                           >
                             📄 Ver Proposta

@@ -39,8 +39,6 @@ enum Area {
   ADM_FIN
 }
 
-
-
 enum InfractionType {
   ATRASO
   FALTA
@@ -80,7 +78,8 @@ model User {
   position             String?       @db.VarChar(100) // cargo
   phone                String?       @db.VarChar(15)
   cpf                  String?       @unique @db.VarChar(11)
-  avatarUrl            String?
+  // Caminho do avatar no bucket de imagens do Storage (ex.: avatars/<uuid>.jpg)
+  avatarPath           String?       @db.VarChar(300)
   googleId             String?       @unique
   failedAttempts       Int           @default(0)
   // Marca o início da janela deslizante de 15 min usada pelo rate limiting
@@ -93,17 +92,17 @@ model User {
   updatedAt            DateTime      @updatedAt
 
   // Relações — habilitar conforme os modelos forem criados nas tasks 2.3–2.8.
-  eventCreator         Event[]
-  goalsCreated         Goal[]
-  goalUpdates          GoalUpdate[]
-  kpiValues            KpiValue[]
+  eventCreator Event[]
+  goalsCreated Goal[]
+  goalUpdates  GoalUpdate[]
+  kpiValues    KpiValue[]
 
-  announcements        Announcement[]
-  pollsCreated         Poll[]
-  pollVotes            PollVote[]
-  infractions          Infraction[]           @relation("InfractionTarget")
-  infractionsBy        Infraction[]           @relation("InfractionCreator")
-  reservations         Reservation[]
+  announcements Announcement[]
+  pollsCreated  Poll[]
+  pollVotes     PollVote[]
+  infractions   Infraction[]   @relation("InfractionTarget")
+  infractionsBy Infraction[]   @relation("InfractionCreator")
+  reservations  Reservation[]
 
   @@index([email])
   @@index([status])
@@ -202,15 +201,15 @@ model KpiValue {
 
 // Projeto da empresa júnior com campos simplificados.
 model Project {
-  id          String   @id @default(cuid())
-  name        String   @db.VarChar(200)
-  ferramenta  String   @default("") @db.VarChar(200) // portfolio service name
-  progress    Int      @default(0) // 0-100
-  team        String   @default("") @db.Text // comma-separated names
-  price       Decimal  @db.Decimal(12, 2) @default(0)
-  proposalUrl String?  @db.Text // base64 PDF data URL
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  name         String   @db.VarChar(200)
+  ferramenta   String   @default("") @db.VarChar(200) // portfolio service name
+  progress     Int      @default(0) // 0-100
+  team         String   @default("") @db.Text // comma-separated names
+  price        Decimal  @default(0) @db.Decimal(12, 2)
+  proposalPath String?  @db.VarChar(300) // caminho do PDF no bucket privado de propostas
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([ferramenta])
 }
@@ -345,7 +344,7 @@ model Highlight {
   id        String   @id @default(cuid())
   slot      String   @unique @db.VarChar(30) // trainee, coordenador, assessor, gerente, equipe
   name      String   @db.VarChar(150) // nome da pessoa ou equipe
-  photoUrl  String?  @db.Text // base64 data URL
+  photoPath String?  @db.VarChar(300) // caminho da foto no bucket de imagens
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
@@ -357,7 +356,7 @@ model AlbumMember {
   position  String   @db.VarChar(100) // cargo
   area      Area
   gestao    String   @db.VarChar(10) // ex: "2026.1"
-  photoUrl  String?  @db.Text // base64 data URL da foto
+  photoPath String?  @db.VarChar(300) // caminho da foto no bucket de imagens
   order     Int      @default(0) // posição no grid da área
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -10,6 +10,8 @@
 import { useState, useRef, type FormEvent } from 'react';
 import type { Area } from '@prisma/client';
 
+import { UPLOAD_MAX_BYTES, UPLOAD_MAX_LABEL } from '@/lib/validators/upload';
+
 const AREAS: { value: Area; label: string }[] = [
   { value: 'VENDAS', label: 'Vendas' },
   { value: 'PRESIDENCIA', label: 'Presidência' },
@@ -47,9 +49,9 @@ export function AddMemberModal({ gestao, defaultArea, onClose, onSuccess }: AddM
       return;
     }
 
-    // Validate size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Foto deve ter no máximo 5MB.');
+    // Validate size (mesmo limite do servidor)
+    if (file.size > UPLOAD_MAX_BYTES) {
+      setError(`Foto deve ter no máximo ${UPLOAD_MAX_LABEL}.`);
       return;
     }
 
@@ -178,7 +180,7 @@ export function AddMemberModal({ gestao, defaultArea, onClose, onSuccess }: AddM
               onChange={handlePhotoChange}
               className="hidden"
             />
-            <p className="text-xs text-text-muted">PNG, JPG ou WEBP. Máx 5MB.</p>
+            <p className="text-xs text-text-muted">PNG, JPG ou WEBP. Máx {UPLOAD_MAX_LABEL}.</p>
           </div>
 
           {/* Name */}

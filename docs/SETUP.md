@@ -4,7 +4,7 @@ Guia rápido para preparar o ambiente de desenvolvimento (Next.js 14 + Prisma 7 
 
 ## 1. Pré‑requisitos
 
-- Node.js 20+ (recomendado: 20 ou 22 LTS)
+- Node.js 22+ (exigido pelo cliente do Supabase Storage)
 - npm 10+
 - PostgreSQL 14+ rodando localmente (ou acesso a uma instância remota)
 
@@ -29,6 +29,7 @@ Edite `.env.local` e ajuste pelo menos:
 - `NEXTAUTH_URL` — URL base local (`http://localhost:3000`)
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — credenciais OAuth do Google (opcional para login local com email/senha)
 - `RESEND_API_KEY` — necessário para emails de aprovação/rejeição
+- `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` — necessários para enviar e exibir arquivos (avatares, fotos, propostas). Sem eles, essas funções respondem 503. Os buckets a criar estão em `docs/DEPLOY.md`, seção "Arquivos no Supabase Storage".
 
 > Obs.: a Prisma CLI carrega `.env.local` automaticamente porque
 > `prisma.config.ts` faz `import 'dotenv/config'`.

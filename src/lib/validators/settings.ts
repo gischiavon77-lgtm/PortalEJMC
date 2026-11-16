@@ -56,8 +56,6 @@ export const changePasswordSchema = z.object({
 
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 
-/** Tipos MIME aceitos para avatar (Task 18.3). */
-export const AVATAR_ALLOWED_MIMES = ['image/png', 'image/jpeg'] as const;
-
-/** Tamanho máximo do avatar em bytes (5 MB). */
-export const AVATAR_MAX_SIZE_BYTES = 5 * 1024 * 1024;
+// Tipos e tamanho aceitos para o avatar agora vivem em
+// `@/lib/validators/upload` (`AVATAR_MIMES`, `UPLOAD_MAX_BYTES`), junto
+// com a validação pelo conteúdo do arquivo.

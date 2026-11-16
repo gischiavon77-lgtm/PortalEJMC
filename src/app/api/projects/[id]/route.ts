@@ -2,18 +2,26 @@
  * `PATCH /api/projects/:id` — Atualiza um projeto (Admin/Diretor).
  * `DELETE /api/projects/:id` — Remove um projeto (Admin/Diretor).
  *
+ * Ambas exigem a permissão `project:write`.
+ *
  * PATCH aceita multipart/form-data com campos opcionais:
  *   - name, ferramenta, progress, team, price, proposal
+ *
+ * A proposta (PDF, máx. 4 MB, validada pelo conteúdo) vai para o bucket
+ * privado do Storage; o banco guarda só o caminho. Ao trocar a proposta
+ * ou excluir o projeto, o arquivo anterior é removido do Storage.
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { withAuth } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
+import { PROJECT_PUBLIC_SELECT, serializeProject } from '@/lib/projects';
+import { deleteFile } from '@/lib/storage';
+import { storeUpload } from '@/lib/upload-handler';
+import { PDF_MIMES } from '@/lib/validators/upload';
 
 export const runtime = 'nodejs';
-
-const MAX_PROPOSAL_SIZE = 10 * 1024 * 1024; // 10MB
 
 interface ProjectRouteParams {
   id: string;
@@ -109,24 +117,29 @@ async function patchHandler(
     }
   }
 
-  // Proposal file
-  const proposalFile = formData.get('proposal') as File | null;
-  if (proposalFile && proposalFile.size > 0) {
-    if (proposalFile.type !== 'application/pdf') {
-      errors.push({ path: 'proposal', message: 'A proposta deve ser um arquivo PDF.' });
-    } else if (proposalFile.size > MAX_PROPOSAL_SIZE) {
-      errors.push({ path: 'proposal', message: 'O arquivo da proposta deve ter no máximo 10MB.' });
-    } else {
-      const buffer = Buffer.from(await proposalFile.arrayBuffer());
-      data.proposalUrl = `data:application/pdf;base64,${buffer.toString('base64')}`;
-    }
-  }
-
   if (errors.length > 0) {
     return NextResponse.json(
       { error: true, code: 'VALIDATION_ERROR', message: 'Dados inválidos.', fields: errors },
       { status: 400 },
     );
+  }
+
+  // Proposta: só envia ao Storage depois que os demais campos passaram
+  // na validação, para não gravar arquivo de uma edição recusada.
+  const proposalFile = formData.get('proposal');
+  let newProposalPath: string | null = null;
+  if (proposalFile instanceof File && proposalFile.size > 0) {
+    const stored = await storeUpload(proposalFile, {
+      bucket: 'proposals',
+      folder: 'propostas',
+      allowed: PDF_MIMES,
+      formatsLabel: 'PDF',
+    });
+    if (!stored.ok) {
+      return stored.response;
+    }
+    newProposalPath = stored.path;
+    data.proposalPath = stored.path;
   }
 
   if (Object.keys(data).length === 0) {
@@ -136,30 +149,28 @@ async function patchHandler(
     );
   }
 
-  const project = await prisma.project.update({
-    where: { id },
-    data,
-  });
+  let project;
+  try {
+    project = await prisma.project.update({
+      where: { id },
+      data,
+      select: PROJECT_PUBLIC_SELECT,
+    });
+  } catch (err) {
+    // O banco não aceitou: remove o PDF recém-enviado para não ficar órfão.
+    await deleteFile('proposals', newProposalPath);
+    throw err;
+  }
 
-  return NextResponse.json(
-    {
-      project: {
-        id: project.id,
-        name: project.name,
-        ferramenta: project.ferramenta,
-        progress: project.progress,
-        team: project.team,
-        price: Number(project.price),
-        proposalUrl: project.proposalUrl,
-        createdAt: project.createdAt.toISOString(),
-        updatedAt: project.updatedAt.toISOString(),
-      },
-    },
-    { status: 200 },
-  );
+  // Proposta substituída: remove o PDF anterior do Storage.
+  if (newProposalPath) {
+    await deleteFile('proposals', existing.proposalPath);
+  }
+
+  return NextResponse.json({ project: serializeProject(project) }, { status: 200 });
 }
 
-export const PATCH = withAuth<ProjectRouteParams>('album:manage', patchHandler);
+export const PATCH = withAuth<ProjectRouteParams>('project:write', patchHandler);
 
 // ─── DELETE ──────────────────────────────────────────────────────────
 
@@ -174,8 +185,10 @@ async function deleteHandler(
   if (!existing) return notFoundResponse();
 
   await prisma.project.delete({ where: { id } });
+  // Projeto removido: apaga também o PDF da proposta no Storage.
+  await deleteFile('proposals', existing.proposalPath);
 
   return NextResponse.json({ success: true }, { status: 200 });
 }
 
-export const DELETE = withAuth<ProjectRouteParams>('album:manage', deleteHandler);
+export const DELETE = withAuth<ProjectRouteParams>('project:write', deleteHandler);

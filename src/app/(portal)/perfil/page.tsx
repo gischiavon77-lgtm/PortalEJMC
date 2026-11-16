@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/lib/auth';
+import { avatarUrlFor } from '@/lib/file-urls';
 import { prisma } from '@/lib/prisma';
 import { ProfileForm } from '@/components/perfil/ProfileForm';
 import { ProfileBanner } from '@/components/perfil/ProfileBanner';
@@ -40,7 +41,7 @@ export default async function PerfilPage() {
         position: true,
         phone: true,
         cpf: true,
-        avatarUrl: true,
+        avatarPath: true,
       },
     });
 
@@ -57,7 +58,7 @@ export default async function PerfilPage() {
       position: user.position,
       phone: user.phone,
       cpf: user.cpf,
-      avatarUrl: user.avatarUrl,
+      avatarUrl: avatarUrlFor(user.id, user.avatarPath),
       status: session.user.status,
     };
   } catch (err) {

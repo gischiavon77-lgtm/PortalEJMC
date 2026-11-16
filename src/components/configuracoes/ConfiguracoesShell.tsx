@@ -12,6 +12,8 @@
 
 import { useState, useRef, type FormEvent } from 'react';
 
+import { UPLOAD_MAX_BYTES, UPLOAD_MAX_LABEL } from '@/lib/validators/upload';
+
 export interface ConfiguracoesUser {
   id: string;
   name: string;
@@ -211,9 +213,9 @@ function AvatarSection({
       return;
     }
 
-    // Validação client-side: tamanho (5 MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'A foto deve ter no máximo 5 MB.' });
+    // Validação client-side: tamanho (mesmo limite do servidor)
+    if (file.size > UPLOAD_MAX_BYTES) {
+      setMessage({ type: 'error', text: `A foto deve ter no máximo ${UPLOAD_MAX_LABEL}.` });
       return;
     }
 
@@ -314,7 +316,7 @@ function AvatarSection({
             {loading ? 'Enviando...' : 'Enviar Foto'}
           </button>
 
-          <p className="text-xs text-text-muted">PNG ou JPG. Tamanho máximo: 5 MB.</p>
+          <p className="text-xs text-text-muted">PNG ou JPG. Tamanho máximo: {UPLOAD_MAX_LABEL}.</p>
         </div>
       </div>
     </section>

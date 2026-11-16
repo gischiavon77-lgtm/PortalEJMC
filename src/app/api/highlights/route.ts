@@ -3,12 +3,22 @@
  *
  * GET — retorna todos os highlights (qualquer usuário autenticado).
  * POST — cria/atualiza um highlight por slot (Admin/Diretor via `album:manage`).
+ *
+ * A foto (PNG, JPG ou WEBP, máx. 4 MB, validada pelo conteúdo) vai para o
+ * bucket de imagens do Storage; o banco guarda só o caminho. As respostas
+ * trazem `photoUrl` apontando para `/api/files/destaque/:slot`. Ao trocar
+ * a foto, a anterior é removida do Storage.
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { withAuth } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
+import { highlightPhotoUrlFor } from '@/lib/file-urls';
+import { deleteFile } from '@/lib/storage';
+import { storeUpload } from '@/lib/upload-handler';
+import { IMAGE_MIMES } from '@/lib/validators/upload';
+import type { Highlight } from '@prisma/client';
 
 export const runtime = 'nodejs';
 
@@ -31,8 +41,14 @@ const VALID_SLOTS = [
 ] as const;
 type Slot = (typeof VALID_SLOTS)[number];
 
-const MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+/**
+ * Formato enviado ao cliente: o caminho do bucket (`photoPath`) não sai
+ * do servidor; no lugar vai `photoUrl`, a URL da rota de download.
+ */
+function serializeHighlight(highlight: Highlight) {
+  const { photoPath, ...rest } = highlight;
+  return { ...rest, photoUrl: highlightPhotoUrlFor(highlight.slot, photoPath) };
+}
 
 // ─── GET ─────────────────────────────────────────────────────────────
 
@@ -44,7 +60,7 @@ async function listHandler(
     orderBy: { createdAt: 'asc' },
   });
 
-  return NextResponse.json({ highlights }, { status: 200 });
+  return NextResponse.json({ highlights: highlights.map(serializeHighlight) }, { status: 200 });
 }
 
 export const GET = withAuth(null, listHandler);
@@ -85,44 +101,51 @@ async function upsertHandler(
   }
 
   // Processar foto (opcional no upsert — mantém a anterior se não enviada)
-  let photoUrl: string | undefined;
-  if (photo && photo.size > 0) {
-    if (!ACCEPTED_TYPES.includes(photo.type)) {
-      return NextResponse.json(
-        {
-          error: true,
-          code: 'VALIDATION_ERROR',
-          message: 'Tipo de imagem não suportado. Aceitos: PNG, JPG, JPEG, WEBP.',
-        },
-        { status: 400 },
-      );
+  let photoPath: string | undefined;
+  if (photo instanceof File && photo.size > 0) {
+    const stored = await storeUpload(photo, {
+      bucket: 'images',
+      folder: 'destaques',
+      allowed: IMAGE_MIMES,
+      formatsLabel: 'PNG, JPG ou WEBP',
+    });
+    if (!stored.ok) {
+      return stored.response;
     }
-    if (photo.size > MAX_PHOTO_SIZE) {
-      return NextResponse.json(
-        { error: true, code: 'VALIDATION_ERROR', message: 'Foto deve ter no máximo 5MB.' },
-        { status: 400 },
-      );
-    }
-
-    const buffer = Buffer.from(await photo.arrayBuffer());
-    const base64 = buffer.toString('base64');
-    photoUrl = `data:${photo.type};base64,${base64}`;
+    photoPath = stored.path;
   }
 
-  const highlight = await prisma.highlight.upsert({
+  // Guarda o caminho da foto atual para removê-la se for substituída.
+  const previous = await prisma.highlight.findUnique({
     where: { slot: slot! },
-    update: {
-      name: name!.trim(),
-      ...(photoUrl !== undefined && { photoUrl }),
-    },
-    create: {
-      slot: slot!,
-      name: name!.trim(),
-      photoUrl: photoUrl ?? null,
-    },
+    select: { photoPath: true },
   });
 
-  return NextResponse.json({ highlight }, { status: 200 });
+  let highlight: Highlight;
+  try {
+    highlight = await prisma.highlight.upsert({
+      where: { slot: slot! },
+      update: {
+        name: name!.trim(),
+        ...(photoPath !== undefined && { photoPath }),
+      },
+      create: {
+        slot: slot!,
+        name: name!.trim(),
+        photoPath: photoPath ?? null,
+      },
+    });
+  } catch (err) {
+    // O banco não aceitou: remove a foto recém-enviada para não ficar órfã.
+    await deleteFile('images', photoPath);
+    throw err;
+  }
+
+  if (photoPath !== undefined) {
+    await deleteFile('images', previous?.photoPath);
+  }
+
+  return NextResponse.json({ highlight: serializeHighlight(highlight) }, { status: 200 });
 }
 
 export const POST = withAuth('album:manage', upsertHandler);

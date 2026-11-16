@@ -113,6 +113,8 @@ No painel do projeto Vercel, vá em **Settings → Environment Variables** e adi
 | `GOOGLE_CLIENT_SECRET`       | Secret do OAuth                                       | ⚠️ Para login Google |
 | `RESEND_API_KEY`             | API key do Resend                                     |    ⚠️ Para emails    |
 | `EMAIL_FROM`                 | `EJMC Portal <no-reply@seudominio.com>`               |    ⚠️ Para emails    |
+| `SUPABASE_URL`               | URL do projeto Supabase (Settings → API)              |   ⚠️ Para arquivos   |
+| `SUPABASE_SERVICE_ROLE_KEY`  | Chave de serviço do Supabase (nunca `NEXT_PUBLIC_`)   |   ⚠️ Para arquivos   |
 | `GOOGLE_CALENDAR_ID`         | ID do calendário compartilhado                        |     ❌ Opcional      |
 | `GOOGLE_SERVICE_ACCOUNT_KEY` | JSON da service account                               |     ❌ Opcional      |
 
@@ -174,6 +176,14 @@ Se não tiver `openssl`, use: https://generate-secret.vercel.app/32
 
 - O banco não tem histórico de migrações. Siga a seção "Baseline" em "Migrações do banco".
 
+### Upload ou imagem responde 503 (`STORAGE_NOT_CONFIGURED`)
+
+- Faltam `SUPABASE_URL` e/ou `SUPABASE_SERVICE_ROLE_KEY`. Veja "Arquivos no Supabase Storage".
+
+### Upload responde 502 (`STORAGE_ERROR`)
+
+- O Storage recusou o envio. Confira se os dois buckets existem com os nomes esperados e se a chave é a de serviço (não a `anon`).
+
 ### Erro "NEXTAUTH_URL must be set"
 
 - Adicione `NEXTAUTH_URL` com a URL completa do deploy (com https://)
@@ -193,6 +203,52 @@ Se não tiver `openssl`, use: https://generate-secret.vercel.app/32
 
 - Supabase: use a connection string com pooler (porta 6543) para a aplicação
 - Use a connection string direta (porta 5432) apenas para migrations
+
+---
+
+## Arquivos no Supabase Storage
+
+Avatares, fotos do álbum, fotos de destaques e propostas em PDF ficam no Supabase Storage. O banco guarda só o caminho de cada arquivo. O navegador nunca fala com o Storage: todo upload e download passa pelas rotas de API do portal, que conferem login e permissão.
+
+### O que criar no Supabase
+
+No painel do projeto, em **Storage → New bucket**, crie dois buckets com **"Public bucket" desligado**:
+
+| Bucket             | Conteúdo                           | Limite por arquivo | Tipos aceitos (MIME)                    |
+| ------------------ | ---------------------------------- | ------------------ | --------------------------------------- |
+| `portal-imagens`   | `avatars/`, `album/`, `destaques/` | 4 MB               | `image/png`, `image/jpeg`, `image/webp` |
+| `portal-propostas` | `propostas/`                       | 4 MB               | `application/pdf`                       |
+
+- **Não crie policies** nesses buckets. Sem policy, só a chave de serviço acessa os arquivos.
+- O limite e os tipos no bucket são uma segunda barreira; o portal já valida tamanho e tipo (pelo conteúdo do arquivo) antes de enviar.
+- Se usar outros nomes de bucket, informe-os em `SUPABASE_BUCKET_IMAGES` e `SUPABASE_BUCKET_PROPOSALS`.
+
+### Variáveis de ambiente
+
+Em **Settings → API** do Supabase, copie a **Project URL** e a chave de serviço (`service_role`, ou "secret key" nos projetos novos) para:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Defina as duas na Vercel (Production e Preview) e no seu `.env` local. **Nunca** use o prefixo `NEXT_PUBLIC_` nessas variáveis nem a chave `anon`/publishable: a chave de serviço dá acesso total ao Storage e só pode existir no servidor.
+
+Sem essas variáveis, upload e download de arquivos respondem erro 503 e o restante do portal funciona normalmente.
+
+### Quem acessa o quê
+
+| Arquivo                       | Envia             | Baixa                   |
+| ----------------------------- | ----------------- | ----------------------- |
+| Avatar                        | O próprio usuário | Qualquer usuário logado |
+| Fotos do álbum e de destaques | Admin e Diretor   | Qualquer usuário logado |
+| Proposta (PDF)                | Admin e Diretor   | Admin e Diretor         |
+
+### Limite de 4 MB
+
+Na Vercel, uma requisição a uma rota de API não passa de cerca de 4,5 MB. Como o upload passa pelo portal, o limite por arquivo é 4 MB.
+
+### Node.js
+
+O cliente do Supabase (`@supabase/supabase-js`) exige **Node.js 22 ou mais novo**. Confira a versão em **Settings → General → Node.js Version** na Vercel.
 
 ---
 

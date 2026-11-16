@@ -11,7 +11,8 @@
  *   1. Procuramos o usuário por email (sempre lowercase, trim).
  *   2. Email novo → cria conta com status `PENDING`, role `MEMBRO`,
  *      `googleId = profile.sub`, `name = profile.name` (fallback: email),
- *      `avatarUrl = profile.picture`. Retorna `kind: 'pending'` para que
+ *      sem foto (o avatar só existe após upload no portal, pois fica no
+ *      Storage). Retorna `kind: 'pending'` para que
  *      o usuário receba a mensagem "aguardando aprovação".
  *   3. Email existente:
  *      - `ACTIVE`   → linka `googleId` (se ainda não existir; e.g. conta
@@ -80,15 +81,13 @@ const NAME_MAX_LENGTH = 150;
  *
  * - Lookup por email (lowercase, trim).
  * - Se não existe, cria com status `PENDING`, role `MEMBRO`, `googleId`
- *   vindo de `profile.sub`, `avatarUrl` vindo de `profile.picture`.
+ *   vindo de `profile.sub`. A foto do Google não é copiada: o avatar do
+ *   portal é um arquivo no Storage, enviado pelo próprio usuário.
  * - Se existe e está `ACTIVE`, linka o `googleId` quando ainda não houver.
  * - Para demais status, devolve o outcome correspondente sem mutar a linha.
  */
-export async function findOrCreateGoogleUser(
-  profile: Profile,
-): Promise<GoogleAuthOutcome> {
-  const email =
-    typeof profile?.email === 'string' ? profile.email.trim().toLowerCase() : '';
+export async function findOrCreateGoogleUser(profile: Profile): Promise<GoogleAuthOutcome> {
+  const email = typeof profile?.email === 'string' ? profile.email.trim().toLowerCase() : '';
   const sub = typeof profile?.sub === 'string' ? profile.sub : '';
 
   // Sem email ou sub não há como atrelar a conta com segurança.
@@ -97,7 +96,6 @@ export async function findOrCreateGoogleUser(
   }
 
   const rawName = typeof profile?.name === 'string' ? profile.name.trim() : '';
-  const picture = typeof profile?.picture === 'string' ? profile.picture : null;
 
   const existing = await prisma.user.findUnique({ where: { email } });
 
@@ -112,7 +110,6 @@ export async function findOrCreateGoogleUser(
         status: 'PENDING',
         role: 'MEMBRO',
         googleId: sub,
-        avatarUrl: picture,
       },
     });
     return { kind: 'pending', user: created };
@@ -122,15 +119,13 @@ export async function findOrCreateGoogleUser(
     case 'ACTIVE': {
       // Linka `googleId` na primeira autenticação OAuth de uma conta que
       // foi originalmente cadastrada via email/senha. Idempotente: se já
-      // estiver setado, mantemos. Atualizamos `avatarUrl` apenas quando
-      // ainda for nulo, para não sobrescrever uma foto definida pelo
-      // próprio usuário no /perfil ou /configuracoes.
+      // estiver setado, mantemos. A foto do Google não é copiada (o
+      // avatar do portal é um arquivo no Storage).
       if (!existing.googleId) {
         const linked = await prisma.user.update({
           where: { id: existing.id },
           data: {
             googleId: sub,
-            avatarUrl: existing.avatarUrl ?? picture,
           },
         });
         return { kind: 'allow', user: linked };

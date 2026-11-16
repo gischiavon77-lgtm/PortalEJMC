@@ -65,6 +65,7 @@ import type { Area } from '@prisma/client';
 import { ZodError } from 'zod';
 
 import { withAuth } from '@/lib/api-auth';
+import { avatarUrlFor } from '@/lib/file-urls';
 import { prisma } from '@/lib/prisma';
 import { listMembersQuerySchema } from '@/lib/validators/members';
 
@@ -117,7 +118,7 @@ async function listMembersHandler(req: NextRequest): Promise<Response> {
       name: true,
       area: true,
       position: true,
-      avatarUrl: true,
+      avatarPath: true,
       role: true,
     },
   });
@@ -134,7 +135,7 @@ async function listMembersHandler(req: NextRequest): Promise<Response> {
       name: m.name,
       area: m.area,
       position: m.position,
-      avatarUrl: m.avatarUrl,
+      avatarUrl: avatarUrlFor(m.id, m.avatarPath),
       role: m.role,
     }));
 

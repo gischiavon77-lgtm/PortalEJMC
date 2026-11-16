@@ -8,6 +8,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { withAuth } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
+import { deleteFile } from '@/lib/storage';
 
 export const runtime = 'nodejs';
 
@@ -36,6 +37,8 @@ async function deleteHandler(
   }
 
   await prisma.albumMember.delete({ where: { id } });
+  // Registro removido: apaga também a foto no Storage.
+  await deleteFile('images', existing.photoPath);
 
   return NextResponse.json({ success: true }, { status: 200 });
 }

@@ -372,7 +372,9 @@ export const authConfig: NextAuthConfig = {
           user.id = outcome.user.id;
           user.name = outcome.user.name;
           user.email = outcome.user.email;
-          user.image = outcome.user.avatarUrl ?? user.image ?? null;
+          // O avatar do portal vem do Storage (via /api/users/me); a
+          // imagem não trafega no token.
+          user.image = null;
           user.role = outcome.user.role;
           user.area = outcome.user.area;
           user.status = outcome.user.status;
