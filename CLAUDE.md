@@ -23,7 +23,7 @@ Nesta ordem:
 1. Atualizar o Next.js e tratar o `npm audit`.
 2. ~~Trocar o build `prisma db push --accept-data-loss` por `prisma migrate deploy` e gerar a migração que falta.~~ **Concluída** (commit `7d065a8`): o build usa `prisma migrate deploy` e a migração `20260612000000_redesign_project` cobre o redesenho de `Project`. Como o deploy será do zero, não resta baseline a fazer.
 3. Mover PDFs e fotos em base64 do banco para o Supabase Storage.
-4. Reconsultar cargo e status no banco a cada requisição, em vez de confiar no JWT.
+4. ~~Reconsultar cargo e status no banco a cada requisição, em vez de confiar no JWT.~~ **Concluída**: o callback `jwt` confere o usuário no banco a cada leitura de sessão (`src/lib/session-refresh.ts`).
 5. ~~Remover a senha padrão do admin do seed e alinhar o `docs/DEPLOY.md`.~~ **Concluída**: o seed exige `SEED_ADMIN_PASSWORD` e falha sem ela.
 6. Ajustar o SSL em `src/lib/prisma.ts`.
 7. Cadastro por código de ativação.
@@ -120,7 +120,9 @@ tests/                 unit/, property/, e2e/
 - `src/lib/rate-limit.ts`: bloqueio de 15 min após 5 falhas em 15 min. `src/lib/google-auth.ts`: login Google cria conta `PENDING`.
 - `src/middleware.ts` só verifica se o cookie de sessão existe. A validação real da sessão acontece em `(portal)/layout.tsx` e nas páginas via `auth()`. Uma rota privada nova precisa entrar em `PRIVATE_PREFIXES`.
 - Como o JWT não tem nome nem email, busque esses dados no banco (`/api/users/me`, `useCurrentUser`).
-- `role`/`area` do JWT só mudam no próximo login. Quando a permissão depende de dado recém-alterado (caso da equipe de GP em `api/scores`), use `loadPermissionUser(userId)` para ler do banco.
+- `role`, `area` e `status` são reconsultados no banco a cada `auth()`: o callback `jwt` de `src/lib/auth.ts` chama `refreshTokenFromDatabase` (`src/lib/session-refresh.ts`). Conta desativada, pendente, rejeitada ou removida faz `auth()` devolver `null` (páginas redirecionam para `/login`, APIs respondem 401); rebaixamento e troca de área valem na requisição seguinte. Custa uma consulta por chave primária por chamada de `auth()`.
+- `session.user` já vem atualizado; `loadPermissionUser(userId)` (usado em `api/scores`) ficou redundante, mas continua funcionando.
+- No cliente, `useSession`/`usePermission` só refletem a mudança quando a sessão é recarregada (foco na aba ou navegação). A proteção real é no servidor.
 
 ### RBAC
 

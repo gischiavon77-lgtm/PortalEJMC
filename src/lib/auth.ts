@@ -97,6 +97,10 @@
  *     de domínio (`role`, `area`, `status`) lidos do banco quando o
  *     primeiro login não veio do Credentials.authorize (caso Google).
  *   - Callbacks JWT/session expõem `id`, `role`, `area`, `status`.
+ *   - Reconsulta a cada requisição: o callback `jwt` deste módulo confere
+ *     cargo, área e status no banco em toda leitura da sessão e encerra a
+ *     sessão de contas que deixaram de estar ativas (ver
+ *     `src/lib/session-refresh.ts`).
  *
  * Padrão NextAuth v5: este módulo exporta `auth`, `handlers`, `signIn`,
  * `signOut` para serem consumidos em route handlers, server components,
@@ -114,6 +118,19 @@ import { checkLockedOut, registerFailedAttempt, resetFailedAttempts } from '@/li
 import { findOrCreateGoogleUser } from '@/lib/google-auth';
 import { AUTH_ERROR_CODES } from '@/lib/auth-errors';
 import { authConfig as edgeAuthConfig } from '@/lib/auth.config';
+import { refreshTokenFromDatabase, type SessionUserState } from '@/lib/session-refresh';
+
+/**
+ * Lê do banco os campos de autorização do usuário (cargo, área, status).
+ * Usada pelo callback `jwt` para conferir o token a cada requisição —
+ * consulta por chave primária, com `select` mínimo.
+ */
+async function loadSessionUserState(userId: string): Promise<SessionUserState | null> {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, area: true, status: true },
+  });
+}
 
 /**
  * Códigos de erro emitidos pelo Credentials Provider para sinalizar
@@ -275,6 +292,29 @@ export const authConfig: NextAuthConfig = {
     // shape da Session. `signIn` é definido apenas aqui porque depende
     // de `findOrCreateGoogleUser` (Prisma), que não pode rodar no Edge.
     ...edgeAuthConfig.callbacks,
+    /**
+     * Callback `jwt` — estende o da config Edge com a reconsulta ao banco.
+     *
+     * O callback base só copia `id/role/area/status` para o token no
+     * login. Aqui, em toda leitura posterior da sessão (`auth()` em
+     * páginas, layout e API Routes), conferimos o usuário no banco:
+     *
+     *   - desativado, pendente, rejeitado ou removido → `null`: a sessão
+     *     é encerrada imediatamente (Req 4.6);
+     *   - ativo → cargo e área do token são atualizados com os do banco,
+     *     valendo já nesta requisição (Req 4.8, 5.4).
+     *
+     * No login (`user` presente) os dados acabaram de ser lidos do banco
+     * por `authorize()`/`signIn`, então não há o que reconsultar.
+     * A regra em si vive em `@/lib/session-refresh`.
+     */
+    async jwt(params) {
+      const token = await edgeAuthConfig.callbacks.jwt(params);
+      if (params.user) {
+        return token;
+      }
+      return refreshTokenFromDatabase(token, loadSessionUserState);
+    },
     /**
      * Callback `signIn` (Task 3.5).
      *
