@@ -57,9 +57,9 @@ const TYPE_LABELS: Record<DashboardActivityType, string> = {
  * para diferenciação rápida em listagens densas).
  */
 const TYPE_BADGE: Record<DashboardActivityType, string> = {
-  event: 'bg-red-core/10 text-red-core',
-  announcement: 'bg-amber-100 text-amber-700',
-  'goal-update': 'bg-emerald-100 text-emerald-700',
+  event: 'bg-brand/20 text-danger',
+  announcement: 'bg-warn/15 text-warn',
+  'goal-update': 'bg-ok/15 text-ok',
 };
 
 const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
@@ -87,21 +87,18 @@ export function ActivityList({
     <Card variant="solid" padding="none" className={cn('flex flex-col', className)}>
       <Card.Header>
         <Card.Title>{title}</Card.Title>
-        <span
-          className="text-xs font-medium uppercase tracking-[1.5px] text-text-muted"
-          aria-hidden="true"
-        >
+        <span className="text-xs font-medium text-text-faint" aria-hidden="true">
           {activities.length} de 10
         </span>
       </Card.Header>
 
       <Card.Body padding="none">
         {isEmpty ? (
-          <p role="status" className="px-4 py-8 text-center text-sm text-text-secondary sm:px-5">
+          <p role="status" className="px-4 py-8 text-center text-sm text-text-soft sm:px-5">
             {emptyMessage}
           </p>
         ) : (
-          <ol className="divide-y divide-border-light">
+          <ol className="divide-y divide-border">
             {activities.map((activity) => (
               <li key={activity.id} className="px-4 py-3 sm:px-5">
                 <div className="flex items-start justify-between gap-3">
@@ -109,7 +106,7 @@ export function ActivityList({
                     <div className="flex items-center gap-2">
                       <span
                         className={cn(
-                          'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[1.5px]',
+                          'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold',
                           TYPE_BADGE[activity.type],
                         )}
                       >
@@ -117,19 +114,17 @@ export function ActivityList({
                       </span>
                       <ActivityIcon type={activity.type} />
                     </div>
-                    <p className="mt-1.5 truncate text-sm font-semibold text-text-primary">
+                    <p className="mt-1.5 truncate text-sm font-semibold text-text">
                       {activity.title}
                     </p>
                     {activity.detail ? (
-                      <p className="mt-0.5 truncate text-xs text-text-secondary">
-                        {activity.detail}
-                      </p>
+                      <p className="mt-0.5 truncate text-xs text-text-soft">{activity.detail}</p>
                     ) : null}
                   </div>
 
                   <time
                     dateTime={activity.timestamp}
-                    className="shrink-0 text-[11px] font-medium uppercase tracking-[1.5px] text-text-muted"
+                    className="shrink-0 text-[11px] font-medium text-text-faint"
                   >
                     {formatTimestamp(activity.timestamp)}
                   </time>
@@ -160,7 +155,7 @@ function ActivityIcon({ type }: { type: DashboardActivityType }) {
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
     'aria-hidden': true as const,
-    className: 'text-text-muted',
+    className: 'text-text-faint',
   };
 
   switch (type) {

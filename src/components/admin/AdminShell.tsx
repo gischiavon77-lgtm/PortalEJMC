@@ -79,16 +79,13 @@ export function AdminShell({ users, currentTab }: AdminShellProps) {
       {/* Header */}
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            Administração
-          </p>
           <h1
             id="admin-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             Gerenciar Contas
           </h1>
-          <p className="text-text-secondary">
+          <p className="mt-1 text-base font-semibold text-brand">
             Aprove, rejeite e gerencie as contas de membros do portal.
           </p>
         </div>
@@ -102,7 +99,7 @@ export function AdminShell({ users, currentTab }: AdminShellProps) {
 
       {/* Tabs de status */}
       <div
-        className="flex gap-1 rounded-lg bg-border-light/50 p-1"
+        className="flex gap-1 rounded-lg bg-border/50 p-1"
         role="tablist"
         aria-label="Status das contas"
       >
@@ -114,8 +111,8 @@ export function AdminShell({ users, currentTab }: AdminShellProps) {
             onClick={() => handleTabChange(tab)}
             className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
               currentTab === tab
-                ? 'bg-surface-card text-text-primary shadow-sm'
-                : 'text-text-secondary hover:text-text-primary'
+                ? 'bg-surface text-text shadow-sm'
+                : 'text-text-soft hover:text-text'
             }`}
           >
             {TAB_LABELS[tab]}
@@ -132,7 +129,7 @@ export function AdminShell({ users, currentTab }: AdminShellProps) {
       {users.length === 0 ? (
         <p
           role="status"
-          className="rounded-lg border border-dashed border-border-light bg-surface-card p-8 text-center text-sm text-text-muted"
+          className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint"
         >
           Nenhuma conta {TAB_LABELS[currentTab].toLowerCase()} no momento.
         </p>

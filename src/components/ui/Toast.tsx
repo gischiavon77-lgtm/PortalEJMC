@@ -69,20 +69,16 @@ export function Toast({
       aria-live="polite"
       className={[
         'fixed left-1/2 top-6 z-[9999]',
-        'flex items-center gap-2 rounded-lg border px-4 py-3 shadow-lg',
+        'flex items-center gap-2 rounded-lg border px-4 py-3',
         'animate-toast-in',
         'max-w-[90vw] sm:max-w-md',
-        isSuccess
-          ? 'border-green-200 bg-green-50 text-green-800'
-          : 'border-red-200 bg-red-50 text-red-800',
+        isSuccess ? 'border-ok/40 bg-surface text-ok' : 'border-brand bg-surface text-danger',
       ].join(' ')}
     >
       {/* Ícone */}
       <svg
         aria-hidden="true"
-        className={['h-4 w-4 flex-shrink-0', isSuccess ? 'text-green-600' : 'text-red-600'].join(
-          ' ',
-        )}
+        className={['h-4 w-4 flex-shrink-0', isSuccess ? 'text-ok' : 'text-danger'].join(' ')}
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -108,8 +104,8 @@ export function Toast({
         className={[
           'ml-auto -mr-1 rounded-md p-1 transition-colors',
           isSuccess
-            ? 'text-green-600 hover:bg-green-100 hover:text-green-800'
-            : 'text-red-600 hover:bg-red-100 hover:text-red-800',
+            ? 'text-ok hover:bg-ok/15 hover:text-ok'
+            : 'text-danger hover:bg-brand/20 hover:text-danger',
         ].join(' ')}
         aria-label="Fechar notificação"
       >

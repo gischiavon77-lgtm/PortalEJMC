@@ -52,10 +52,7 @@ const formSchema = z
   })
   .superRefine((data, ctx) => {
     // Área deve ser válida (Area ou "GLOBAL").
-    if (
-      data.area !== 'GLOBAL' &&
-      !(KPI_AREAS as readonly string[]).includes(data.area)
-    ) {
+    if (data.area !== 'GLOBAL' && !(KPI_AREAS as readonly string[]).includes(data.area)) {
       ctx.addIssue({
         code: 'custom',
         path: ['area'],
@@ -134,15 +131,8 @@ function buildInitialValues(defaultArea: Area | 'GLOBAL' | null): FormValues {
   };
 }
 
-export function KpiConfigForm({
-  open,
-  onClose,
-  defaultArea = null,
-  onSaved,
-}: KpiConfigFormProps) {
-  const [values, setValues] = useState<FormValues>(() =>
-    buildInitialValues(defaultArea),
-  );
+export function KpiConfigForm({ open, onClose, defaultArea = null, onSaved }: KpiConfigFormProps) {
+  const [values, setValues] = useState<FormValues>(() => buildInitialValues(defaultArea));
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
 
@@ -194,13 +184,11 @@ export function KpiConfigForm({
       });
 
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as
-          | {
-              code?: string;
-              message?: string;
-              fields?: Array<{ path: string; message: string }>;
-            }
-          | null;
+        const data = (await res.json().catch(() => null)) as {
+          code?: string;
+          message?: string;
+          fields?: Array<{ path: string; message: string }>;
+        } | null;
 
         if (data?.fields?.length) {
           const next: FormErrors = {};
@@ -213,9 +201,7 @@ export function KpiConfigForm({
           setErrors({ area: data.message ?? 'Limite de KPIs por área atingido.' });
         } else {
           setErrors({
-            _global:
-              data?.message ??
-              'Não foi possível criar o KPI. Tente novamente.',
+            _global: data?.message ?? 'Não foi possível criar o KPI. Tente novamente.',
           });
         }
         return;
@@ -225,8 +211,7 @@ export function KpiConfigForm({
       onClose();
     } catch {
       setErrors({
-        _global:
-          'Erro de conexão. Verifique sua internet e tente novamente.',
+        _global: 'Erro de conexão. Verifique sua internet e tente novamente.',
       });
     } finally {
       setSubmitting(false);
@@ -244,35 +229,20 @@ export function KpiConfigForm({
       closeOnOverlayClick={!submitting}
       footer={
         <div className="flex w-full items-center justify-end gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onClose}
-            disabled={submitting}
-          >
+          <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button
-            type="submit"
-            form="kpi-config-form"
-            variant="primary"
-            loading={submitting}
-          >
+          <Button type="submit" form="kpi-config-form" variant="primary" loading={submitting}>
             Criar KPI
           </Button>
         </div>
       }
     >
-      <form
-        id="kpi-config-form"
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4"
-        noValidate
-      >
+      <form id="kpi-config-form" onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         {errors._global && (
           <div
             role="alert"
-            className="rounded-md border border-red-vivid/30 bg-red-vivid/5 px-3 py-2 text-sm text-red-vivid"
+            className="rounded-md border border-brand bg-brand/20 px-3 py-2 text-sm text-danger"
           >
             {errors._global}
           </div>
@@ -293,12 +263,9 @@ export function KpiConfigForm({
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex w-full flex-col gap-1.5">
-            <label
-              htmlFor="kpi-unit"
-              className="text-sm font-medium text-text-primary"
-            >
+            <label htmlFor="kpi-unit" className="text-sm font-medium text-text">
               Unidade de medida
-              <span aria-hidden="true" className="ml-0.5 text-red-vivid">
+              <span aria-hidden="true" className="ml-0.5 text-danger">
                 *
               </span>
             </label>
@@ -307,7 +274,7 @@ export function KpiConfigForm({
               value={values.unit}
               onChange={(e) => setField('unit', e.target.value as KpiUnit)}
               disabled={submitting}
-              className="h-10 w-full rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30 disabled:cursor-not-allowed disabled:bg-surface-bg"
+              className="h-10 w-full rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 disabled:cursor-not-allowed disabled:bg-bg"
             >
               {KPI_UNITS.map((unit) => (
                 <option key={unit} value={unit}>
@@ -315,30 +282,23 @@ export function KpiConfigForm({
                 </option>
               ))}
             </select>
-            {errors.unit && (
-              <p className="text-xs text-red-vivid">{errors.unit}</p>
-            )}
+            {errors.unit && <p className="text-xs text-danger">{errors.unit}</p>}
           </div>
 
           <div className="flex w-full flex-col gap-1.5">
-            <label
-              htmlFor="kpi-area"
-              className="text-sm font-medium text-text-primary"
-            >
+            <label htmlFor="kpi-area" className="text-sm font-medium text-text">
               Área
-              <span aria-hidden="true" className="ml-0.5 text-red-vivid">
+              <span aria-hidden="true" className="ml-0.5 text-danger">
                 *
               </span>
             </label>
             <select
               id="kpi-area"
               value={values.area}
-              onChange={(e) =>
-                setField('area', e.target.value as FormValues['area'])
-              }
+              onChange={(e) => setField('area', e.target.value as FormValues['area'])}
               disabled={submitting}
               aria-invalid={Boolean(errors.area) || undefined}
-              className="h-10 w-full rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30 disabled:cursor-not-allowed disabled:bg-surface-bg"
+              className="h-10 w-full rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 disabled:cursor-not-allowed disabled:bg-bg"
             >
               <option value="">Selecione…</option>
               <option value="GLOBAL">Global (sem área)</option>
@@ -348,9 +308,7 @@ export function KpiConfigForm({
                 </option>
               ))}
             </select>
-            {errors.area && (
-              <p className="text-xs text-red-vivid">{errors.area}</p>
-            )}
+            {errors.area && <p className="text-xs text-danger">{errors.area}</p>}
           </div>
         </div>
 

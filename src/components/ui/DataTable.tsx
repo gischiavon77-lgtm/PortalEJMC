@@ -87,10 +87,7 @@ export function DataTable<T>({
 
   return (
     <div
-      className={cn(
-        'w-full overflow-hidden rounded-lg border border-border-light bg-surface-card',
-        className,
-      )}
+      className={cn('w-full overflow-hidden rounded-lg border border-border bg-surface', className)}
     >
       {/* `overflow-x-auto` em desktop garante scroll horizontal quando
           a tabela for mais larga que o container. Em mobile, mudamos
@@ -99,7 +96,7 @@ export function DataTable<T>({
         <table className="w-full border-collapse text-sm">
           {caption && <caption className="sr-only">{caption}</caption>}
 
-          <thead className="mobile:hidden bg-surface-bg/60">
+          <thead className="mobile:hidden bg-bg/60">
             <tr>
               {columns.map((col) => (
                 <th
@@ -107,7 +104,7 @@ export function DataTable<T>({
                   scope="col"
                   style={col.width ? { width: col.width } : undefined}
                   className={cn(
-                    'border-b border-border-light px-4 py-3 text-xs font-semibold uppercase tracking-wider text-text-secondary',
+                    'border-b border-border px-4 py-3 text-xs font-semibold text-text-soft',
                     ALIGN_CLASSES[col.align ?? 'left'],
                   )}
                 >
@@ -122,20 +119,20 @@ export function DataTable<T>({
               Array.from({ length: loadingRows }).map((_, rowIdx) => (
                 <tr
                   key={`loading-${rowIdx}`}
-                  className="mobile:flex mobile:flex-col mobile:gap-2 mobile:border-b mobile:border-border-light mobile:px-4 mobile:py-3"
+                  className="mobile:flex mobile:flex-col mobile:gap-2 mobile:border-b mobile:border-border mobile:px-4 mobile:py-3"
                   aria-hidden="true"
                 >
                   {columns.map((col) => (
                     <td
                       key={col.key}
                       className={cn(
-                        'border-b border-border-light px-4 py-3',
+                        'border-b border-border px-4 py-3',
                         'mobile:border-0 mobile:px-0 mobile:py-0',
                         ALIGN_CLASSES[col.align ?? 'left'],
                         col.hideOnMobile && 'mobile:hidden',
                       )}
                     >
-                      <span className="block h-3 w-3/4 animate-pulse rounded bg-border-light" />
+                      <span className="block h-3 w-3/4 animate-pulse rounded bg-border" />
                     </td>
                   ))}
                 </tr>
@@ -145,7 +142,7 @@ export function DataTable<T>({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="px-4 py-8 text-center text-sm text-text-muted"
+                  className="px-4 py-8 text-center text-sm text-text-faint"
                 >
                   {emptyMessage}
                 </td>
@@ -173,21 +170,19 @@ export function DataTable<T>({
                     role={interactive ? 'button' : undefined}
                     tabIndex={interactive ? 0 : undefined}
                     className={cn(
-                      'border-b border-border-light last:border-b-0',
+                      'border-b border-border last:border-b-0',
                       // Em mobile, transforma a linha em cartão vertical.
                       'mobile:flex mobile:flex-col mobile:gap-2 mobile:px-4 mobile:py-3',
                       interactive &&
-                        'cursor-pointer transition-colors hover:bg-surface-bg/60 focus-visible:bg-surface-bg/60 focus-visible:outline-none',
+                        'cursor-pointer transition-colors hover:bg-bg/60 focus-visible:bg-bg/60 focus-visible:outline-none',
                     )}
                   >
                     {columns.map((col) => (
                       <Fragment key={col.key}>
                         <td
-                          data-label={
-                            typeof col.header === 'string' ? col.header : undefined
-                          }
+                          data-label={typeof col.header === 'string' ? col.header : undefined}
                           className={cn(
-                            'px-4 py-3 align-middle text-text-primary',
+                            'px-4 py-3 align-middle text-text',
                             // Em mobile, tira o padding original e usa
                             // grid de 2 colunas: rótulo | valor.
                             'mobile:flex mobile:items-start mobile:justify-between mobile:gap-3 mobile:px-0 mobile:py-0',
@@ -199,15 +194,13 @@ export function DataTable<T>({
                               o cabeçalho original para desktop intacto. */}
                           {typeof col.header === 'string' && (
                             <span
-                              className="mobile:flex hidden text-xs font-semibold uppercase tracking-wider text-text-muted"
+                              className="mobile:flex hidden text-xs font-semibold text-text-faint"
                               aria-hidden="true"
                             >
                               {col.header}
                             </span>
                           )}
-                          <span className="mobile:text-right">
-                            {col.render(row, idx)}
-                          </span>
+                          <span className="mobile:text-right">{col.render(row, idx)}</span>
                         </td>
                       </Fragment>
                     ))}

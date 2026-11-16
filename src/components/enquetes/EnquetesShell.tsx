@@ -121,16 +121,15 @@ export function EnquetesShell({ polls }: EnquetesShellProps) {
     >
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            Votação
-          </p>
           <h1
             id="enquetes-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             Enquetes
           </h1>
-          <p className="text-text-secondary">Vote e acompanhe as enquetes da empresa.</p>
+          <p className="mt-1 text-base font-semibold text-brand">
+            Vote e acompanhe as enquetes da empresa.
+          </p>
         </div>
 
         {/* Botão "Nova Enquete" — Diretor/Gerente apenas (Task 15.7) */}
@@ -147,7 +146,7 @@ export function EnquetesShell({ polls }: EnquetesShellProps) {
       {isEmpty ? (
         <p
           role="status"
-          className="rounded-lg border border-dashed border-border-light bg-surface-card p-8 text-center text-sm text-text-muted"
+          className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint"
         >
           Nenhuma enquete disponível no momento.
         </p>

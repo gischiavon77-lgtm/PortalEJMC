@@ -106,14 +106,14 @@ export function InfractionForm({ open, onClose, onSaved, activeUsers }: Infracti
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Target member select */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="infraction-target" className="text-sm font-medium text-text-primary">
+          <label htmlFor="infraction-target" className="text-sm font-medium text-text">
             Membro infrator
           </label>
           <select
             id="infraction-target"
             value={targetId}
             onChange={(e) => setTargetId(e.target.value)}
-            className="rounded-md border border-border-light bg-surface-card px-3 py-2 text-sm text-text-primary outline-none focus:border-red-core focus:ring-1 focus:ring-red-core"
+            className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none focus:border-white/60 focus:ring-1 focus:ring-white/30"
           >
             <option value="">Selecione um membro...</option>
             {activeUsers.map((user) => (
@@ -122,19 +122,19 @@ export function InfractionForm({ open, onClose, onSaved, activeUsers }: Infracti
               </option>
             ))}
           </select>
-          {errors.targetId && <p className="text-xs text-red-vivid">{errors.targetId}</p>}
+          {errors.targetId && <p className="text-xs text-danger">{errors.targetId}</p>}
         </div>
 
         {/* Type select */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="infraction-type" className="text-sm font-medium text-text-primary">
+          <label htmlFor="infraction-type" className="text-sm font-medium text-text">
             Tipo de infração
           </label>
           <select
             id="infraction-type"
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="rounded-md border border-border-light bg-surface-card px-3 py-2 text-sm text-text-primary outline-none focus:border-red-core focus:ring-1 focus:ring-red-core"
+            className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none focus:border-white/60 focus:ring-1 focus:ring-white/30"
           >
             <option value="">Selecione o tipo...</option>
             {Object.entries(INFRACTION_TYPE_LABELS).map(([value, label]) => (
@@ -143,12 +143,12 @@ export function InfractionForm({ open, onClose, onSaved, activeUsers }: Infracti
               </option>
             ))}
           </select>
-          {errors.type && <p className="text-xs text-red-vivid">{errors.type}</p>}
+          {errors.type && <p className="text-xs text-danger">{errors.type}</p>}
         </div>
 
         {/* Date input */}
         <div className="flex flex-col gap-1">
-          <label htmlFor="infraction-date" className="text-sm font-medium text-text-primary">
+          <label htmlFor="infraction-date" className="text-sm font-medium text-text">
             Data da infração
           </label>
           <input
@@ -157,13 +157,13 @@ export function InfractionForm({ open, onClose, onSaved, activeUsers }: Infracti
             value={date}
             max={today}
             onChange={(e) => setDate(e.target.value)}
-            className="rounded-md border border-border-light bg-surface-card px-3 py-2 text-sm text-text-primary outline-none focus:border-red-core focus:ring-1 focus:ring-red-core"
+            className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none focus:border-white/60 focus:ring-1 focus:ring-white/30"
           />
-          {errors.date && <p className="text-xs text-red-vivid">{errors.date}</p>}
+          {errors.date && <p className="text-xs text-danger">{errors.date}</p>}
         </div>
 
         {/* Form-level error */}
-        {errors.form && <p className="text-xs text-red-vivid">{errors.form}</p>}
+        {errors.form && <p className="text-xs text-danger">{errors.form}</p>}
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-2 pt-2">

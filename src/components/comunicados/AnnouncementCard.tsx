@@ -51,19 +51,19 @@ export function AnnouncementCard({
 }: AnnouncementCardProps) {
   return (
     <article
-      className="rounded-lg border border-border-light bg-surface-card p-5 shadow-sm transition-shadow hover:shadow-md"
+      className="rounded-lg border border-border bg-surface p-5 shadow-sm transition-shadow"
       aria-labelledby={`announcement-title-${announcement.id}`}
     >
       <header className="mb-3 flex items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
           <h2
             id={`announcement-title-${announcement.id}`}
-            className="font-heading text-lg font-semibold text-text-primary"
+            className="font-heading text-lg font-semibold text-text"
           >
             {announcement.title}
           </h2>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
-            <span className="font-medium text-text-secondary">{announcement.author.name}</span>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-text-faint">
+            <span className="font-medium text-text-soft">{announcement.author.name}</span>
             <span aria-hidden="true">•</span>
             <time dateTime={announcement.createdAt}>{formatDate(announcement.createdAt)}</time>
           </div>
@@ -74,14 +74,14 @@ export function AnnouncementCard({
             type="button"
             onClick={() => onDelete(announcement)}
             aria-label={`Excluir comunicado ${announcement.title}`}
-            className="shrink-0 rounded-md px-2 py-1 text-xs font-semibold text-red-vivid transition-colors hover:bg-red-vivid/10"
+            className="shrink-0 rounded-md px-2 py-1 text-xs font-semibold text-danger transition-colors hover:bg-brand/20"
           >
             Excluir
           </button>
         )}
       </header>
 
-      <div className="whitespace-pre-wrap text-sm leading-relaxed text-text-secondary">
+      <div className="whitespace-pre-wrap text-sm leading-relaxed text-text-soft">
         {announcement.content}
       </div>
     </article>

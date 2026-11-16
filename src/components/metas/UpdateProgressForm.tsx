@@ -160,7 +160,7 @@ export function UpdateProgressForm({ open, onClose, goal, onSaved }: UpdateProgr
         {error && (
           <div
             role="alert"
-            className="rounded-md border border-red-vivid/30 bg-red-vivid/5 px-3 py-2 text-sm text-red-vivid"
+            className="rounded-md border border-brand bg-brand/20 px-3 py-2 text-sm text-danger"
           >
             {error}
           </div>
@@ -168,11 +168,11 @@ export function UpdateProgressForm({ open, onClose, goal, onSaved }: UpdateProgr
 
         <div className="flex flex-col gap-3">
           <div className="flex items-end justify-between">
-            <label htmlFor="goal-progress-range" className="text-sm font-medium text-text-primary">
+            <label htmlFor="goal-progress-range" className="text-sm font-medium text-text">
               Progresso
             </label>
             <span
-              className="font-heading text-2xl font-bold tabular-nums text-text-primary"
+              className="font-heading text-2xl font-bold tabular-nums text-text"
               aria-live="polite"
             >
               {value}%
@@ -188,7 +188,7 @@ export function UpdateProgressForm({ open, onClose, goal, onSaved }: UpdateProgr
             value={value}
             onChange={(e) => setValue(clamp(Number(e.target.value)))}
             disabled={submitting}
-            className="w-full accent-red-core"
+            className="w-full accent-brand"
             aria-valuemin={GOAL_PROGRESS_MIN}
             aria-valuemax={GOAL_PROGRESS_MAX}
             aria-valuenow={value}
@@ -205,15 +205,15 @@ export function UpdateProgressForm({ open, onClose, goal, onSaved }: UpdateProgr
               onChange={(e) => setValue(clamp(Number(e.target.value)))}
               disabled={submitting}
               aria-label="Valor exato do progresso (0 a 100)"
-              className="h-10 w-24 rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30 disabled:cursor-not-allowed disabled:bg-surface-bg"
+              className="h-10 w-24 rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 disabled:cursor-not-allowed disabled:bg-bg"
             />
-            <span className="text-sm text-text-muted">%</span>
+            <span className="text-sm text-text-faint">%</span>
           </div>
         </div>
 
         {/* Ajuste de prazo */}
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="goal-deadline" className="text-sm font-medium text-text-primary">
+          <label htmlFor="goal-deadline" className="text-sm font-medium text-text">
             Prazo
           </label>
           <input
@@ -222,9 +222,9 @@ export function UpdateProgressForm({ open, onClose, goal, onSaved }: UpdateProgr
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
             disabled={submitting}
-            className="h-10 w-full rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30 disabled:cursor-not-allowed disabled:bg-surface-bg"
+            className="h-10 w-full rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 disabled:cursor-not-allowed disabled:bg-bg"
           />
-          <p className="text-xs text-text-muted">O prazo deve ser uma data futura.</p>
+          <p className="text-xs text-text-faint">O prazo deve ser uma data futura.</p>
         </div>
       </form>
     </Modal>

@@ -120,7 +120,7 @@ export function LoginForm() {
 
       {/* ─── Campo Email ─── */}
       <div className="group relative flex items-center">
-        <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-red-bright">
+        <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-text">
           <svg
             viewBox="0 0 24 24"
             className="h-[17px] w-[17px] stroke-current"
@@ -149,13 +149,13 @@ export function LoginForm() {
           }}
           disabled={isSubmitting}
           aria-label="Email"
-          className="glass-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px] focus-ring-red"
+          className="auth-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px]"
         />
       </div>
 
       {/* ─── Campo Senha ─── */}
       <div className="group relative flex items-center">
-        <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-red-bright">
+        <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-text">
           <svg
             viewBox="0 0 24 24"
             className="h-[17px] w-[17px] stroke-current"
@@ -183,7 +183,7 @@ export function LoginForm() {
           }}
           disabled={isSubmitting}
           aria-label="Senha"
-          className="glass-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px] focus-ring-red"
+          className="auth-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px]"
         />
         <button
           type="button"
@@ -226,13 +226,13 @@ export function LoginForm() {
 
       {/* ─── Divisor ─── */}
       <div className="my-1 flex items-center gap-3" aria-hidden="true">
-        <div className="glass-divider flex-1" />
+        <div className="auth-divider flex-1" />
       </div>
 
       {/* ─── Botão de submit (credenciais) ─── */}
       <button
         type="submit"
-        className="btn-light mt-1.5 animate-fade-up opacity-0 [animation-delay:0.4s]"
+        className="auth-button mt-1.5 animate-fade-up opacity-0 [animation-delay:0.4s]"
         disabled={isSubmitting}
         aria-busy={isSubmitting}
       >

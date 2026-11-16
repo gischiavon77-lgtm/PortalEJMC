@@ -118,13 +118,13 @@ export function AddMemberModal({ gestao, defaultArea, onClose, onSuccess }: AddM
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
+      <div className="w-full max-w-md rounded-xl bg-surface p-6">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-text-primary">Adicionar Integrante</h2>
+          <h2 className="text-lg font-bold text-text">Adicionar Integrante</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-md p-1 text-text-muted hover:bg-gray-100 hover:text-text-primary"
+            className="rounded-md p-1 text-text-faint hover:bg-surface-raised hover:text-text"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -147,13 +147,13 @@ export function AddMemberModal({ gestao, defaultArea, onClose, onSuccess }: AddM
           {/* Photo upload */}
           <div className="flex flex-col items-center gap-3">
             <div
-              className="relative aspect-[5/7] w-32 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 transition-colors hover:border-red-core"
+              className="relative aspect-[5/7] w-32 cursor-pointer overflow-hidden rounded-lg border-2 border-dashed border-border bg-surface-raised transition-colors hover:border-brand"
               onClick={() => fileInputRef.current?.click()}
             >
               {photoPreview ? (
                 <img src={photoPreview} alt="Preview" className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-gray-400">
+                <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-text-faint">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -180,12 +180,12 @@ export function AddMemberModal({ gestao, defaultArea, onClose, onSuccess }: AddM
               onChange={handlePhotoChange}
               className="hidden"
             />
-            <p className="text-xs text-text-muted">PNG, JPG ou WEBP. Máx {UPLOAD_MAX_LABEL}.</p>
+            <p className="text-xs text-text-faint">PNG, JPG ou WEBP. Máx {UPLOAD_MAX_LABEL}.</p>
           </div>
 
           {/* Name */}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="album-member-name" className="text-sm font-medium text-text-primary">
+            <label htmlFor="album-member-name" className="text-sm font-medium text-text">
               Nome
             </label>
             <input
@@ -195,16 +195,13 @@ export function AddMemberModal({ gestao, defaultArea, onClose, onSuccess }: AddM
               onChange={(e) => setName(e.target.value)}
               placeholder="Nome completo"
               maxLength={150}
-              className="h-10 rounded-md border border-border-light bg-white px-3 text-sm text-text-primary placeholder:text-text-muted focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+              className="h-10 rounded-md border border-border bg-surface-raised px-3 text-sm text-text placeholder:text-text-faint focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             />
           </div>
 
           {/* Position */}
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="album-member-position"
-              className="text-sm font-medium text-text-primary"
-            >
+            <label htmlFor="album-member-position" className="text-sm font-medium text-text">
               Cargo
             </label>
             <input
@@ -214,20 +211,20 @@ export function AddMemberModal({ gestao, defaultArea, onClose, onSuccess }: AddM
               onChange={(e) => setPosition(e.target.value)}
               placeholder="Ex: Diretor de Projetos"
               maxLength={100}
-              className="h-10 rounded-md border border-border-light bg-white px-3 text-sm text-text-primary placeholder:text-text-muted focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+              className="h-10 rounded-md border border-border bg-surface-raised px-3 text-sm text-text placeholder:text-text-faint focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             />
           </div>
 
           {/* Area */}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="album-member-area" className="text-sm font-medium text-text-primary">
+            <label htmlFor="album-member-area" className="text-sm font-medium text-text">
               Área
             </label>
             <select
               id="album-member-area"
               value={area}
               onChange={(e) => setArea(e.target.value as Area)}
-              className="h-10 rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+              className="h-10 rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             >
               {AREAS.map((a) => (
                 <option key={a.value} value={a.value}>
@@ -239,7 +236,7 @@ export function AddMemberModal({ gestao, defaultArea, onClose, onSuccess }: AddM
 
           {/* Gestão (read-only) */}
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="album-member-gestao" className="text-sm font-medium text-text-primary">
+            <label htmlFor="album-member-gestao" className="text-sm font-medium text-text">
               Gestão
             </label>
             <input
@@ -247,26 +244,26 @@ export function AddMemberModal({ gestao, defaultArea, onClose, onSuccess }: AddM
               type="text"
               value={gestao}
               readOnly
-              className="h-10 rounded-md border border-border-light bg-gray-50 px-3 text-sm text-text-secondary"
+              className="h-10 rounded-md border border-border bg-surface-raised px-3 text-sm text-text-soft"
             />
           </div>
 
           {/* Error */}
-          {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+          {error && <p className="rounded-md bg-brand/20 px-3 py-2 text-sm text-danger">{error}</p>}
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-md border border-border-light px-4 py-2.5 text-sm font-medium text-text-secondary transition-colors hover:bg-gray-50"
+              className="flex-1 rounded-md border border-border px-4 py-2.5 text-sm font-medium text-text-soft transition-colors hover:bg-surface-raised"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 rounded-md bg-red-core px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 rounded-md bg-brand px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? 'Salvando...' : 'Salvar'}
             </button>

@@ -50,7 +50,7 @@ export function SignOutButton() {
       onClick={handleSignOut}
       disabled={isSigningOut}
       aria-busy={isSigningOut}
-      className="flex w-full items-center justify-center gap-2.5 rounded-md border border-white/15 bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-[2px] text-white/85 transition-colors hover:border-white/30 hover:bg-white/10 focus-visible:border-white/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-2.5 rounded-md border border-white/15 bg-white/5 px-4 py-3 text-xs font-semibold text-white/85 transition-colors hover:border-white/30 hover:bg-white/10 focus-visible:border-white/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
     >
       {isSigningOut ? (
         <span

@@ -15,7 +15,7 @@ import { RegisterForm } from '@/components/auth/RegisterForm';
  *
  * ─── Conteúdo desta página ────────────────────────────────────────
  *
- *   - `<section.glass-card>` com `aria-labelledby="cadastro-title"`,
+ *   - `<section.auth-card>` com `aria-labelledby="cadastro-title"`,
  *     replicando o padrão visual da página de login.
  *   - Logo emblem com `logoejmc.png` servida estaticamente.
  *   - `RegisterForm` (`'use client'`) — responsável por toda a
@@ -41,12 +41,12 @@ export const metadata: Metadata = {
 export default function CadastroPage() {
   return (
     <section
-      className="glass-card glass-card--reveal w-full max-w-[26.25rem] px-7 py-10 sm:px-11 sm:py-12"
+      className="auth-card w-full max-w-[26.25rem] px-7 py-10 sm:px-11 sm:py-12"
       aria-labelledby="cadastro-title"
     >
       {/* ─── Logo + identificação ─── */}
       <header className="mb-8 flex flex-col items-center text-center animate-fade-up opacity-0 [animation-delay:0.15s]">
-        <div className="logo-emblem h-[100px] w-[100px]">
+        <div className="h-[100px] w-[100px]">
           <Image
             src="/logoejmc.png"
             alt="Logo EJMC"
@@ -58,13 +58,11 @@ export default function CadastroPage() {
         </div>
         <h1
           id="cadastro-title"
-          className="mt-6 font-heading text-[28px] font-black leading-none tracking-[-0.5px] text-white"
+          className="mt-6 font-heading text-[28px] font-extrabold leading-none tracking-[-0.5px] text-white"
         >
           Criar conta
         </h1>
-        <p className="mt-2 text-[11px] font-medium uppercase tracking-[3px] text-white/35">
-          Portal Interno
-        </p>
+        <p className="mt-2 text-[11px] font-medium text-white/35">Portal Interno</p>
         <p className="mt-3 max-w-[18rem] text-[13px] leading-relaxed text-white/45">
           Preencha seus dados para solicitar acesso. Sua conta passará por aprovação de um
           administrador.

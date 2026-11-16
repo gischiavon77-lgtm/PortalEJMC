@@ -133,22 +133,18 @@ export function KpiValueForm({ open, onClose, kpi, onSaved }: KpiValueFormProps)
       });
 
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as
-          | {
-              code?: string;
-              message?: string;
-              fields?: Array<{ path: string; message: string }>;
-            }
-          | null;
+        const data = (await res.json().catch(() => null)) as {
+          code?: string;
+          message?: string;
+          fields?: Array<{ path: string; message: string }>;
+        } | null;
 
         const fieldMsg = data?.fields?.find((f) => f.path === 'value')?.message;
         if (fieldMsg) {
           setErrors({ value: fieldMsg });
         } else {
           setErrors({
-            _global:
-              data?.message ??
-              'Não foi possível registrar o valor. Tente novamente.',
+            _global: data?.message ?? 'Não foi possível registrar o valor. Tente novamente.',
           });
         }
         return;
@@ -158,8 +154,7 @@ export function KpiValueForm({ open, onClose, kpi, onSaved }: KpiValueFormProps)
       onClose();
     } catch {
       setErrors({
-        _global:
-          'Erro de conexão. Verifique sua internet e tente novamente.',
+        _global: 'Erro de conexão. Verifique sua internet e tente novamente.',
       });
     } finally {
       setSubmitting(false);
@@ -174,10 +169,8 @@ export function KpiValueForm({ open, onClose, kpi, onSaved }: KpiValueFormProps)
       helper.push('Faixa: 0 a 100');
     }
     if (kpi.intervalMin !== null || kpi.intervalMax !== null) {
-      const min =
-        kpi.intervalMin !== null ? formatKpiValue(kpi.intervalMin, kpi.unit) : '−∞';
-      const max =
-        kpi.intervalMax !== null ? formatKpiValue(kpi.intervalMax, kpi.unit) : '+∞';
+      const min = kpi.intervalMin !== null ? formatKpiValue(kpi.intervalMin, kpi.unit) : '−∞';
+      const max = kpi.intervalMax !== null ? formatKpiValue(kpi.intervalMax, kpi.unit) : '+∞';
       helper.push(`Faixa: ${min} a ${max}`);
     }
   }
@@ -213,12 +206,7 @@ export function KpiValueForm({ open, onClose, kpi, onSaved }: KpiValueFormProps)
       closeOnOverlayClick={!submitting}
       footer={
         <div className="flex w-full items-center justify-end gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onClose}
-            disabled={submitting}
-          >
+          <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
           <Button
@@ -233,16 +221,11 @@ export function KpiValueForm({ open, onClose, kpi, onSaved }: KpiValueFormProps)
         </div>
       }
     >
-      <form
-        id="kpi-value-form"
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4"
-        noValidate
-      >
+      <form id="kpi-value-form" onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         {errors._global && (
           <div
             role="alert"
-            className="rounded-md border border-red-vivid/30 bg-red-vivid/5 px-3 py-2 text-sm text-red-vivid"
+            className="rounded-md border border-brand bg-brand/20 px-3 py-2 text-sm text-danger"
           >
             {errors._global}
           </div>

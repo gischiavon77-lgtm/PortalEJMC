@@ -20,10 +20,10 @@
  *                (`aria-busy="true"` + `disabled`).
  *   - `fullWidth`: ocupa 100% do container (útil em mobile/forms).
  *
- * ─── Diferença para `.btn-light` em globals.css ─────────────────────
+ * ─── Diferença para `.auth-button` em globals.css ─────────────────────
  *
- * `.btn-light` é específico da camada escura (login/cadastro) — branco
- * sobre fundo vermelho, com letterspacing exagerado e uppercase. Este
+ * `.auth-button` é específico da camada escura (login/cadastro) — branco
+ * sobre fundo vermelho, com letterspacing exagerado e. Este
  * `Button` é o equivalente para a camada clara (portal autenticado),
  * onde o vermelho aparece como cor de destaque e não como fundo de
  * página. Os dois coexistem por design.
@@ -63,32 +63,32 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary: [
-    'bg-red-core text-white border border-transparent',
-    'hover:bg-red-vivid',
-    'active:bg-red-mid',
-    'focus-visible:ring-red-core/40',
-    'disabled:bg-red-core/60',
+    'bg-brand text-white border border-transparent',
+    'hover:bg-brand-hover',
+    'active:bg-brand',
+    'focus-visible:ring-white/30',
+    'disabled:bg-brand/50',
   ].join(' '),
   secondary: [
-    'bg-white text-red-core border border-red-core/30',
-    'hover:bg-cream hover:border-red-core',
-    'active:bg-red-core/5',
-    'focus-visible:ring-red-core/40',
-    'disabled:text-red-core/50 disabled:border-red-core/15',
+    'bg-transparent text-text border border-border',
+    'hover:bg-surface-raised hover:border-text-faint',
+    'active:bg-surface-raised',
+    'focus-visible:ring-white/30',
+    'disabled:text-text-faint disabled:border-border',
   ].join(' '),
   ghost: [
-    'bg-transparent text-text-primary border border-transparent',
-    'hover:bg-border-light',
-    'active:bg-border-light/70',
-    'focus-visible:ring-red-core/30',
-    'disabled:text-text-muted',
+    'bg-transparent text-text-soft border border-transparent',
+    'hover:bg-surface-raised hover:text-text',
+    'active:bg-surface-raised',
+    'focus-visible:ring-white/30',
+    'disabled:text-text-faint',
   ].join(' '),
   destructive: [
-    'bg-red-vivid text-white border border-transparent',
-    'hover:bg-red-bright',
-    'active:bg-red-core',
-    'focus-visible:ring-red-vivid/40',
-    'disabled:bg-red-vivid/60',
+    'bg-transparent text-danger border border-brand',
+    'hover:bg-brand hover:text-white',
+    'active:bg-brand active:text-white',
+    'focus-visible:ring-white/30',
+    'disabled:text-text-faint disabled:border-border',
   ].join(' '),
 };
 
@@ -133,7 +133,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         // Base
         'inline-flex items-center justify-center font-semibold',
         'transition-colors duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface-bg',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-bg',
         'disabled:cursor-not-allowed disabled:opacity-80',
         // Tipografia comum
         'tracking-tight',

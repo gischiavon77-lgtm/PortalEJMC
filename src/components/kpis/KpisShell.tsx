@@ -76,8 +76,7 @@ export function KpisShell({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
-  const { allowed: canConfigureKpi, isLoading: configPermLoading } =
-    usePermission('kpi:write');
+  const { allowed: canConfigureKpi, isLoading: configPermLoading } = usePermission('kpi:write');
 
   const [valueTarget, setValueTarget] = useState<KpiCardData | null>(null);
   const [configOpen, setConfigOpen] = useState(false);
@@ -145,39 +144,28 @@ export function KpisShell({
     >
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            KPIs
-          </p>
           <h1
             id="kpis-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             Indicadores por área
           </h1>
-          <p className="text-text-secondary">
-            Acompanhe os KPIs da sua área e registre os valores mais
-            recentes.
+          <p className="mt-1 text-base font-semibold text-brand">
+            Acompanhe os KPIs da sua área e registre os valores mais recentes.
           </p>
         </div>
 
         <div className="flex flex-col gap-3 tablet:flex-row tablet:items-center tablet:justify-between desktop:flex-row desktop:items-center desktop:justify-between">
           {/* Seletor de área (Task 9.3) */}
           <div className="flex w-full flex-col gap-1.5 tablet:max-w-xs desktop:max-w-xs">
-            <label
-              htmlFor="kpis-area-filter"
-              className="text-xs font-semibold uppercase tracking-[1.5px] text-text-muted"
-            >
+            <label htmlFor="kpis-area-filter" className="text-xs font-semibold text-text-faint">
               Filtrar por área
             </label>
             <select
               id="kpis-area-filter"
               value={currentArea}
-              onChange={(e) =>
-                handleAreaChange(
-                  e.target.value as 'ALL' | 'GLOBAL' | Area,
-                )
-              }
-              className="h-10 w-full rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+              onChange={(e) => handleAreaChange(e.target.value as 'ALL' | 'GLOBAL' | Area)}
+              className="h-10 w-full rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             >
               {areaOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -188,12 +176,7 @@ export function KpisShell({
           </div>
 
           {!configPermLoading && canConfigureKpi && (
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              onClick={() => setConfigOpen(true)}
-            >
+            <Button type="button" variant="primary" size="sm" onClick={() => setConfigOpen(true)}>
               + Novo KPI
             </Button>
           )}
@@ -204,7 +187,7 @@ export function KpisShell({
       {kpis.length === 0 ? (
         <p
           role="status"
-          className="rounded-lg border border-dashed border-border-light bg-surface-card p-8 text-center text-sm text-text-muted"
+          className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint"
         >
           Nenhum KPI visível para o filtro selecionado.
         </p>

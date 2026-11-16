@@ -37,7 +37,6 @@ interface CarouselConfig {
   slots: SlotConfig[];
   direction: 'forward' | 'reverse';
   labelColor: string;
-  glowGradient: string;
   /** Sombra (glow) aplicada ao nome — mesma cor da categoria. */
   nameShadow: string;
 }
@@ -45,67 +44,64 @@ interface CarouselConfig {
 // ─── Slot Definitions ────────────────────────────────────────────────
 
 const DESTAQUES_SLOTS: SlotConfig[] = [
-  { slot: 'trainee', label: 'TRAINEE DESTAQUE', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'coordenador', label: 'COORDENADOR DESTAQUE', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'assessor', label: 'ASSESSOR DESTAQUE', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'gerente', label: 'GERENTE DESTAQUE', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'trainee', label: 'Trainee Destaque', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'coordenador', label: 'Coordenador Destaque', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'assessor', label: 'Assessor Destaque', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'gerente', label: 'Gerente Destaque', aspectRatio: 'aspect-[5/7]' },
   {
     slot: 'equipe',
-    label: 'EQUIPE DESTAQUE',
+    label: 'Equipe Destaque',
     aspectRatio: 'aspect-[5/7] sm:aspect-auto sm:h-[360px]',
     wide: true,
   },
 ];
 
 const REFERENCIAS_SLOTS: SlotConfig[] = [
-  { slot: 'ref-trainee', label: 'TRAINEE REFERÊNCIA', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'ref-coordenador', label: 'COORDENADOR REFERÊNCIA', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'ref-assessor', label: 'ASSESSOR REFERÊNCIA', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'ref-gerente', label: 'GERENTE REFERÊNCIA', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'ref-trainee', label: 'Trainee Referência', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'ref-coordenador', label: 'Coordenador Referência', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'ref-assessor', label: 'Assessor Referência', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'ref-gerente', label: 'Gerente Referência', aspectRatio: 'aspect-[5/7]' },
   {
     slot: 'ref-equipe',
-    label: 'EQUIPE REFERÊNCIA',
+    label: 'Equipe Referência',
     aspectRatio: 'aspect-[5/7] sm:aspect-auto sm:h-[360px]',
     wide: true,
   },
 ];
 
 const PREMIOS_SLOTS: SlotConfig[] = [
-  { slot: 'premio-movimento', label: 'PRÊMIO MOVIMENTO', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'premio-sangue', label: 'PRÊMIO SANGUE NO OLHO', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'premio-uniao', label: 'PRÊMIO UNIÃO', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'premio-coracao', label: 'PRÊMIO CORAÇÃO EJMC', aspectRatio: 'aspect-[5/7]' },
-  { slot: 'premio-voz', label: 'PRÊMIO VOZ DO CLIENTE', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'premio-movimento', label: 'Prêmio Movimento', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'premio-sangue', label: 'Prêmio Sangue no Olho', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'premio-uniao', label: 'Prêmio União', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'premio-coracao', label: 'Prêmio Coração EJMC', aspectRatio: 'aspect-[5/7]' },
+  { slot: 'premio-voz', label: 'Prêmio Voz do Cliente', aspectRatio: 'aspect-[5/7]' },
 ];
 
 const ALL_SLOTS: SlotConfig[] = [...DESTAQUES_SLOTS, ...REFERENCIAS_SLOTS, ...PREMIOS_SLOTS];
 
 const CAROUSELS: CarouselConfig[] = [
   {
-    title: '✨ DESTAQUES',
+    title: '✨ Destaques',
     slots: DESTAQUES_SLOTS,
     direction: 'forward',
     // Prateado
-    labelColor: 'text-gray-300',
-    glowGradient: 'from-gray-200 to-gray-500',
+    labelColor: 'text-text-soft',
     nameShadow: '0 0 14px rgba(209,213,219,0.85)',
   },
   {
-    title: '🏆 REFERÊNCIAS',
+    title: '🏆 Referências',
     slots: REFERENCIAS_SLOTS,
     direction: 'reverse',
     // Dourado
-    labelColor: 'text-amber-400',
-    glowGradient: 'from-amber-300 to-yellow-600',
+    labelColor: 'text-warn',
     nameShadow: '0 0 14px rgba(251,191,36,0.85)',
   },
   {
-    title: '🎖️ PRÊMIO CULTURA',
+    title: '🎖️ Prêmio Cultura',
     slots: PREMIOS_SLOTS,
     direction: 'forward',
     // Vermelho
-    labelColor: 'text-red-500',
-    glowGradient: 'from-[#c0182e] to-red-700',
+    labelColor: 'text-danger',
     nameShadow: '0 0 14px rgba(232,32,58,0.85)',
   },
 ];
@@ -140,7 +136,7 @@ export function HighlightsCarousel() {
   const getHighlight = (slot: string) => highlights.find((h) => h.slot === slot) ?? null;
 
   return (
-    <div className="bg-[#0a0a0a] min-h-screen">
+    <div>
       {CAROUSELS.map((carousel) => (
         <CarouselSection
           key={carousel.title}
@@ -187,7 +183,7 @@ function CarouselSection({
     config.direction === 'forward' ? 'animate-marquee' : 'animate-marquee-reverse';
 
   return (
-    <section className="w-full bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="w-full overflow-hidden py-8">
       {/* Title */}
       <h2 className="mb-8 text-center font-heading text-2xl font-bold tracking-wide text-white sm:text-3xl">
         {config.title}
@@ -207,7 +203,6 @@ function CarouselSection({
                   canManage={canManage}
                   onEdit={() => onEdit(s.slot)}
                   labelColor={config.labelColor}
-                  glowGradient={config.glowGradient}
                   nameShadow={config.nameShadow}
                 />
               ))}
@@ -221,7 +216,6 @@ function CarouselSection({
                 canManage={canManage}
                 onEdit={() => onEdit(s.slot)}
                 labelColor={config.labelColor}
-                glowGradient={config.glowGradient}
                 nameShadow={config.nameShadow}
               />
             ))}
@@ -239,7 +233,6 @@ function HighlightCard({
   canManage,
   onEdit,
   labelColor,
-  glowGradient,
   nameShadow,
 }: {
   config: SlotConfig;
@@ -247,7 +240,6 @@ function HighlightCard({
   canManage: boolean;
   onEdit: () => void;
   labelColor: string;
-  glowGradient: string;
   nameShadow: string;
 }) {
   const hasPhoto = !!highlight?.photoUrl;
@@ -256,18 +248,12 @@ function HighlightCard({
     <div
       className={`flex-shrink-0 snap-center ${config.wide ? 'w-80 sm:w-[400px]' : 'w-56 sm:w-64'}`}
     >
-      <div className="relative flex flex-col items-center rounded-2xl bg-[#1a1a1a] border border-white/5 p-4 transition hover:border-white/10">
+      <div className="relative flex flex-col items-center rounded-lg bg-surface border border-border p-4 transition hover:border-border">
         {/* Glow effect */}
         <div className="relative w-full">
-          {hasPhoto && (
-            <div
-              className={`absolute inset-0 rounded-xl bg-gradient-to-r ${glowGradient} opacity-40 blur-xl scale-90`}
-            />
-          )}
-
           {/* Photo container */}
           <div
-            className={`relative w-full ${config.aspectRatio} overflow-hidden rounded-xl bg-[#2a2a2a]`}
+            className={`relative w-full ${config.aspectRatio} overflow-hidden rounded-xl bg-surface-raised`}
           >
             {hasPhoto ? (
               <img
@@ -298,11 +284,7 @@ function HighlightCard({
         </p>
 
         {/* Category label */}
-        <p
-          className={`mt-1 text-center text-[10px] font-semibold uppercase tracking-widest ${labelColor}`}
-        >
-          {config.label}
-        </p>
+        <p className={`mt-1 text-center text-[10px] font-semibold ${labelColor}`}>{config.label}</p>
 
         {/* Edit button for admins */}
         {canManage && hasPhoto && (
@@ -325,10 +307,12 @@ function SkeletonCard({ config }: { config: SlotConfig }) {
     <div
       className={`flex-shrink-0 snap-center ${config.wide ? 'w-80 sm:w-[400px]' : 'w-56 sm:w-64'}`}
     >
-      <div className="flex flex-col items-center rounded-2xl bg-[#1a1a1a] border border-white/5 p-4">
-        <div className={`w-full ${config.aspectRatio} rounded-xl bg-[#2a2a2a] animate-pulse`} />
-        <div className="mt-3 h-4 w-24 rounded bg-[#2a2a2a] animate-pulse" />
-        <div className="mt-2 h-3 w-32 rounded bg-[#2a2a2a] animate-pulse" />
+      <div className="flex flex-col items-center rounded-lg bg-surface border border-border p-4">
+        <div
+          className={`w-full ${config.aspectRatio} rounded-xl bg-surface-raised animate-pulse`}
+        />
+        <div className="mt-3 h-4 w-24 rounded bg-surface-raised animate-pulse" />
+        <div className="mt-2 h-3 w-32 rounded bg-surface-raised animate-pulse" />
       </div>
     </div>
   );
@@ -431,8 +415,8 @@ function UploadModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-2xl bg-[#1a1a1a] border border-white/10 p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      <div className="w-full max-w-md rounded-lg bg-surface border border-border p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-white">{slotLabel}</h3>
@@ -468,7 +452,7 @@ function UploadModal({
               onChange={(e) => setName(e.target.value)}
               placeholder="Nome da pessoa ou equipe"
               maxLength={150}
-              className="w-full rounded-lg border border-white/10 bg-[#0a0a0a] px-3 py-2 text-sm text-white placeholder-white/30 outline-none transition focus:border-amber-500/50"
+              className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-white placeholder-white/30 outline-none transition focus:border-white/60"
             />
           </div>
 
@@ -491,13 +475,13 @@ function UploadModal({
             </p>
           </div>
 
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
 
           <div className="flex gap-3 pt-2">
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 rounded-lg bg-gradient-to-r from-[#c0182e] to-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+              className="flex-1 rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-hover disabled:opacity-50"
             >
               {saving ? 'Salvando...' : 'Salvar'}
             </button>
@@ -506,7 +490,7 @@ function UploadModal({
               <button
                 onClick={handleDelete}
                 disabled={saving}
-                className="rounded-lg border border-red-500/30 px-4 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/10 disabled:opacity-50"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-danger transition hover:bg-surface-raised disabled:opacity-50"
               >
                 Remover
               </button>

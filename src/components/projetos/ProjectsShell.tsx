@@ -45,9 +45,9 @@ function formatBRL(value: number): string {
 
 /** Retorna classe de cor da progress bar conforme faixa. */
 function progressBarColor(progress: number): string {
-  if (progress <= 33) return 'bg-red-500';
-  if (progress <= 66) return 'bg-yellow-500';
-  return 'bg-green-500';
+  if (progress <= 33) return 'bg-brand';
+  if (progress <= 66) return 'bg-warn';
+  return 'bg-ok';
 }
 
 /**
@@ -126,16 +126,13 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
     >
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            Gestão
-          </p>
           <h1
             id="projetos-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             Projetos
           </h1>
-          <p className="text-text-secondary">
+          <p className="mt-1 text-base font-semibold text-brand">
             Lista de projetos da empresa, com progresso, equipe e proposta comercial.
           </p>
         </div>
@@ -153,7 +150,7 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
       {isEmpty ? (
         <p
           role="status"
-          className="rounded-lg border border-dashed border-border-light bg-surface-card p-8 text-center text-sm text-text-muted"
+          className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint"
         >
           Nenhum projeto cadastrado no momento.
         </p>
@@ -163,26 +160,26 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
           <ul className="flex tablet:hidden flex-col gap-3" aria-label="Projetos (cartões)">
             {projects.map((project) => (
               <li key={project.id}>
-                <div className="rounded-lg border border-border-light bg-surface-card p-4 shadow-sm">
+                <div className="rounded-lg border border-border bg-surface p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <p className="font-heading text-base font-semibold text-text-primary truncate">
+                      <p className="font-heading text-base font-semibold text-text truncate">
                         {project.name}
                       </p>
-                      <p className="text-xs text-text-muted mt-0.5">{project.ferramenta}</p>
+                      <p className="text-xs text-text-faint mt-0.5">{project.ferramenta}</p>
                     </div>
                     {canManage && (
                       <div className="flex gap-1 flex-shrink-0">
                         <button
                           onClick={() => handleEdit(project)}
-                          className="text-xs text-blue-600 hover:underline"
+                          className="text-xs text-text hover:underline"
                           aria-label={`Editar ${project.name}`}
                         >
                           ✏️
                         </button>
                         <button
                           onClick={() => handleDelete(project)}
-                          className="text-xs text-red-600 hover:underline"
+                          className="text-xs text-danger hover:underline"
                           aria-label={`Excluir ${project.name}`}
                         >
                           🗑️
@@ -193,11 +190,11 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
 
                   {/* Progress bar */}
                   <div className="mt-3">
-                    <div className="flex items-center justify-between text-xs text-text-muted mb-1">
+                    <div className="flex items-center justify-between text-xs text-text-faint mb-1">
                       <span>Progresso</span>
                       <span>{project.progress}%</span>
                     </div>
-                    <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+                    <div className="h-2 w-full rounded-full bg-border overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all ${progressBarColor(project.progress)}`}
                         style={{ width: `${project.progress}%` }}
@@ -211,7 +208,7 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
                       {project.team.split(',').map((member, i) => (
                         <span
                           key={i}
-                          className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs text-text-secondary"
+                          className="inline-block rounded-full bg-surface-raised px-2 py-0.5 text-xs text-text-soft"
                         >
                           {member.trim()}
                         </span>
@@ -221,14 +218,12 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
 
                   {/* Price & Proposal */}
                   <div className="mt-3 flex items-center justify-between text-sm">
-                    <span className="font-medium text-text-primary">
-                      {formatBRL(project.price)}
-                    </span>
+                    <span className="font-medium text-text">{formatBRL(project.price)}</span>
                     {project.hasProposal && canReadProposal && (
                       <button
                         type="button"
                         onClick={() => openProposal(project.id)}
-                        className="text-blue-600 hover:underline text-xs"
+                        className="text-text hover:underline text-xs"
                       >
                         📄 Ver Proposta
                       </button>
@@ -240,52 +235,52 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
           </ul>
 
           {/* ─── Desktop/Tablet: table (hidden <768px) ─── */}
-          <div className="hidden tablet:block w-full overflow-hidden rounded-lg border border-border-light bg-surface-card shadow-sm">
+          <div className="hidden tablet:block w-full overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <caption className="sr-only">Lista de projetos da empresa.</caption>
-                <thead className="bg-surface-bg/60">
+                <thead className="bg-bg/60">
                   <tr>
                     <th
                       scope="col"
-                      className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
                     >
                       Nome
                     </th>
                     <th
                       scope="col"
-                      className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
                     >
                       Ferramenta
                     </th>
                     <th
                       scope="col"
-                      className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
                     >
                       Progresso
                     </th>
                     <th
                       scope="col"
-                      className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
                     >
                       Equipe
                     </th>
                     <th
                       scope="col"
-                      className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
                     >
                       Preço
                     </th>
                     <th
                       scope="col"
-                      className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
                     >
                       Proposta
                     </th>
                     {canManage && (
                       <th
                         scope="col"
-                        className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                        className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
                       >
                         Ações
                       </th>
@@ -296,23 +291,23 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
                   {projects.map((project) => (
                     <tr
                       key={project.id}
-                      className="border-b border-border-light last:border-b-0 transition-colors hover:bg-cream/40"
+                      className="border-b border-border last:border-b-0 transition-colors hover:bg-cream/40"
                     >
-                      <td className="px-4 py-3 align-middle font-medium text-text-primary">
+                      <td className="px-4 py-3 align-middle font-medium text-text">
                         {project.name}
                       </td>
-                      <td className="px-4 py-3 align-middle text-text-secondary">
+                      <td className="px-4 py-3 align-middle text-text-soft">
                         {project.ferramenta}
                       </td>
                       <td className="px-4 py-3 align-middle">
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-20 rounded-full bg-gray-200 overflow-hidden">
+                          <div className="h-2 w-20 rounded-full bg-border overflow-hidden">
                             <div
                               className={`h-full rounded-full ${progressBarColor(project.progress)}`}
                               style={{ width: `${project.progress}%` }}
                             />
                           </div>
-                          <span className="text-xs text-text-muted">{project.progress}%</span>
+                          <span className="text-xs text-text-faint">{project.progress}%</span>
                         </div>
                       </td>
                       <td className="px-4 py-3 align-middle">
@@ -321,17 +316,17 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
                             project.team.split(',').map((member, i) => (
                               <span
                                 key={i}
-                                className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs text-text-secondary"
+                                className="inline-block rounded-full bg-surface-raised px-2 py-0.5 text-xs text-text-soft"
                               >
                                 {member.trim()}
                               </span>
                             ))
                           ) : (
-                            <span className="text-text-muted text-xs">—</span>
+                            <span className="text-text-faint text-xs">—</span>
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-3 align-middle text-text-primary whitespace-nowrap">
+                      <td className="px-4 py-3 align-middle text-text whitespace-nowrap">
                         {formatBRL(project.price)}
                       </td>
                       <td className="px-4 py-3 align-middle">
@@ -339,12 +334,12 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
                           <button
                             type="button"
                             onClick={() => openProposal(project.id)}
-                            className="text-blue-600 hover:underline text-xs whitespace-nowrap"
+                            className="text-text hover:underline text-xs whitespace-nowrap"
                           >
                             📄 Ver Proposta
                           </button>
                         ) : (
-                          <span className="text-text-muted text-xs">—</span>
+                          <span className="text-text-faint text-xs">—</span>
                         )}
                       </td>
                       {canManage && (
@@ -352,14 +347,14 @@ export function ProjectsShell({ projects }: ProjectsShellProps) {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEdit(project)}
-                              className="text-xs text-blue-600 hover:underline"
+                              className="text-xs text-text hover:underline"
                               aria-label={`Editar ${project.name}`}
                             >
                               Editar
                             </button>
                             <button
                               onClick={() => handleDelete(project)}
-                              className="text-xs text-red-600 hover:underline"
+                              className="text-xs text-danger hover:underline"
                               aria-label={`Excluir ${project.name}`}
                             >
                               Excluir

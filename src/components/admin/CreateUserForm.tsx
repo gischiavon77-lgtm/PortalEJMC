@@ -155,7 +155,7 @@ export function CreateUserForm({ open, onClose, onSaved }: CreateUserFormProps) 
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {errors.general && (
-          <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p role="alert" className="rounded-md bg-brand/20 px-3 py-2 text-sm text-danger">
             {errors.general}
           </p>
         )}
@@ -178,14 +178,14 @@ export function CreateUserForm({ open, onClose, onSaved }: CreateUserFormProps) 
         />
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="role-select" className="text-sm font-medium text-text-primary">
+          <label htmlFor="role-select" className="text-sm font-medium text-text">
             Nível de permissão
           </label>
           <select
             id="role-select"
             value={fields.role}
             onChange={(e) => setFields((prev) => ({ ...prev, role: e.target.value as UserRole }))}
-            className="rounded-md border border-border-light bg-surface-card px-3 py-2 text-sm text-text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-red-core/30"
+            className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text transition-colors focus:outline-none focus:ring-2 focus:ring-white/30"
           >
             {ROLES.map((r) => (
               <option key={r.value} value={r.value}>
@@ -193,7 +193,7 @@ export function CreateUserForm({ open, onClose, onSaved }: CreateUserFormProps) 
               </option>
             ))}
           </select>
-          {errors.role && <p className="text-xs text-red-600">{errors.role}</p>}
+          {errors.role && <p className="text-xs text-danger">{errors.role}</p>}
         </div>
       </form>
     </Modal>

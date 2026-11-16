@@ -179,7 +179,7 @@ export function PollForm({ open, onClose, onSaved }: PollFormProps) {
         {errors._global && (
           <div
             role="alert"
-            className="rounded-md border border-red-vivid/30 bg-red-vivid/5 px-3 py-2 text-sm text-red-vivid"
+            className="rounded-md border border-brand bg-brand/20 px-3 py-2 text-sm text-danger"
           >
             {errors._global}
           </div>
@@ -202,9 +202,9 @@ export function PollForm({ open, onClose, onSaved }: PollFormProps) {
         />
 
         <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="poll-description" className="text-sm font-medium text-text-primary">
+          <label htmlFor="poll-description" className="text-sm font-medium text-text">
             Descrição
-            <span aria-hidden="true" className="ml-0.5 text-red-vivid">
+            <span aria-hidden="true" className="ml-0.5 text-danger">
               *
             </span>
           </label>
@@ -225,21 +225,21 @@ export function PollForm({ open, onClose, onSaved }: PollFormProps) {
               errors.description ? 'poll-description-error' : 'poll-description-hint'
             }
             className={[
-              'w-full resize-y rounded-md border bg-white px-3 py-2 text-sm text-text-primary',
-              'placeholder:text-text-muted',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
+              'w-full resize-y rounded-md border bg-surface px-3 py-2 text-sm text-text',
+              'placeholder:text-text-faint',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
               errors.description
-                ? 'border-red-vivid focus-visible:border-red-vivid focus-visible:ring-red-vivid/30'
-                : 'border-border-light focus-visible:border-red-core',
-              'disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-text-muted',
+                ? 'border-brand focus-visible:border-white/60 focus-visible:ring-white/30'
+                : 'border-border focus-visible:border-white/60',
+              'disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-faint',
             ].join(' ')}
           />
           {errors.description ? (
-            <p id="poll-description-error" className="text-xs text-red-vivid">
+            <p id="poll-description-error" className="text-xs text-danger">
               {errors.description}
             </p>
           ) : (
-            <p id="poll-description-hint" className="text-xs text-text-muted">
+            <p id="poll-description-hint" className="text-xs text-text-faint">
               {description.trim().length}/{POLL_DESCRIPTION_MAX_LENGTH} caracteres
             </p>
           )}
@@ -248,18 +248,18 @@ export function PollForm({ open, onClose, onSaved }: PollFormProps) {
         {/* Dynamic Options */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-text-primary">
+            <label className="text-sm font-medium text-text">
               Opções
-              <span aria-hidden="true" className="ml-0.5 text-red-vivid">
+              <span aria-hidden="true" className="ml-0.5 text-danger">
                 *
               </span>
             </label>
-            <span className="text-xs text-text-muted">
+            <span className="text-xs text-text-faint">
               {options.length}/{POLL_OPTIONS_MAX}
             </span>
           </div>
 
-          {errors.options && <p className="text-xs text-red-vivid">{errors.options}</p>}
+          {errors.options && <p className="text-xs text-danger">{errors.options}</p>}
 
           <div className="flex flex-col gap-2">
             {options.map((option, index) => (
@@ -272,11 +272,11 @@ export function PollForm({ open, onClose, onSaved }: PollFormProps) {
                   maxLength={POLL_OPTION_TEXT_MAX_LENGTH}
                   disabled={submitting}
                   className={[
-                    'flex-1 rounded-md border bg-white px-3 py-2 text-sm text-text-primary',
-                    'placeholder:text-text-muted',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
-                    'border-border-light focus-visible:border-red-core',
-                    'disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-text-muted',
+                    'flex-1 rounded-md border bg-surface px-3 py-2 text-sm text-text',
+                    'placeholder:text-text-faint',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
+                    'border-border focus-visible:border-white/60',
+                    'disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-faint',
                   ].join(' ')}
                   aria-label={`Opção ${index + 1}`}
                 />
@@ -285,7 +285,7 @@ export function PollForm({ open, onClose, onSaved }: PollFormProps) {
                     type="button"
                     onClick={() => removeOption(index)}
                     disabled={submitting}
-                    className="shrink-0 rounded-md p-1.5 text-text-muted hover:bg-red-vivid/10 hover:text-red-vivid transition-colors disabled:opacity-50"
+                    className="shrink-0 rounded-md p-1.5 text-text-faint hover:bg-brand/20 hover:text-danger transition-colors disabled:opacity-50"
                     aria-label={`Remover opção ${index + 1}`}
                   >
                     <svg
@@ -313,7 +313,7 @@ export function PollForm({ open, onClose, onSaved }: PollFormProps) {
               type="button"
               onClick={addOption}
               disabled={submitting}
-              className="mt-1 flex items-center gap-1 self-start rounded-md px-2 py-1 text-xs font-medium text-red-core hover:bg-red-core/5 transition-colors disabled:opacity-50"
+              className="mt-1 flex items-center gap-1 self-start rounded-md px-2 py-1 text-xs font-medium text-danger hover:bg-brand/20 transition-colors disabled:opacity-50"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

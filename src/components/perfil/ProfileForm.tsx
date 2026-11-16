@@ -215,11 +215,11 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+          className="flex items-center gap-2 rounded-lg border border-ok/40 bg-ok/15 px-4 py-3 text-sm text-ok"
         >
           <svg
             aria-hidden="true"
-            className="h-4 w-4 flex-shrink-0 text-green-600"
+            className="h-4 w-4 flex-shrink-0 text-ok"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -234,7 +234,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
       {errors._global && (
         <div
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
+          className="rounded-lg border border-brand bg-brand/20 px-4 py-3 text-sm text-danger"
         >
           {errors._global}
         </div>
@@ -242,31 +242,31 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 
       {/* ── Dados somente leitura ── */}
       <fieldset className="flex flex-col gap-4">
-        <legend className="mb-2 text-xs font-semibold uppercase tracking-[1.5px] text-text-muted">
+        <legend className="mb-2 text-xs font-semibold text-text-faint">
           Informações institucionais
         </legend>
 
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-text-primary">Área</span>
-            <div className="flex h-10 items-center rounded-md border border-border-light bg-surface-bg px-3 text-sm text-text-secondary">
+            <span className="text-sm font-medium text-text">Área</span>
+            <div className="flex h-10 items-center rounded-md border border-border bg-bg px-3 text-sm text-text-soft">
               {user.area ? AREA_LABELS[user.area] : '—'}
             </div>
           </div>
 
           {user.role === 'MEMBRO' && (
             <div className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-text-primary">Cargo</span>
-              <div className="flex h-10 items-center rounded-md border border-border-light bg-surface-bg px-3 text-sm text-text-secondary">
+              <span className="text-sm font-medium text-text">Cargo</span>
+              <div className="flex h-10 items-center rounded-md border border-border bg-bg px-3 text-sm text-text-soft">
                 {TRAINEE_LABEL}
               </div>
-              <span className="text-xs text-text-muted">Membros têm o cargo fixo de Trainee.</span>
+              <span className="text-xs text-text-faint">Membros têm o cargo fixo de Trainee.</span>
             </div>
           )}
 
           <div className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium text-text-primary">Nível de acesso</span>
-            <div className="flex h-10 items-center rounded-md border border-border-light bg-surface-bg px-3 text-sm text-text-secondary">
+            <span className="text-sm font-medium text-text">Nível de acesso</span>
+            <div className="flex h-10 items-center rounded-md border border-border bg-bg px-3 text-sm text-text-soft">
               {ROLE_LABELS[user.role]}
             </div>
           </div>
@@ -275,9 +275,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 
       {/* ── Dados editáveis ── */}
       <fieldset className="flex flex-col gap-4">
-        <legend className="mb-2 text-xs font-semibold uppercase tracking-[1.5px] text-text-muted">
-          Dados pessoais
-        </legend>
+        <legend className="mb-2 text-xs font-semibold text-text-faint">Dados pessoais</legend>
 
         <div className="grid grid-cols-1 gap-4 tablet:grid-cols-2">
           <Input

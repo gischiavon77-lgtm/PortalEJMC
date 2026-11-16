@@ -193,7 +193,7 @@ export async function sendAccountApprovedEmail({
 
   const html = `<!doctype html>
 <html lang="pt-BR">
-  <body style="font-family: 'DM Sans', Arial, sans-serif; color: #1a0a0d; line-height: 1.5;">
+  <body style="font-family: Montserrat, Arial, sans-serif; color: #1a0a0d; line-height: 1.5;">
     <p>Olá, ${escapeHtml(greetingName)}!</p>
     <p>Sua conta no <strong>Portal Interno EJMC</strong> foi aprovada.</p>
     <p>Você já pode acessar o Portal com o email cadastrado e começar a usar os módulos disponíveis para o seu perfil.</p>
@@ -227,7 +227,7 @@ export async function sendAccountRejectedEmail({
 
   const html = `<!doctype html>
 <html lang="pt-BR">
-  <body style="font-family: 'DM Sans', Arial, sans-serif; color: #1a0a0d; line-height: 1.5;">
+  <body style="font-family: Montserrat, Arial, sans-serif; color: #1a0a0d; line-height: 1.5;">
     <p>Olá, ${escapeHtml(greetingName)}.</p>
     <p>Recebemos sua solicitação de cadastro no <strong>Portal Interno EJMC</strong>, mas não foi possível aprová-la neste momento.</p>
     <p>Se acredita que houve um engano, entre em contato com a diretoria da EJMC para mais informações.</p>

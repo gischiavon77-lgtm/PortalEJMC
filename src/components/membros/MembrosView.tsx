@@ -26,7 +26,7 @@ export function MembrosView({ gestoes, initialGestao }: AlbumShellProps) {
       <div
         role="tablist"
         aria-label="Visualização de membros"
-        className="inline-flex w-fit gap-1 rounded-lg bg-gray-100 p-1"
+        className="inline-flex w-fit gap-1 rounded-lg bg-surface-raised p-1"
       >
         <button
           type="button"
@@ -34,9 +34,7 @@ export function MembrosView({ gestoes, initialGestao }: AlbumShellProps) {
           aria-selected={tab === 'album'}
           onClick={() => setTab('album')}
           className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-            tab === 'album'
-              ? 'bg-white text-text-primary shadow-sm'
-              : 'text-text-secondary hover:text-text-primary'
+            tab === 'album' ? 'bg-surface text-text shadow-sm' : 'text-text-soft hover:text-text'
           }`}
         >
           📸 Álbum de Figurinhas
@@ -47,9 +45,7 @@ export function MembrosView({ gestoes, initialGestao }: AlbumShellProps) {
           aria-selected={tab === 'list'}
           onClick={() => setTab('list')}
           className={`rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-            tab === 'list'
-              ? 'bg-white text-text-primary shadow-sm'
-              : 'text-text-secondary hover:text-text-primary'
+            tab === 'list' ? 'bg-surface text-text shadow-sm' : 'text-text-soft hover:text-text'
           }`}
         >
           📋 Lista de Membros

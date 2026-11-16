@@ -21,8 +21,8 @@
  *        - 400 VALIDATION_ERROR: erros por campo inline.
  *        - 400 INVALID_JSON / 500 INTERNAL_ERROR: mensagem genérica.
  *   4. Estética glass do design system reutilizando os utilitários
- *      `glass-input`, `btn-light`, `error-banner`, `spinner-ring`,
- *      `focus-ring-red` definidos em `globals.css`.
+ *      `auth-input`, `auth-button`, `error-banner`, `spinner-ring`,
+ *      `` definidos em `globals.css`.
  *
  * Decisões importantes:
  *   - O schema é estendido localmente com `superRefine` para anexar o
@@ -91,8 +91,7 @@ const SERVER_ERROR_MESSAGES: Record<string, string> = {
   INTERNAL_ERROR: 'Não foi possível concluir o cadastro. Tente novamente.',
 };
 
-const GENERIC_ERROR_MESSAGE =
-  'Não foi possível concluir o cadastro. Tente novamente.';
+const GENERIC_ERROR_MESSAGE = 'Não foi possível concluir o cadastro. Tente novamente.';
 
 const SUCCESS_MESSAGE =
   'Cadastro recebido. Sua conta está aguardando aprovação. Você receberá um email quando for aprovada.';
@@ -151,11 +150,7 @@ export function RegisterForm() {
     const next: FieldErrors = {};
     let unknownFieldFound = false;
     for (const issue of fields) {
-      if (
-        issue.path === 'name' ||
-        issue.path === 'email' ||
-        issue.path === 'password'
-      ) {
+      if (issue.path === 'name' || issue.path === 'email' || issue.path === 'password') {
         next[issue.path] = issue.message;
       } else {
         unknownFieldFound = true;
@@ -186,12 +181,7 @@ export function RegisterForm() {
       const nextErrors: FieldErrors = {};
       for (const issue of parsed.error.issues) {
         const key = issue.path[0];
-        if (
-          key === 'name' ||
-          key === 'email' ||
-          key === 'password' ||
-          key === 'confirmPassword'
-        ) {
+        if (key === 'name' || key === 'email' || key === 'password' || key === 'confirmPassword') {
           // Mantemos apenas o primeiro erro por campo — exibir múltiplos
           // erros simultâneos para a mesma input deixa o layout poluído.
           if (!nextErrors[key]) {
@@ -243,9 +233,7 @@ export function RegisterForm() {
 
       if (response.status === 409) {
         // Req 3.2 — email já em uso, mensagem específica.
-        setErrorMessage(
-          body?.message ?? SERVER_ERROR_MESSAGES.EMAIL_TAKEN,
-        );
+        setErrorMessage(body?.message ?? SERVER_ERROR_MESSAGES.EMAIL_TAKEN);
         return;
       }
 
@@ -258,16 +246,12 @@ export function RegisterForm() {
           return;
         }
         // INVALID_JSON ou outro 400 inesperado.
-        setErrorMessage(
-          body?.message ?? GENERIC_ERROR_MESSAGE,
-        );
+        setErrorMessage(body?.message ?? GENERIC_ERROR_MESSAGE);
         return;
       }
 
       if (response.status === 500) {
-        setErrorMessage(
-          body?.message ?? SERVER_ERROR_MESSAGES.INTERNAL_ERROR,
-        );
+        setErrorMessage(body?.message ?? SERVER_ERROR_MESSAGES.INTERNAL_ERROR);
         return;
       }
 
@@ -313,19 +297,13 @@ export function RegisterForm() {
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </div>
-          <p className="text-sm leading-relaxed text-white/80">
-            {successMessage}
-          </p>
+          <p className="text-sm leading-relaxed text-white/80">{successMessage}</p>
           <p className="mt-3 text-[12px] tracking-[0.5px] text-white/35">
             Redirecionando para o login em alguns segundos…
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleManualRedirect}
-          className="btn-light"
-        >
+        <button type="button" onClick={handleManualRedirect} className="auth-button">
           Voltar para o login
           <svg
             viewBox="0 0 24 24"
@@ -360,7 +338,7 @@ export function RegisterForm() {
       {/* ─── Campo Nome ─── */}
       <div className="flex flex-col gap-1">
         <div className="group relative flex items-center">
-          <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-red-bright">
+          <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-text">
             <svg
               viewBox="0 0 24 24"
               className="h-[17px] w-[17px] stroke-current"
@@ -390,14 +368,11 @@ export function RegisterForm() {
             aria-label="Nome completo"
             aria-invalid={Boolean(fieldErrors.name)}
             aria-describedby={fieldErrors.name ? 'register-name-error' : undefined}
-            className="glass-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px] focus-ring-red"
+            className="auth-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px]"
           />
         </div>
         {fieldErrors.name ? (
-          <p
-            id="register-name-error"
-            className="px-1 text-[12px] leading-snug text-red-bright/90"
-          >
+          <p id="register-name-error" className="px-1 text-[12px] leading-snug text-danger">
             {fieldErrors.name}
           </p>
         ) : null}
@@ -406,7 +381,7 @@ export function RegisterForm() {
       {/* ─── Campo Email ─── */}
       <div className="flex flex-col gap-1">
         <div className="group relative flex items-center">
-          <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-red-bright">
+          <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-text">
             <svg
               viewBox="0 0 24 24"
               className="h-[17px] w-[17px] stroke-current"
@@ -437,14 +412,11 @@ export function RegisterForm() {
             aria-label="Email"
             aria-invalid={Boolean(fieldErrors.email)}
             aria-describedby={fieldErrors.email ? 'register-email-error' : undefined}
-            className="glass-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px] focus-ring-red"
+            className="auth-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px]"
           />
         </div>
         {fieldErrors.email ? (
-          <p
-            id="register-email-error"
-            className="px-1 text-[12px] leading-snug text-red-bright/90"
-          >
+          <p id="register-email-error" className="px-1 text-[12px] leading-snug text-danger">
             {fieldErrors.email}
           </p>
         ) : null}
@@ -453,7 +425,7 @@ export function RegisterForm() {
       {/* ─── Campo Senha ─── */}
       <div className="flex flex-col gap-1">
         <div className="group relative flex items-center">
-          <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-red-bright">
+          <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-text">
             <svg
               viewBox="0 0 24 24"
               className="h-[17px] w-[17px] stroke-current"
@@ -485,7 +457,7 @@ export function RegisterForm() {
             aria-describedby={
               fieldErrors.password ? 'register-password-error' : 'register-password-hint'
             }
-            className="glass-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px] focus-ring-red"
+            className="auth-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px]"
           />
           <button
             type="button"
@@ -526,17 +498,11 @@ export function RegisterForm() {
           </button>
         </div>
         {fieldErrors.password ? (
-          <p
-            id="register-password-error"
-            className="px-1 text-[12px] leading-snug text-red-bright/90"
-          >
+          <p id="register-password-error" className="px-1 text-[12px] leading-snug text-danger">
             {fieldErrors.password}
           </p>
         ) : (
-          <p
-            id="register-password-hint"
-            className="px-1 text-[11px] leading-snug text-white/35"
-          >
+          <p id="register-password-hint" className="px-1 text-[11px] leading-snug text-white/35">
             Mínimo 8 caracteres com maiúscula, minúscula e número.
           </p>
         )}
@@ -545,7 +511,7 @@ export function RegisterForm() {
       {/* ─── Campo Confirmar Senha ─── */}
       <div className="flex flex-col gap-1">
         <div className="group relative flex items-center">
-          <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-red-bright">
+          <span className="pointer-events-none absolute left-4 z-10 flex items-center text-white/30 transition-colors group-focus-within:text-text">
             <svg
               viewBox="0 0 24 24"
               className="h-[17px] w-[17px] stroke-current"
@@ -578,12 +544,14 @@ export function RegisterForm() {
             aria-describedby={
               fieldErrors.confirmPassword ? 'register-confirm-password-error' : undefined
             }
-            className="glass-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px] focus-ring-red"
+            className="auth-input w-full px-[46px] py-[14px] text-sm font-normal tracking-[0.3px]"
           />
           <button
             type="button"
             onClick={() => setShowConfirmPassword((value) => !value)}
-            aria-label={showConfirmPassword ? 'Ocultar confirmação de senha' : 'Mostrar confirmação de senha'}
+            aria-label={
+              showConfirmPassword ? 'Ocultar confirmação de senha' : 'Mostrar confirmação de senha'
+            }
             aria-pressed={showConfirmPassword}
             className="absolute right-3.5 z-10 flex items-center rounded-md p-1 text-white/30 transition-colors hover:text-white/70 focus:outline-none focus-visible:text-white/70"
             disabled={isSubmitting}
@@ -621,7 +589,7 @@ export function RegisterForm() {
         {fieldErrors.confirmPassword ? (
           <p
             id="register-confirm-password-error"
-            className="px-1 text-[12px] leading-snug text-red-bright/90"
+            className="px-1 text-[12px] leading-snug text-danger"
           >
             {fieldErrors.confirmPassword}
           </p>
@@ -630,13 +598,13 @@ export function RegisterForm() {
 
       {/* ─── Divisor ─── */}
       <div className="my-1 flex items-center gap-3" aria-hidden="true">
-        <div className="glass-divider flex-1" />
+        <div className="auth-divider flex-1" />
       </div>
 
       {/* ─── Botão de submit ─── */}
       <button
         type="submit"
-        className="btn-light mt-1.5 animate-fade-up opacity-0 [animation-delay:0.4s]"
+        className="auth-button mt-1.5 animate-fade-up opacity-0 [animation-delay:0.4s]"
         disabled={isSubmitting}
         aria-busy={isSubmitting}
       >

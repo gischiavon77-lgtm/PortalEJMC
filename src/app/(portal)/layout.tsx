@@ -48,7 +48,7 @@ import { PortalShell } from '@/components/layout/PortalShell';
  *   3. Caso contrário, renderiza `PortalShell` envolvendo `children`.
  *
  * Token tipográfico:
- *   - `PortalShell` aplica `bg-surface-bg` e `text-text-primary` no
+ *   - `PortalShell` aplica `bg-bg` e `text-text` no
  *     wrapper raiz (cor de fundo clara do portal, texto escuro), em
  *     conformidade com o design system (`globals.css` — superfícies
  *     do "modo claro" do portal interno).

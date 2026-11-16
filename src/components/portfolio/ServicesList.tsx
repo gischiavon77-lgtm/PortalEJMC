@@ -12,7 +12,7 @@
  *
  *   - **Desktop/Tablet (≥768px)**: tabela com colunas Nome,
  *     Descrição e Ações (se Admin/Diretor). Cabeçalhos em tipografia
- *     pequena e `uppercase` para destaque, divisórias sutis usando
+ *     pequena e `` para destaque, divisórias sutis usando
  *     `border-light`.
  *
  * Task 12.4: Botão "Editar" por item, visível apenas quando
@@ -44,56 +44,51 @@ export function ServicesList({ services, canManage, onEdit }: ServicesListProps)
         aria-label="Serviços (visualização em cartões)"
       >
         {services.map((service) => (
-          <li
-            key={service.id}
-            className="rounded-lg border border-border-light bg-surface-card p-4 shadow-sm"
-          >
+          <li key={service.id} className="rounded-lg border border-border bg-surface p-4 shadow-sm">
             <div className="flex flex-col gap-2">
               <div className="flex items-start justify-between gap-2">
-                <p className="font-heading text-base font-semibold text-text-primary">
-                  {service.name}
-                </p>
+                <p className="font-heading text-base font-semibold text-text">{service.name}</p>
                 {canManage && onEdit && (
                   <button
                     type="button"
                     onClick={() => onEdit(service)}
-                    className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-red-core transition-colors hover:bg-red-core/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+                    className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-danger transition-colors hover:bg-brand/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
                     aria-label={`Editar serviço ${service.name}`}
                   >
                     Editar
                   </button>
                 )}
               </div>
-              <p className="line-clamp-3 text-sm text-text-secondary">{service.description}</p>
+              <p className="line-clamp-3 text-sm text-text-soft">{service.description}</p>
             </div>
           </li>
         ))}
       </ul>
 
       {/* ─── Desktop/Tablet: tabela (escondido em <768px) ─── */}
-      <div className="hidden tablet:block w-full overflow-hidden rounded-lg border border-border-light bg-surface-card shadow-sm">
+      <div className="hidden tablet:block w-full overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">
             Lista de serviços do portfólio, ordenada alfabeticamente por nome.
           </caption>
-          <thead className="bg-surface-bg/60">
+          <thead className="bg-bg/60">
             <tr>
               <th
                 scope="col"
-                className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
               >
                 Serviço
               </th>
               <th
                 scope="col"
-                className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
               >
                 Descrição
               </th>
               {canManage && (
                 <th
                   scope="col"
-                  className="border-b border-border-light px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                  className="border-b border-border px-4 py-3 text-right text-xs font-semibold text-text-soft"
                 >
                   Ações
                 </th>
@@ -102,11 +97,11 @@ export function ServicesList({ services, canManage, onEdit }: ServicesListProps)
           </thead>
           <tbody>
             {services.map((service) => (
-              <tr key={service.id} className="border-b border-border-light last:border-b-0">
+              <tr key={service.id} className="border-b border-border last:border-b-0">
                 <td className="px-4 py-3 align-middle">
-                  <span className="font-medium text-text-primary">{service.name}</span>
+                  <span className="font-medium text-text">{service.name}</span>
                 </td>
-                <td className="px-4 py-3 align-middle text-text-secondary">
+                <td className="px-4 py-3 align-middle text-text-soft">
                   <p className="line-clamp-2">{service.description}</p>
                 </td>
                 {canManage && (
@@ -114,7 +109,7 @@ export function ServicesList({ services, canManage, onEdit }: ServicesListProps)
                     <button
                       type="button"
                       onClick={() => onEdit?.(service)}
-                      className="rounded-md px-2.5 py-1 text-xs font-medium text-red-core transition-colors hover:bg-red-core/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+                      className="rounded-md px-2.5 py-1 text-xs font-medium text-danger transition-colors hover:bg-brand/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
                       aria-label={`Editar serviço ${service.name}`}
                     >
                       Editar

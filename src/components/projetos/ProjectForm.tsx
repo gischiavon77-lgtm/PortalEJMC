@@ -207,7 +207,7 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
         {errors._global && (
           <div
             role="alert"
-            className="rounded-md border border-red-vivid/30 bg-red-vivid/5 px-3 py-2 text-sm text-red-vivid"
+            className="rounded-md border border-brand bg-brand/20 px-3 py-2 text-sm text-danger"
           >
             {errors._global}
           </div>
@@ -231,8 +231,8 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
 
         {/* Ferramenta (dropdown) */}
         <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="project-ferramenta" className="text-sm font-medium text-text-primary">
-            Ferramenta <span className="text-red-vivid">*</span>
+          <label htmlFor="project-ferramenta" className="text-sm font-medium text-text">
+            Ferramenta <span className="text-danger">*</span>
           </label>
           <select
             id="project-ferramenta"
@@ -243,12 +243,12 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
             }}
             disabled={submitting}
             className={[
-              'h-10 w-full rounded-md border bg-white px-3 text-sm text-text-primary',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
+              'h-10 w-full rounded-md border bg-surface px-3 text-sm text-text',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
               errors.ferramenta
-                ? 'border-red-vivid focus-visible:border-red-vivid'
-                : 'border-border-light focus-visible:border-red-core',
-              'disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-text-muted',
+                ? 'border-brand focus-visible:border-white/60'
+                : 'border-border focus-visible:border-white/60',
+              'disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-faint',
             ].join(' ')}
           >
             {FERRAMENTAS.map((f) => (
@@ -257,12 +257,12 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
               </option>
             ))}
           </select>
-          {errors.ferramenta && <p className="text-xs text-red-vivid">{errors.ferramenta}</p>}
+          {errors.ferramenta && <p className="text-xs text-danger">{errors.ferramenta}</p>}
         </div>
 
         {/* Progresso (slider) */}
         <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="project-progress" className="text-sm font-medium text-text-primary">
+          <label htmlFor="project-progress" className="text-sm font-medium text-text">
             Progresso: {progress}%
           </label>
           <input
@@ -276,9 +276,9 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
               setErrors((prev) => ({ ...prev, progress: undefined, _global: undefined }));
             }}
             disabled={submitting}
-            className="w-full accent-red-core"
+            className="w-full accent-brand"
           />
-          {errors.progress && <p className="text-xs text-red-vivid">{errors.progress}</p>}
+          {errors.progress && <p className="text-xs text-danger">{errors.progress}</p>}
         </div>
 
         {/* Equipe */}
@@ -297,11 +297,11 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
 
         {/* Preço */}
         <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="project-price" className="text-sm font-medium text-text-primary">
+          <label htmlFor="project-price" className="text-sm font-medium text-text">
             Preço (R$)
           </label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-muted">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-faint">
               R$
             </span>
             <input
@@ -317,22 +317,22 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
               disabled={submitting}
               placeholder="0,00"
               className={[
-                'h-10 w-full rounded-md border bg-white pl-10 pr-3 text-sm text-text-primary',
-                'placeholder:text-text-muted',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
+                'h-10 w-full rounded-md border bg-surface pl-10 pr-3 text-sm text-text',
+                'placeholder:text-text-faint',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
                 errors.price
-                  ? 'border-red-vivid focus-visible:border-red-vivid'
-                  : 'border-border-light focus-visible:border-red-core',
-                'disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-text-muted',
+                  ? 'border-brand focus-visible:border-white/60'
+                  : 'border-border focus-visible:border-white/60',
+                'disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-faint',
               ].join(' ')}
             />
           </div>
-          {errors.price && <p className="text-xs text-red-vivid">{errors.price}</p>}
+          {errors.price && <p className="text-xs text-danger">{errors.price}</p>}
         </div>
 
         {/* Proposta Comercial (PDF upload) */}
         <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="project-proposal" className="text-sm font-medium text-text-primary">
+          <label htmlFor="project-proposal" className="text-sm font-medium text-text">
             Proposta Comercial (PDF, máx. {UPLOAD_MAX_LABEL})
           </label>
           <input
@@ -346,14 +346,14 @@ export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectForm
               setErrors((prev) => ({ ...prev, proposal: undefined, _global: undefined }));
             }}
             disabled={submitting}
-            className="text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-red-core/10 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-red-core hover:file:bg-red-core/20"
+            className="text-sm text-text-soft file:mr-3 file:rounded-md file:border-0 file:bg-surface-raised file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-text hover:file:bg-border"
           />
           {isEditing && editProject?.hasProposal && !proposalFile && (
-            <p className="text-xs text-text-muted">
+            <p className="text-xs text-text-faint">
               📄 Proposta existente. Selecione um novo arquivo para substituir.
             </p>
           )}
-          {errors.proposal && <p className="text-xs text-red-vivid">{errors.proposal}</p>}
+          {errors.proposal && <p className="text-xs text-danger">{errors.proposal}</p>}
         </div>
       </form>
     </Modal>

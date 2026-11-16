@@ -108,16 +108,13 @@ export function PortfolioShell({ services, pagination }: PortfolioShellProps) {
     >
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            Portfólio
-          </p>
           <h1
             id="portfolio-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             Serviços
           </h1>
-          <p className="text-text-secondary">
+          <p className="mt-1 text-base font-semibold text-brand">
             Lista de serviços oferecidos pela empresa, em ordem alfabética.
           </p>
         </div>
@@ -136,7 +133,7 @@ export function PortfolioShell({ services, pagination }: PortfolioShellProps) {
       {isEmpty ? (
         <p
           role="status"
-          className="rounded-lg border border-dashed border-border-light bg-surface-card p-8 text-center text-sm text-text-muted"
+          className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint"
         >
           Nenhum serviço cadastrado no portfólio.
         </p>

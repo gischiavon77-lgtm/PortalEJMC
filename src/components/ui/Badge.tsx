@@ -33,19 +33,19 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const VARIANT_CLASSES: Record<BadgeVariant, string> = {
-  success: 'bg-emerald-100 text-emerald-700 ring-emerald-200',
-  warning: 'bg-amber-100 text-amber-800 ring-amber-200',
-  error: 'bg-red-100 text-red-700 ring-red-200',
-  info: 'bg-sky-100 text-sky-700 ring-sky-200',
-  neutral: 'bg-border-light text-text-secondary ring-border-light',
+  success: 'bg-ok/15 text-ok ring-ok/30',
+  warning: 'bg-warn/15 text-warn ring-warn/30',
+  error: 'bg-brand/20 text-danger ring-brand',
+  info: 'bg-info/15 text-info ring-info/30',
+  neutral: 'bg-border text-text-soft ring-border',
 };
 
 const DOT_CLASSES: Record<BadgeVariant, string> = {
-  success: 'bg-emerald-500',
-  warning: 'bg-amber-500',
-  error: 'bg-red-vivid',
-  info: 'bg-sky-500',
-  neutral: 'bg-text-muted',
+  success: 'bg-ok',
+  warning: 'bg-warn',
+  error: 'bg-brand',
+  info: 'bg-info',
+  neutral: 'bg-text-faint',
 };
 
 const SIZE_CLASSES: Record<BadgeSize, string> = {
@@ -70,10 +70,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
       {...rest}
     >
       {withDot && (
-        <span
-          aria-hidden="true"
-          className={cn('h-1.5 w-1.5 rounded-full', DOT_CLASSES[variant])}
-        />
+        <span aria-hidden="true" className={cn('h-1.5 w-1.5 rounded-full', DOT_CLASSES[variant])} />
       )}
       {children}
     </span>

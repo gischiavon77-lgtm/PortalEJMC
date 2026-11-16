@@ -3,8 +3,8 @@
 /**
  * `Card` — Container clara (portal autenticado) do design system EJMC.
  *
- * Implementa uma superfície (`--surface-card`) com borda sutil
- * (`--border-light`) e sombra `--shadow-sm`. É composto por
+ * Implementa uma superfície (`--surface`) com borda sutil
+ * (`--border`) e sombra `--shadow-sm`. É composto por
  * subcomponentes:
  *
  *   - `Card.Header`  — área superior com título/ações.
@@ -16,9 +16,9 @@
  * `title` ou usar `Card` direto com `children`. A composição é
  * preferível quando há ações no header ou separação semântica clara.
  *
- * ─── Diferença para `.glass-card` ──────────────────────────────────
+ * ─── Diferença para `.auth-card` ──────────────────────────────────
  *
- * `.glass-card` é o card da camada escura (login/cadastro), com
+ * `.auth-card` é o card da camada escura (login/cadastro), com
  * blur/saturação e fundo translúcido. Este `Card` é a versão clara
  * para o interior do portal, onde a hierarquia tipográfica e o
  * contraste são mais importantes que o efeito glass.
@@ -57,9 +57,9 @@ export interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'>
 }
 
 const VARIANT_CLASSES: Record<CardVariant, string> = {
-  solid: 'bg-surface-card border border-border-light shadow-sm',
-  outlined: 'bg-transparent border border-border-light',
-  subtle: 'bg-surface-bg border border-transparent',
+  solid: 'bg-surface border border-border',
+  outlined: 'bg-transparent border border-border',
+  subtle: 'bg-bg border border-transparent',
 };
 
 const PADDING_CLASSES: Record<CardPadding, string> = {
@@ -70,15 +70,7 @@ const PADDING_CLASSES: Record<CardPadding, string> = {
 };
 
 const CardRoot = forwardRef<HTMLDivElement, CardProps>(function Card(
-  {
-    variant = 'solid',
-    padding = 'md',
-    title,
-    headerActions,
-    className,
-    children,
-    ...rest
-  },
+  { variant = 'solid', padding = 'md', title, headerActions, className, children, ...rest },
   ref,
 ) {
   // Quando `title` ou `headerActions` é usado, o padding é movido para
@@ -89,12 +81,7 @@ const CardRoot = forwardRef<HTMLDivElement, CardProps>(function Card(
   return (
     <div
       ref={ref}
-      className={cn(
-        'rounded-lg',
-        VARIANT_CLASSES[variant],
-        rootPadding,
-        className,
-      )}
+      className={cn('rounded-lg', VARIANT_CLASSES[variant], rootPadding, className)}
       {...rest}
     >
       {hasShortcutHeader && (
@@ -109,42 +96,40 @@ const CardRoot = forwardRef<HTMLDivElement, CardProps>(function Card(
 });
 
 /** Cabeçalho do card com borda inferior sutil. */
-export const CardHeader = forwardRef<
-  HTMLDivElement,
-  HTMLAttributes<HTMLDivElement>
->(function CardHeader({ className, children, ...rest }, ref) {
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'flex items-center justify-between gap-3 border-b border-border-light px-4 py-3 sm:px-5',
-        className,
-      )}
-      {...rest}
-    >
-      {children}
-    </div>
-  );
-});
+export const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  function CardHeader({ className, children, ...rest }, ref) {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-5',
+          className,
+        )}
+        {...rest}
+      >
+        {children}
+      </div>
+    );
+  },
+);
 
 /** Título tipográfico (h3) com Playfair Display. */
-export const CardTitle = forwardRef<
-  HTMLHeadingElement,
-  HTMLAttributes<HTMLHeadingElement>
->(function CardTitle({ className, children, ...rest }, ref) {
-  return (
-    <h3
-      ref={ref}
-      className={cn(
-        'font-heading text-base font-bold tracking-tight text-text-primary sm:text-lg',
-        className,
-      )}
-      {...rest}
-    >
-      {children}
-    </h3>
-  );
-});
+export const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
+  function CardTitle({ className, children, ...rest }, ref) {
+    return (
+      <h3
+        ref={ref}
+        className={cn(
+          'font-heading text-base font-bold tracking-tight text-text sm:text-lg',
+          className,
+        )}
+        {...rest}
+      >
+        {children}
+      </h3>
+    );
+  },
+);
 
 /** Corpo do card. Aceita `padding` para casar com o padrão do root. */
 export const CardBody = forwardRef<
@@ -159,23 +144,22 @@ export const CardBody = forwardRef<
 });
 
 /** Rodapé com borda superior sutil para ações/metadados. */
-export const CardFooter = forwardRef<
-  HTMLDivElement,
-  HTMLAttributes<HTMLDivElement>
->(function CardFooter({ className, children, ...rest }, ref) {
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'flex items-center justify-end gap-2 border-t border-border-light px-4 py-3 sm:px-5',
-        className,
-      )}
-      {...rest}
-    >
-      {children}
-    </div>
-  );
-});
+export const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  function CardFooter({ className, children, ...rest }, ref) {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'flex items-center justify-end gap-2 border-t border-border px-4 py-3 sm:px-5',
+          className,
+        )}
+        {...rest}
+      >
+        {children}
+      </div>
+    );
+  },
+);
 
 // Composição estilo "namespace" sem perder o tipo do root.
 type CardComponent = typeof CardRoot & {

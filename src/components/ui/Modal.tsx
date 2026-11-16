@@ -202,7 +202,7 @@ export function Modal({
         data-testid="modal-overlay"
         aria-hidden="true"
         onClick={closeOnOverlayClick ? handleClose : undefined}
-        className="absolute inset-0 bg-black/60"
+        className="absolute inset-0 bg-black/70"
       />
 
       {/* Container — `tabIndex={-1}` permite que o modal receba foco
@@ -214,21 +214,18 @@ export function Modal({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
-          'relative z-10 w-full overflow-hidden rounded-lg bg-white shadow-card',
+          'relative z-10 w-full overflow-hidden rounded-lg border border-border bg-surface',
           'flex max-h-[calc(100vh-3rem)] flex-col',
           SIZE_CLASSES[size],
         )}
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 border-b border-border-light px-5 py-4">
+        <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
           <div className={cn(hideTitle && 'sr-only')}>
-            <h2
-              id={titleId}
-              className="font-heading text-lg font-bold tracking-tight text-text-primary"
-            >
+            <h2 id={titleId} className="font-heading text-lg font-bold tracking-tight text-text">
               {title}
             </h2>
-            {description && <p className="mt-1 text-sm text-text-secondary">{description}</p>}
+            {description && <p className="mt-1 text-sm text-text-soft">{description}</p>}
           </div>
 
           {/* Sempre mantemos o id do título disponível, mesmo com hideTitle */}
@@ -242,7 +239,7 @@ export function Modal({
             type="button"
             onClick={handleClose}
             aria-label="Fechar"
-            className="ml-auto inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-border-light hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+            className="ml-auto inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-text-faint transition-colors hover:bg-border hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
           >
             <svg
               viewBox="0 0 24 24"
@@ -262,11 +259,11 @@ export function Modal({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 text-sm text-text-primary">{children}</div>
+        <div className="flex-1 overflow-y-auto px-5 py-4 text-sm text-text">{children}</div>
 
         {/* Footer (opcional) */}
         {footer && (
-          <div className="flex items-center justify-end gap-2 border-t border-border-light bg-gray-50 px-5 py-3">
+          <div className="flex items-center justify-end gap-2 border-t border-border bg-surface-raised px-5 py-3">
             {footer}
           </div>
         )}

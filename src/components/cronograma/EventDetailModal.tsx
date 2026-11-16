@@ -69,15 +69,13 @@ export function EventDetailModal({ open, onClose, event }: EventDetailModalProps
               📅
             </span>
             <div className="flex flex-col">
-              <span className="text-[11px] font-semibold uppercase tracking-[1.5px] text-text-muted">
-                Data
-              </span>
-              <span className="text-sm font-medium capitalize text-text-primary">
+              <span className="text-[11px] font-semibold text-text-faint">Data</span>
+              <span className="text-sm font-medium capitalize text-text">
                 {formatFullDate(event.startsAt)}
                 {multiDay && (
                   <>
                     {' '}
-                    <span className="lowercase text-text-muted">até</span>{' '}
+                    <span className="lowercase text-text-faint">até</span>{' '}
                     {formatFullDate(event.endsAt)}
                   </>
                 )}
@@ -91,10 +89,8 @@ export function EventDetailModal({ open, onClose, event }: EventDetailModalProps
               🕐
             </span>
             <div className="flex flex-col">
-              <span className="text-[11px] font-semibold uppercase tracking-[1.5px] text-text-muted">
-                Horário
-              </span>
-              <span className="text-sm font-medium text-text-primary">
+              <span className="text-[11px] font-semibold text-text-faint">Horário</span>
+              <span className="text-sm font-medium text-text">
                 {formatTime(event.startsAt)} — {formatTime(event.endsAt)}
               </span>
             </div>

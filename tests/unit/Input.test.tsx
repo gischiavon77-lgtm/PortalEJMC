@@ -39,13 +39,7 @@ describe('Input', () => {
   });
 
   it('em erro, marca aria-invalid e usa a mensagem de erro como descrição', () => {
-    render(
-      <Input
-        label="Email"
-        helperText="Use seu email institucional"
-        error="Email inválido"
-      />,
-    );
+    render(<Input label="Email" helperText="Use seu email institucional" error="Email inválido" />);
     const input = screen.getByLabelText('Email');
     expect(input).toHaveAttribute('aria-invalid', 'true');
 
@@ -80,13 +74,7 @@ describe('Input', () => {
   it('dispara onChange ao digitar', () => {
     function Wrapper() {
       const [value, setValue] = useState('');
-      return (
-        <Input
-          label="Email"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-      );
+      return <Input label="Email" value={value} onChange={(e) => setValue(e.target.value)} />;
     }
 
     render(<Wrapper />);
@@ -107,16 +95,11 @@ describe('Input', () => {
   it('aplica classes de erro à borda quando há erro', () => {
     render(<Input label="Email" error="Inválido" />);
     const input = screen.getByLabelText('Email');
-    expect(input.className).toMatch(/border-red-vivid/);
+    expect(input.className).toMatch(/border-brand/);
   });
 
   it('renderiza ícone esquerdo com pl maior no input', () => {
-    render(
-      <Input
-        label="Buscar"
-        leftIcon={<span data-testid="search-icon">🔍</span>}
-      />,
-    );
+    render(<Input label="Buscar" leftIcon={<span data-testid="search-icon">🔍</span>} />);
     expect(screen.getByTestId('search-icon')).toBeInTheDocument();
     const input = screen.getByLabelText('Buscar');
     expect(input.className).toMatch(/pl-9/);

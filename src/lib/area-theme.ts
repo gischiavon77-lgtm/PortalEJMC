@@ -1,5 +1,5 @@
 /**
- * Tema visual por Área — cores (gradiente) e animal (emoji).
+ * Tema visual por Área — cor de destaque (fio discreto) e animal (emoji).
  *
  * Fonte única da verdade para a identidade visual de cada área,
  * reutilizada no álbum de figurinhas e no banner do perfil.
@@ -20,23 +20,23 @@ import type { Area } from '@prisma/client';
 export interface AreaTheme {
   label: string;
   emoji: string;
-  /** Classes Tailwind do gradiente (usar com `bg-gradient-to-r`). */
-  gradient: string;
+  /** Classe Tailwind de fundo na cor da área (usar num fio fino, não em blocos). */
+  accent: string;
 }
 
 export const AREA_THEME: Record<Area, AreaTheme> = {
-  VENDAS: { label: 'Vendas', emoji: '🦈', gradient: 'from-teal-400 to-teal-600' },
-  PRESIDENCIA: { label: 'Presidência', emoji: '🐘', gradient: 'from-red-800 to-red-950' },
-  PROJETOS: { label: 'Projetos', emoji: '🐙', gradient: 'from-orange-500 to-orange-700' },
-  MARKETING: { label: 'Marketing', emoji: '🦅', gradient: 'from-purple-500 to-purple-700' },
-  GESTAO_PESSOAS: { label: 'Gestão de Pessoas', emoji: '🐬', gradient: 'from-sky-400 to-sky-600' },
-  ADM_FIN: { label: 'Adm-Fin', emoji: '🦁', gradient: 'from-yellow-500 to-amber-600' },
+  VENDAS: { label: 'Vendas', emoji: '🦈', accent: 'bg-area-vendas' },
+  PRESIDENCIA: { label: 'Presidência', emoji: '🐘', accent: 'bg-area-presidencia' },
+  PROJETOS: { label: 'Projetos', emoji: '🐙', accent: 'bg-area-projetos' },
+  MARKETING: { label: 'Marketing', emoji: '🦅', accent: 'bg-area-marketing' },
+  GESTAO_PESSOAS: { label: 'Gestão de Pessoas', emoji: '🐬', accent: 'bg-area-gp' },
+  ADM_FIN: { label: 'Adm-Fin', emoji: '🦁', accent: 'bg-area-admfin' },
 };
 
 export const DEFAULT_AREA_THEME: AreaTheme = {
   label: 'Administração',
   emoji: '🐺',
-  gradient: 'from-red-core to-red-vivid',
+  accent: 'bg-brand',
 };
 
 export function getAreaTheme(area: Area | null | undefined): AreaTheme {

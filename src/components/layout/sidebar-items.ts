@@ -93,6 +93,12 @@ export interface SidebarItem {
   readonly href: string;
   readonly icon: SidebarIconName;
   readonly requiredAction?: Action;
+  /**
+   * Grupo visual do item. A Sidebar desenha uma divisória sempre que o
+   * grupo muda entre dois itens visíveis consecutivos.
+   *   1 = gestão · 2 = pessoas e trabalhos · 3 = dia a dia · 4 = conta
+   */
+  readonly group: 1 | 2 | 3 | 4;
 }
 
 /**
@@ -107,18 +113,18 @@ export interface SidebarItem {
  * imutabilidade dá garantias mais fortes do que comentários.
  */
 export const MENU_ITEMS: readonly SidebarItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: 'home' },
-  { label: 'Cronograma', href: '/cronograma', icon: 'calendar' },
-  { label: 'Metas', href: '/metas', icon: 'target' },
-  { label: 'KPIs', href: '/kpis', icon: 'chart' },
-  { label: 'Membros', href: '/membros', icon: 'users' },
-  { label: 'Portfólio', href: '/portfolio', icon: 'briefcase' },
-  { label: 'Projetos', href: '/projetos', icon: 'folder' },
-  { label: 'Comunicados', href: '/comunicados', icon: 'megaphone' },
-  { label: 'Enquetes', href: '/enquetes', icon: 'vote' },
-  { label: 'Pontuação', href: '/pontuacao', icon: 'alert' },
-  { label: 'Reservas', href: '/reservas', icon: 'monitor' },
-  { label: 'Perfil', href: '/perfil', icon: 'user' },
-  { label: 'Configurações', href: '/configuracoes', icon: 'settings' },
-  { label: 'Admin', href: '/admin', icon: 'shield', requiredAction: 'admin:access' },
+  { label: 'Dashboard', href: '/dashboard', icon: 'home', group: 1 },
+  { label: 'Cronograma', href: '/cronograma', icon: 'calendar', group: 1 },
+  { label: 'Metas', href: '/metas', icon: 'target', group: 1 },
+  { label: 'KPIs', href: '/kpis', icon: 'chart', group: 1 },
+  { label: 'Membros', href: '/membros', icon: 'users', group: 2 },
+  { label: 'Portfólio', href: '/portfolio', icon: 'briefcase', group: 2 },
+  { label: 'Projetos', href: '/projetos', icon: 'folder', group: 2 },
+  { label: 'Comunicados', href: '/comunicados', icon: 'megaphone', group: 3 },
+  { label: 'Enquetes', href: '/enquetes', icon: 'vote', group: 3 },
+  { label: 'Pontuação', href: '/pontuacao', icon: 'alert', group: 3 },
+  { label: 'Reservas', href: '/reservas', icon: 'monitor', group: 3 },
+  { label: 'Perfil', href: '/perfil', icon: 'user', group: 4 },
+  { label: 'Configurações', href: '/configuracoes', icon: 'settings', group: 4 },
+  { label: 'Admin', href: '/admin', icon: 'shield', group: 4, requiredAction: 'admin:access' },
 ] as const;

@@ -132,16 +132,15 @@ export function PontuacaoShell({
     >
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            Controle
-          </p>
           <h1
             id="pontuacao-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             Pontuação
           </h1>
-          <p className="text-text-secondary">Infrações e pontuação acumulada — {semesterLabel}</p>
+          <p className="mt-1 text-base font-semibold text-brand">
+            Infrações e pontuação acumulada — {semesterLabel}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -182,9 +181,9 @@ export function PontuacaoShell({
       {/* Own score view */}
       {viewMode === 'own' && (
         <div className="flex flex-col gap-4">
-          <div className="rounded-lg border border-border-light bg-surface-card p-4">
-            <p className="text-sm text-text-secondary">Pontuação acumulada no semestre</p>
-            <p className="text-3xl font-bold text-text-primary">
+          <div className="rounded-lg border border-border bg-surface p-4">
+            <p className="text-sm text-text-soft">Pontuação acumulada no semestre</p>
+            <p className="text-3xl font-bold text-text">
               {ownTotalPoints} {ownTotalPoints === 1 ? 'ponto' : 'pontos'}
             </p>
           </div>
@@ -208,18 +207,18 @@ export function PontuacaoShell({
             <Button type="button" variant="ghost" size="sm" onClick={handleBackToAll}>
               ← Voltar
             </Button>
-            <span className="text-lg font-semibold text-text-primary">{selectedMember.name}</span>
+            <span className="text-lg font-semibold text-text">{selectedMember.name}</span>
           </div>
-          <div className="rounded-lg border border-border-light bg-surface-card p-4">
-            <p className="text-sm text-text-secondary">Pontuação acumulada no semestre</p>
-            <p className="text-3xl font-bold text-text-primary">
+          <div className="rounded-lg border border-border bg-surface p-4">
+            <p className="text-sm text-text-soft">Pontuação acumulada no semestre</p>
+            <p className="text-3xl font-bold text-text">
               {loadingMember
                 ? '...'
                 : `${memberTotalPoints} ${memberTotalPoints === 1 ? 'ponto' : 'pontos'}`}
             </p>
           </div>
           {loadingMember ? (
-            <p className="text-center text-sm text-text-muted">Carregando...</p>
+            <p className="text-center text-sm text-text-faint">Carregando...</p>
           ) : (
             <ScoreHistory
               infractions={memberInfractions}

@@ -1,39 +1,71 @@
 import type { Config } from 'tailwindcss';
 
+/**
+ * Tokens do design system do Portal EJMC (tema escuro único).
+ *
+ * Fonte única de cores, fontes, cantos e medidas de layout. Os mesmos
+ * valores existem como CSS variables em `src/app/globals.css` (para CSS
+ * escrito à mão). Ao mudar um valor, mude nos dois lugares.
+ *
+ * Identidade:
+ *   - `brand` (#87000a) é a ÚNICA cor de destaque: botão principal, item
+ *     ativo do menu, "hoje" no calendário e subtítulos de página.
+ *   - Sobre fundo escuro o `brand` tem contraste baixo (~1,9:1). Texto
+ *     corrido, de tabela, rótulos e textos pequenos usam `text`/`text-soft`.
+ *   - `danger`, `ok`, `warn` e `info` são cores auxiliares discretas, só
+ *     para mensagens de erro e etiquetas de status/categoria.
+ *   - Títulos: League Spartan (`font-heading`), brancos e em negrito.
+ *     Restante: Montserrat (`font-body`), nunca em maiúsculas.
+ */
 const config: Config = {
   content: ['./src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        'red-deep': '#150508',
-        'red-dark': '#3d0a10',
-        'red-mid': '#7a1220',
-        'red-core': '#c0182e',
-        'red-vivid': '#e8203a',
-        'red-bright': '#ff3d54',
-        cream: '#fff8f5',
-        // Superfícies/texto/bordas do portal autenticado. Espelham as
-        // CSS variables de globals.css. Sem este mapeamento, classes como
-        // `bg-surface-sidebar`/`bg-surface-card`/`text-text-primary` não
-        // geram CSS (ficam transparentes/sem cor).
-        'surface-bg': '#faf8f6',
-        'surface-card': '#ffffff',
-        'surface-sidebar': '#1a0a0d',
-        'text-primary': '#1a0a0d',
-        'text-secondary': '#5c3a3f',
-        'text-muted': '#9a7a7f',
-        'border-light': '#f0e8e5',
+        // ─── Superfícies ───
+        bg: '#0a0a0b', // fundo da página
+        surface: '#141416', // cards, sidebar, modais
+        'surface-raised': '#1c1c1f', // hover, campos de formulário, linhas destacadas
+        border: '#26262a', // borda de 1px de cards, campos e divisórias
+
+        // ─── Texto ───
+        text: '#ffffff', // títulos e texto principal
+        'text-soft': '#a1a1aa', // texto de apoio, rótulos
+        'text-faint': '#71717a', // texto discreto, placeholders, estados vazios
+
+        // ─── Marca ───
+        brand: '#87000a', // vermelho EJMC — única cor de destaque
+        'brand-hover': '#a1000c', // derivado do brand, para hover de botões
+
+        // ─── Auxiliares discretas (erro e etiquetas de status) ───
+        danger: '#e0545c', // texto de erro (derivado claro do brand)
+        ok: '#5fb38a',
+        warn: '#c9a24a',
+        info: '#6f9bd1',
+
+        // ─── Cor de cada área (fio discreto no álbum e no perfil) ───
+        'area-vendas': '#4fa39a',
+        'area-presidencia': '#87000a',
+        'area-projetos': '#c98a4a',
+        'area-marketing': '#9a7bc4',
+        'area-gp': '#6f9bd1',
+        'area-admfin': '#c9a24a',
       },
       fontFamily: {
-        heading: ['"Playfair Display"', 'serif'],
-        body: ['"DM Sans"', 'sans-serif'],
-        mono: ['"DM Mono"', 'monospace'],
+        // As variáveis são definidas por `next/font/google` em `src/app/layout.tsx`.
+        heading: ['var(--font-heading)', 'system-ui', 'sans-serif'],
+        body: ['var(--font-body)', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
-        sm: '8px',
-        md: '12px',
-        lg: '16px',
-        xl: '24px',
+        // Cantos levemente arredondados. `md` = controles, `lg` = cards.
+        sm: '6px',
+        md: '8px',
+        lg: '10px',
+        xl: '12px',
+      },
+      spacing: {
+        sidebar: '16rem', // largura da sidebar fixa
+        topbar: '3.5rem', // altura da barra superior no celular
       },
       screens: {
         mobile: '320px',

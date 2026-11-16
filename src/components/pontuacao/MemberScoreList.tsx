@@ -29,7 +29,7 @@ export function MemberScoreList({ members, onViewMember }: MemberScoreListProps)
     return (
       <p
         role="status"
-        className="rounded-lg border border-dashed border-border-light bg-surface-card p-8 text-center text-sm text-text-muted"
+        className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint"
       >
         Nenhum membro ativo encontrado.
       </p>
@@ -39,7 +39,7 @@ export function MemberScoreList({ members, onViewMember }: MemberScoreListProps)
   return (
     <div className="flex flex-col gap-1" role="list" aria-label="Pontuação dos membros">
       {/* Header */}
-      <div className="hidden items-center gap-4 rounded-lg bg-surface-card px-4 py-2 text-xs font-semibold uppercase tracking-wide text-text-muted sm:flex">
+      <div className="hidden items-center gap-4 rounded-lg bg-surface px-4 py-2 text-xs font-semibold text-text-faint sm:flex">
         <span className="flex-1">Membro</span>
         <span className="w-32 text-center">Área</span>
         <span className="w-24 text-center">Pontos</span>
@@ -51,14 +51,14 @@ export function MemberScoreList({ members, onViewMember }: MemberScoreListProps)
           type="button"
           role="listitem"
           onClick={() => onViewMember(member.id, member.name)}
-          className="flex flex-col gap-1 rounded-lg border border-border-light bg-surface-card p-4 text-left transition-colors hover:border-red-core/30 hover:bg-red-core/5 sm:flex-row sm:items-center sm:gap-4"
+          className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4 text-left transition-colors hover:border-brand hover:bg-brand/20 sm:flex-row sm:items-center sm:gap-4"
         >
-          <span className="flex-1 text-sm font-medium text-text-primary">{member.name}</span>
-          <span className="w-32 text-center text-xs text-text-muted sm:block">
+          <span className="flex-1 text-sm font-medium text-text">{member.name}</span>
+          <span className="w-32 text-center text-xs text-text-faint sm:block">
             {member.area ? (AREA_LABELS[member.area] ?? member.area) : '—'}
           </span>
           <span
-            className={`w-24 text-center text-sm font-bold ${member.totalPoints > 0 ? 'text-red-vivid' : 'text-text-muted'}`}
+            className={`w-24 text-center text-sm font-bold ${member.totalPoints > 0 ? 'text-danger' : 'text-text-faint'}`}
           >
             {member.totalPoints}
           </span>

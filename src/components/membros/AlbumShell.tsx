@@ -27,9 +27,8 @@ interface AreaConfig {
   area: Area;
   label: string;
   emoji: string;
-  gradient: string;
-  border: string;
-  bgLight: string;
+  /** Classe de fundo na cor da área, usada num fio fino no topo do bloco. */
+  accentBar: string;
 }
 
 const AREAS: AreaConfig[] = [
@@ -37,49 +36,37 @@ const AREAS: AreaConfig[] = [
     area: 'VENDAS',
     label: 'Vendas',
     emoji: '🦈',
-    gradient: 'from-teal-400 to-teal-600',
-    border: 'border-teal-300',
-    bgLight: 'bg-teal-50',
+    accentBar: 'bg-area-vendas',
   },
   {
     area: 'PRESIDENCIA',
     label: 'Presidência',
     emoji: '🐘',
-    gradient: 'from-red-800 to-red-950',
-    border: 'border-red-400',
-    bgLight: 'bg-red-50',
+    accentBar: 'bg-area-presidencia',
   },
   {
     area: 'PROJETOS',
     label: 'Projetos',
     emoji: '🐙',
-    gradient: 'from-orange-500 to-orange-700',
-    border: 'border-orange-300',
-    bgLight: 'bg-orange-50',
+    accentBar: 'bg-area-projetos',
   },
   {
     area: 'MARKETING',
     label: 'Marketing',
     emoji: '🦅',
-    gradient: 'from-purple-500 to-purple-700',
-    border: 'border-purple-300',
-    bgLight: 'bg-purple-50',
+    accentBar: 'bg-area-marketing',
   },
   {
     area: 'GESTAO_PESSOAS',
     label: 'Gestão de Pessoas',
     emoji: '🐬',
-    gradient: 'from-sky-400 to-sky-600',
-    border: 'border-sky-300',
-    bgLight: 'bg-sky-50',
+    accentBar: 'bg-area-gp',
   },
   {
     area: 'ADM_FIN',
     label: 'Adm-Fin',
     emoji: '🦁',
-    gradient: 'from-yellow-500 to-amber-600',
-    border: 'border-yellow-300',
-    bgLight: 'bg-yellow-50',
+    accentBar: 'bg-area-admfin',
   },
 ];
 
@@ -196,32 +183,28 @@ export function AlbumShell({ gestoes, initialGestao }: AlbumShellProps) {
       {/* Header */}
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            Álbum de Figurinhas
-          </p>
           <h1
             id="album-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             Membros 📸
           </h1>
-          <p className="text-text-secondary">Conheça os integrantes de cada gestão da EJMC.</p>
+          <p className="mt-1 text-base font-semibold text-brand">
+            Conheça os integrantes de cada gestão da EJMC.
+          </p>
         </div>
 
         {/* Gestão selector */}
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="album-gestao-select"
-              className="text-xs font-semibold uppercase tracking-[1.5px] text-text-muted"
-            >
+            <label htmlFor="album-gestao-select" className="text-xs font-semibold text-text-faint">
               Gestão
             </label>
             <select
               id="album-gestao-select"
               value={selectedGestao}
               onChange={(e) => handleGestaoChange(e.target.value)}
-              className="h-10 w-44 rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+              className="h-10 w-44 rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
             >
               {!selectedGestao && <option value="">Selecione...</option>}
               {allGestoes.map((g) => (
@@ -236,10 +219,7 @@ export function AlbumShell({ gestoes, initialGestao }: AlbumShellProps) {
           {canManage && (
             <div className="flex items-end gap-2">
               <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="album-new-gestao"
-                  className="text-xs font-semibold uppercase tracking-[1.5px] text-text-muted"
-                >
+                <label htmlFor="album-new-gestao" className="text-xs font-semibold text-text-faint">
                   Nova gestão
                 </label>
                 <input
@@ -248,14 +228,14 @@ export function AlbumShell({ gestoes, initialGestao }: AlbumShellProps) {
                   placeholder="2026.1"
                   value={newGestaoInput}
                   onChange={(e) => setNewGestaoInput(e.target.value)}
-                  className="h-10 w-28 rounded-md border border-border-light bg-white px-3 text-sm text-text-primary placeholder:text-text-muted focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+                  className="h-10 w-28 rounded-md border border-border bg-surface-raised px-3 text-sm text-text placeholder:text-text-faint focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
                 />
               </div>
               <button
                 type="button"
                 onClick={handleAddNewGestao}
                 disabled={!/^\d{4}\.\d$/.test(newGestaoInput.trim())}
-                className="h-10 rounded-md bg-red-core px-4 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-10 rounded-md bg-brand px-4 text-sm font-medium text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Criar
               </button>
@@ -266,7 +246,7 @@ export function AlbumShell({ gestoes, initialGestao }: AlbumShellProps) {
 
       {/* No gestão selected */}
       {!selectedGestao && (
-        <p className="rounded-lg border border-dashed border-border-light bg-surface-card p-8 text-center text-sm text-text-muted">
+        <p className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint">
           {allGestoes.length === 0
             ? 'Nenhuma gestão cadastrada ainda. Crie uma nova gestão para começar.'
             : 'Selecione uma gestão para ver o álbum.'}
@@ -277,7 +257,10 @@ export function AlbumShell({ gestoes, initialGestao }: AlbumShellProps) {
       {selectedGestao && (
         <>
           {/* Area tabs */}
-          <nav className="flex gap-1 overflow-x-auto rounded-lg bg-gray-100 p-1" aria-label="Áreas">
+          <nav
+            className="flex gap-1 overflow-x-auto rounded-lg bg-surface-raised p-1"
+            aria-label="Áreas"
+          >
             {AREAS.map((areaConfig) => (
               <button
                 key={areaConfig.area}
@@ -285,8 +268,8 @@ export function AlbumShell({ gestoes, initialGestao }: AlbumShellProps) {
                 onClick={() => setActiveArea(areaConfig.area)}
                 className={`flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                   activeArea === areaConfig.area
-                    ? 'bg-white text-text-primary shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary'
+                    ? 'bg-surface text-text shadow-sm'
+                    : 'text-text-soft hover:text-text'
                 }`}
               >
                 <span>{areaConfig.emoji}</span>
@@ -298,7 +281,7 @@ export function AlbumShell({ gestoes, initialGestao }: AlbumShellProps) {
           {/* Area page */}
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-red-core" />
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-border border-t-brand" />
             </div>
           ) : (
             <AreaPage

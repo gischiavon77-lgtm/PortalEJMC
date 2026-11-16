@@ -61,14 +61,14 @@ export function StickerCard({
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`group relative overflow-hidden rounded-xl border-2 ${borderColor} bg-white shadow-sm transition-all duration-200 hover:scale-[1.03] hover:shadow-md ${
+      className={`group relative overflow-hidden rounded-lg border ${borderColor} bg-surface transition-colors duration-200 hover:border-text-faint ${
         isDragging ? 'opacity-50 scale-95' : ''
       } ${isDragOver ? 'border-l-blue-500 border-l-[3px]' : ''} ${
         draggable ? 'cursor-grab active:cursor-grabbing' : ''
       }`}
     >
       {/* Photo area (5:7 aspect ratio) */}
-      <div className="relative aspect-[5/7] w-full overflow-hidden bg-gray-100">
+      <div className="relative aspect-[5/7] w-full overflow-hidden bg-surface-raised">
         {member.photoUrl ? (
           <img
             src={member.photoUrl}
@@ -76,7 +76,7 @@ export function StickerCard({
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+          <div className="flex h-full w-full items-center justify-center bg-surface-raised">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="48"
@@ -87,7 +87,7 @@ export function StickerCard({
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="text-gray-300"
+              className="text-text-soft"
             >
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
               <circle cx="12" cy="7" r="4" />
@@ -122,7 +122,7 @@ export function StickerCard({
             onClick={handleDelete}
             className={`absolute right-1.5 top-1.5 rounded-full p-1.5 text-xs font-medium transition-all ${
               confirmDelete
-                ? 'bg-red-600 text-white'
+                ? 'bg-brand text-white'
                 : 'bg-black/50 text-white opacity-0 group-hover:opacity-100'
             }`}
             title={confirmDelete ? 'Clique novamente para confirmar' : 'Remover'}
@@ -151,8 +151,8 @@ export function StickerCard({
 
       {/* Info */}
       <div className="px-3 py-2.5 text-center">
-        <p className="truncate text-sm font-semibold text-text-primary">{member.name}</p>
-        <p className="truncate text-xs text-text-secondary">{member.position}</p>
+        <p className="truncate text-sm font-semibold text-text">{member.name}</p>
+        <p className="truncate text-xs text-text-soft">{member.position}</p>
       </div>
     </div>
   );

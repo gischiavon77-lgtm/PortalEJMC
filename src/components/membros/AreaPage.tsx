@@ -18,9 +18,8 @@ interface AreaConfig {
   area: Area;
   label: string;
   emoji: string;
-  gradient: string;
-  border: string;
-  bgLight: string;
+  /** Classe de fundo na cor da área, usada num fio fino no topo do bloco. */
+  accentBar: string;
 }
 
 interface AreaPageProps {
@@ -85,9 +84,10 @@ export function AreaPage({
   );
 
   return (
-    <div className={`overflow-hidden rounded-xl border ${config.border} ${config.bgLight}`}>
-      {/* Colored header/banner */}
-      <div className={`relative bg-gradient-to-r ${config.gradient} px-6 py-5`}>
+    <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      {/* Fio discreto na cor da área + cabeçalho neutro */}
+      <div className={`h-0.5 ${config.accentBar}`} aria-hidden="true" />
+      <div className="relative border-b border-border px-6 py-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <span className="text-3xl">{config.emoji}</span>
@@ -97,7 +97,7 @@ export function AreaPage({
             <button
               type="button"
               onClick={onAddClick}
-              className="flex items-center gap-1.5 rounded-lg bg-white/20 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+              className="flex items-center gap-1.5 rounded-md bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -117,16 +117,12 @@ export function AreaPage({
             </button>
           )}
         </div>
-        {/* Decorative emoji */}
-        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-6xl opacity-20 sm:text-7xl">
-          {config.emoji}
-        </span>
       </div>
 
       {/* Members grid */}
       <div className="p-4 sm:p-6">
         {members.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-gray-300 bg-white/50 p-8 text-center text-sm text-text-muted">
+          <p className="rounded-lg border border-dashed border-border bg-white/50 p-8 text-center text-sm text-text-faint">
             Nenhum integrante adicionado em {config.label} nesta gestão.
             {canManage && ' Clique em "Adicionar Integrante" para começar.'}
           </p>
@@ -136,7 +132,7 @@ export function AreaPage({
               <StickerCard
                 key={member.id}
                 member={member}
-                borderColor={config.border}
+                borderColor="border-border"
                 canDelete={canManage}
                 onDelete={() => onDelete(member.id)}
                 draggable={canManage}

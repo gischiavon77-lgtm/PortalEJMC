@@ -34,11 +34,44 @@ Nesta ordem:
 
 Ainda não implementadas:
 
-1. Sidebar fixa.
+1. ~~Sidebar fixa.~~ **Concluída** na Fase 1 da reforma visual.
 2. Página inicial em feed: posts com foto e curtidas, e coluna lateral com mural de avisos, destaque do mês e próximos eventos. Substitui a página inicial atual.
 3. Projetos com imagem, descrição, status, contadores e equipe ligada a usuários.
 4. Categorias nos eventos do calendário.
 5. Organograma por área gerado a partir dos usuários, com data de entrada. O álbum continua como histórico por gestão.
+
+## Identidade visual (reforma em fases)
+
+Reforma visual e funcional em fases, na branch `redesign`. Um commit por fase; antes de cada fase, apresentar o plano e aguardar aprovação. **Fase 1 (base visual) concluída.**
+
+Regras da marca, válidas para qualquer tela nova:
+
+- **Tema escuro único.** Fundo chapado quase preto. Sem degradês, sem efeito de vidro, sem sombras fortes. Não existe alternância de tema.
+- **League Spartan** (`font-heading`): títulos de página, títulos de cards, números de destaque e nome da marca. Sempre branca, em negrito e maior. `h1`–`h4` já recebem a fonte por regra global.
+- **Montserrat** (`font-body`): todo o restante. Menor e **nunca em maiúsculas** (não usar `uppercase`; escrever em caixa normal).
+- **`brand` (#87000a) é a única cor de destaque**: botão principal (texto branco), item ativo do menu, "hoje" no calendário e subtítulo de página.
+- **Contraste**: `brand` sobre o fundo escuro tem ~1,9:1. Texto corrido, de tabela, rótulos e textos pequenos usam `text`/`text-soft`, nunca `brand`. Texto de erro usa `danger`. Foco de teclado usa anel branco translúcido (`ring-white/30`).
+- **Cabeçalho de página**: título em League Spartan e, logo abaixo, subtítulo em Montserrat (16px, peso 600) na cor `brand`. Usar o componente `PageHeader`.
+- Etiquetas de status e categoria usam as cores auxiliares discretas (`ok`, `warn`, `info`, `danger`), sem competir com o vermelho.
+
+Tokens (definidos em `tailwind.config.ts`, espelhados como CSS variables em `src/app/globals.css`):
+
+| Grupo       | Tokens                                                                                                                 |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Superfícies | `bg` #0a0a0b · `surface` #141416 · `surface-raised` #1c1c1f · `border` #26262a                                         |
+| Texto       | `text` #ffffff · `text-soft` #a1a1aa · `text-faint` #71717a                                                            |
+| Marca       | `brand` #87000a · `brand-hover` #a1000c                                                                                |
+| Auxiliares  | `danger` #e0545c · `ok` #5fb38a · `warn` #c9a24a · `info` #6f9bd1                                                      |
+| Áreas       | `area-vendas` · `area-presidencia` · `area-projetos` · `area-marketing` · `area-gp` · `area-admfin` (só em fios finos) |
+| Fontes      | `font-heading` (League Spartan) · `font-body` (Montserrat), via `next/font/google` em `src/app/layout.tsx`             |
+| Cantos      | `rounded-sm` 6px · `rounded-md` 8px (controles) · `rounded-lg` 10px (cards) · `rounded-xl` 12px                        |
+| Layout      | `w-sidebar`/`pl-sidebar` 16rem · `h-topbar`/`pt-topbar` 3.5rem                                                         |
+
+Componentes reutilizáveis em `@/components/ui`: `PageHeader`, `StatCard` (número grande + rótulo), `StatusBadge`, `EmptyState`, além de `Button` (`primary` em `brand`), `Card`, `Input`, `Modal`, `DataTable`, `Badge`, `Pagination`, `Toast`.
+
+Layout: `Sidebar` fixa à esquerda na altura toda (logo e etiqueta do cargo no topo, itens em grupos com divisórias definidos por `group` em `sidebar-items.ts`, avatar/nome/área/sair no rodapé). Abaixo de 768px ela vira menu recolhível, aberto pelo botão da barra superior. A barra superior (`PortalShell`) mantém o sino de notificações e o menu do avatar.
+
+Telas públicas (login, cadastro, 403) usam as classes `auth-card`, `auth-input`, `auth-button` de `globals.css`.
 
 ## Stack
 
@@ -193,7 +226,7 @@ O código evoluiu depois das specs. **Em caso de conflito, o código vale.** Dif
 - Componentes em PascalCase com export nomeado; utilitários e validadores em kebab/camel case. Imports sempre por `@/`.
 - Rotas de página em português (`/comunicados`), rotas de API e identificadores de código em inglês (`/api/announcements`).
 - Arquivos abrem com um bloco JSDoc em pt-BR explicando propósito e decisões, citando `Task`/`Req`/`Property` quando houver.
-- Estilo com classes Tailwind e tokens do tema (`red-core`, `surface-card`, `text-primary`, `border-light`; fontes `font-heading`, `font-body`). Um token novo precisa ser mapeado em `tailwind.config.ts`, senão a classe não gera CSS.
+- Estilo com classes Tailwind e os tokens da seção "Identidade visual". Um token novo precisa ser mapeado em `tailwind.config.ts` (e espelhado em `globals.css`), senão a classe não gera CSS.
 - Responsivo a partir de 320px; breakpoints `tablet` (768px) e `desktop` (1024px); alvos de toque de 44px no mobile.
 - Reaproveite `@/components/ui` antes de criar componente base novo.
 - Commits: Conventional Commits em pt-BR, sem acentos (`feat: ...`, `fix: ...`, `style: ...`). Trabalho corrente na branch `ajustes`; `main` será a branch de produção quando o deploy existir.

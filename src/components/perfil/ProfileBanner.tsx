@@ -39,18 +39,19 @@ export function ProfileBanner({ name, avatarUrl, area, position, role }: Profile
   const subtitle = cargo || theme.label;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border-light bg-surface-card shadow-sm">
-      {/* Banner colorido por área */}
-      <div className={`relative h-32 overflow-hidden bg-gradient-to-r ${theme.gradient} sm:h-40`}>
+    <div className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+      {/* Banner neutro, com um fio discreto na cor da área */}
+      <div className="relative h-32 overflow-hidden bg-surface-raised sm:h-40">
+        <span className={`absolute inset-x-0 bottom-0 h-0.5 ${theme.accent}`} aria-hidden="true" />
         {/* Animal da área em marca d'água */}
         <span
-          className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 select-none text-7xl opacity-40 drop-shadow-lg sm:text-8xl"
+          className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 select-none text-7xl opacity-25 sm:text-8xl"
           aria-hidden="true"
         >
           {theme.emoji}
         </span>
         {/* Etiqueta da área */}
-        <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-black/30 px-3 py-1 text-xs font-semibold uppercase tracking-[1.5px] text-white backdrop-blur-sm">
+        <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-black/30 px-3 py-1 text-xs font-semibold text-white">
           <span aria-hidden="true">{theme.emoji}</span>
           {theme.label}
         </span>
@@ -64,19 +65,19 @@ export function ProfileBanner({ name, avatarUrl, area, position, role }: Profile
             <img
               src={avatarUrl}
               alt={`Foto de ${name}`}
-              className="h-28 w-28 rounded-full border-4 border-surface-card bg-surface-card object-cover shadow-xl sm:h-32 sm:w-32"
+              className="h-28 w-28 rounded-full border-4 border-surface bg-surface object-cover sm:h-32 sm:w-32"
             />
           ) : (
             <div
-              className={`flex h-28 w-28 items-center justify-center rounded-full border-4 border-surface-card bg-gradient-to-br ${theme.gradient} text-3xl font-bold text-white shadow-xl sm:h-32 sm:w-32`}
+              className={`flex h-28 w-28 items-center justify-center rounded-full border-4 border-surface bg-surface-raised text-3xl font-bold text-white sm:h-32 sm:w-32`}
               aria-hidden="true"
             >
               {getInitials(name)}
             </div>
           )}
         </div>
-        <h2 className="font-heading text-xl font-bold text-text-primary">{name || 'Usuário'}</h2>
-        <p className="text-sm font-medium uppercase tracking-[1.5px] text-text-muted">{subtitle}</p>
+        <h2 className="font-heading text-xl font-bold text-text">{name || 'Usuário'}</h2>
+        <p className="text-sm font-medium text-text-faint">{subtitle}</p>
       </div>
     </div>
   );

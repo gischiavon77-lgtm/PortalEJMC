@@ -100,12 +100,9 @@ function ChangePasswordSection() {
   return (
     <section
       aria-labelledby="password-heading"
-      className="rounded-xl border border-border-light bg-surface-card p-6 shadow-sm"
+      className="rounded-xl border border-border bg-surface p-6 shadow-sm"
     >
-      <h2
-        id="password-heading"
-        className="mb-4 font-heading text-xl font-semibold text-text-primary"
-      >
+      <h2 id="password-heading" className="mb-4 font-heading text-xl font-semibold text-text">
         Alterar Senha
       </h2>
 
@@ -114,8 +111,8 @@ function ChangePasswordSection() {
           role="alert"
           className={`mb-4 rounded-lg px-4 py-3 text-sm ${
             message.type === 'success'
-              ? 'border border-green-200 bg-green-50 text-green-800'
-              : 'border border-red-200 bg-red-50 text-red-800'
+              ? 'border border-ok/40 bg-ok/15 text-ok'
+              : 'border border-brand bg-brand/20 text-danger'
           }`}
         >
           {message.text}
@@ -124,7 +121,7 @@ function ChangePasswordSection() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="current-password" className="text-sm font-medium text-text-secondary">
+          <label htmlFor="current-password" className="text-sm font-medium text-text-soft">
             Senha atual
           </label>
           <input
@@ -134,12 +131,12 @@ function ChangePasswordSection() {
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             required
-            className="rounded-lg border border-border-light bg-white px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-red-core focus:ring-1 focus:ring-red-core"
+            className="rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none transition-colors focus:border-white/60 focus:ring-1 focus:ring-white/30"
           />
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="new-password" className="text-sm font-medium text-text-secondary">
+          <label htmlFor="new-password" className="text-sm font-medium text-text-soft">
             Nova senha
           </label>
           <input
@@ -151,15 +148,15 @@ function ChangePasswordSection() {
             required
             minLength={8}
             maxLength={128}
-            className="rounded-lg border border-border-light bg-white px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-red-core focus:ring-1 focus:ring-red-core"
+            className="rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none transition-colors focus:border-white/60 focus:ring-1 focus:ring-white/30"
           />
-          <p className="text-xs text-text-muted">
+          <p className="text-xs text-text-faint">
             8-128 caracteres, com pelo menos uma maiúscula, uma minúscula e um número.
           </p>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="confirm-password" className="text-sm font-medium text-text-secondary">
+          <label htmlFor="confirm-password" className="text-sm font-medium text-text-soft">
             Confirmar nova senha
           </label>
           <input
@@ -171,14 +168,14 @@ function ChangePasswordSection() {
             required
             minLength={8}
             maxLength={128}
-            className="rounded-lg border border-border-light bg-white px-3 py-2 text-sm text-text-primary outline-none transition-colors focus:border-red-core focus:ring-1 focus:ring-red-core"
+            className="rounded-lg border border-border bg-surface-raised px-3 py-2 text-sm text-text outline-none transition-colors focus:border-white/60 focus:ring-1 focus:ring-white/30"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading || !currentPassword || !newPassword || !confirmPassword}
-          className="mt-2 w-fit rounded-lg bg-red-core px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-vivid disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-2 w-fit rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
           {loading ? 'Alterando...' : 'Alterar Senha'}
         </button>
@@ -263,9 +260,9 @@ function AvatarSection({
   return (
     <section
       aria-labelledby="avatar-heading"
-      className="rounded-xl border border-border-light bg-surface-card p-6 shadow-sm"
+      className="rounded-xl border border-border bg-surface p-6 shadow-sm"
     >
-      <h2 id="avatar-heading" className="mb-4 font-heading text-xl font-semibold text-text-primary">
+      <h2 id="avatar-heading" className="mb-4 font-heading text-xl font-semibold text-text">
         Foto de Perfil
       </h2>
 
@@ -274,8 +271,8 @@ function AvatarSection({
           role="alert"
           className={`mb-4 rounded-lg px-4 py-3 text-sm ${
             message.type === 'success'
-              ? 'border border-green-200 bg-green-50 text-green-800'
-              : 'border border-red-200 bg-red-50 text-red-800'
+              ? 'border border-ok/40 bg-ok/15 text-ok'
+              : 'border border-brand bg-brand/20 text-danger'
           }`}
         >
           {message.text}
@@ -284,7 +281,7 @@ function AvatarSection({
 
       <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
         {/* Avatar preview */}
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-border-light bg-red-50">
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-border bg-brand/20">
           {avatarUrl ? (
             <img
               src={avatarUrl}
@@ -292,7 +289,7 @@ function AvatarSection({
               className="h-full w-full object-cover"
             />
           ) : (
-            <span className="text-xl font-bold text-red-core">{initials}</span>
+            <span className="text-xl font-bold text-danger">{initials}</span>
           )}
         </div>
 
@@ -302,7 +299,7 @@ function AvatarSection({
               ref={fileInputRef}
               type="file"
               accept="image/png,image/jpeg"
-              className="text-sm text-text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-red-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-red-core file:transition-colors hover:file:bg-red-100"
+              className="text-sm text-text-soft file:mr-3 file:rounded-lg file:border-0 file:bg-brand/20 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-text file:transition-colors hover:file:bg-brand/20"
               aria-label="Selecionar foto de perfil"
             />
           </div>
@@ -311,12 +308,12 @@ function AvatarSection({
             type="button"
             onClick={handleUpload}
             disabled={loading}
-            className="w-fit rounded-lg bg-red-core px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-vivid disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-fit rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? 'Enviando...' : 'Enviar Foto'}
           </button>
 
-          <p className="text-xs text-text-muted">PNG ou JPG. Tamanho máximo: {UPLOAD_MAX_LABEL}.</p>
+          <p className="text-xs text-text-faint">PNG ou JPG. Tamanho máximo: {UPLOAD_MAX_LABEL}.</p>
         </div>
       </div>
     </section>
@@ -329,17 +326,17 @@ function AdminSection() {
   return (
     <section
       aria-labelledby="admin-heading"
-      className="rounded-xl border border-border-light bg-surface-card p-6 shadow-sm"
+      className="rounded-xl border border-border bg-surface p-6 shadow-sm"
     >
-      <h2 id="admin-heading" className="mb-4 font-heading text-xl font-semibold text-text-primary">
+      <h2 id="admin-heading" className="mb-4 font-heading text-xl font-semibold text-text">
         Administração
       </h2>
-      <p className="mb-3 text-sm text-text-secondary">
+      <p className="mb-3 text-sm text-text-soft">
         Gerencie contas de usuários, permissões e configurações do sistema.
       </p>
       <a
         href="/admin"
-        className="inline-flex items-center gap-2 rounded-lg bg-red-core px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-vivid"
+        className="inline-flex items-center gap-2 rounded-lg bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

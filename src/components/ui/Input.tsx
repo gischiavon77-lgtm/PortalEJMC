@@ -14,7 +14,7 @@
  *   - `forwardRef` para integração com React Hook Form e foco
  *     programático.
  *
- * Diferença para `.glass-input` (camada escura, login/cadastro):
+ * Diferença para `.auth-input` (camada escura, login/cadastro):
  * este `Input` é a versão para o interior do portal, com fundo
  * branco, borda sutil e texto escuro — combinando com `Card` claro.
  *
@@ -76,14 +76,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     <div className="flex w-full flex-col gap-1.5">
       <label
         htmlFor={inputId}
-        className={cn(
-          'text-sm font-medium text-text-primary',
-          hideLabel && 'sr-only',
-        )}
+        className={cn('text-sm font-medium text-text', hideLabel && 'sr-only')}
       >
         {label}
         {required && (
-          <span aria-hidden="true" className="ml-0.5 text-red-vivid">
+          <span aria-hidden="true" className="ml-0.5 text-danger">
             *
           </span>
         )}
@@ -98,7 +95,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         {leftIcon && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute left-3 flex h-5 w-5 items-center justify-center text-text-muted"
+            className="pointer-events-none absolute left-3 flex h-5 w-5 items-center justify-center text-text-faint"
           >
             {leftIcon}
           </span>
@@ -114,16 +111,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           disabled={disabled}
           className={cn(
             // Base
-            'flex h-10 w-full rounded-md border bg-white px-3 text-sm text-text-primary',
-            'placeholder:text-text-muted',
+            'flex h-10 w-full rounded-md border bg-surface px-3 text-sm text-text',
+            'placeholder:text-text-faint',
             'transition-colors duration-150',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
             // Borda
             hasError
-              ? 'border-red-vivid focus-visible:border-red-vivid focus-visible:ring-red-vivid/30'
-              : 'border-border-light focus-visible:border-red-core',
+              ? 'border-brand focus-visible:border-white/60 focus-visible:ring-white/30'
+              : 'border-border focus-visible:border-white/60',
             // Disabled
-            'disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-text-muted',
+            'disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-faint',
             // Padding pelos ícones
             leftIcon && 'pl-9',
             rightIcon && 'pr-9',
@@ -133,20 +130,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         />
 
         {rightIcon && (
-          <span className="absolute right-3 flex h-5 w-5 items-center justify-center text-text-muted">
+          <span className="absolute right-3 flex h-5 w-5 items-center justify-center text-text-faint">
             {rightIcon}
           </span>
         )}
       </div>
 
       {description && (
-        <p
-          id={descId}
-          className={cn(
-            'text-xs',
-            hasError ? 'text-red-vivid' : 'text-text-muted',
-          )}
-        >
+        <p id={descId} className={cn('text-xs', hasError ? 'text-danger' : 'text-text-faint')}>
           {description}
         </p>
       )}

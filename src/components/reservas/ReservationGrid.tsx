@@ -60,11 +60,11 @@ export function ReservationGrid({
   }, [dates, reservationMap]);
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border-light bg-surface-card">
+    <div className="overflow-x-auto rounded-lg border border-border bg-surface">
       <table className="w-full min-w-[560px] border-collapse text-sm">
         <thead>
           <tr>
-            <th className="border-b border-border-light bg-surface-bg px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">
+            <th className="border-b border-border bg-bg px-3 py-2.5 text-left text-xs font-semibold text-text-faint">
               PC
             </th>
             {dates.map((date) => {
@@ -78,25 +78,25 @@ export function ReservationGrid({
               return (
                 <th
                   key={date}
-                  className={`border-b border-border-light px-2 py-2.5 text-center text-xs font-medium ${
+                  className={`border-b border-border px-2 py-2.5 text-center text-xs font-medium ${
                     isToday
-                      ? 'bg-blue-50 text-blue-800 ring-2 ring-inset ring-blue-300'
+                      ? 'bg-info/15 text-info ring-2 ring-inset ring-info/40'
                       : isFullyBooked
-                        ? 'bg-red-50 text-red-700'
-                        : 'bg-surface-bg text-text-secondary'
+                        ? 'bg-brand/20 text-danger'
+                        : 'bg-bg text-text-soft'
                   }`}
                 >
                   <div className="flex flex-col items-center">
-                    <span className="text-[10px] uppercase tracking-wide">{dayOfWeek}</span>
+                    <span className="text-[10px]">{dayOfWeek}</span>
                     <span className="text-sm font-semibold">
                       {dayNum}/{monthNum}
                     </span>
                   </div>
                   {isToday && (
-                    <span className="mt-0.5 block text-[9px] font-medium text-blue-600">HOJE</span>
+                    <span className="mt-0.5 block text-[9px] font-medium text-text">HOJE</span>
                   )}
                   {isFullyBooked && !isToday && (
-                    <span className="mt-0.5 block text-[9px] font-medium text-red-600">LOTADO</span>
+                    <span className="mt-0.5 block text-[9px] font-medium text-danger">LOTADO</span>
                   )}
                 </th>
               );
@@ -106,7 +106,7 @@ export function ReservationGrid({
         <tbody>
           {COMPUTERS.map((pc) => (
             <tr key={pc}>
-              <td className="border-b border-border-light bg-surface-bg px-3 py-2 text-xs font-semibold text-text-primary">
+              <td className="border-b border-border bg-bg px-3 py-2 text-xs font-semibold text-text">
                 PC {pc}
               </td>
               {dates.map((date) => {
@@ -117,7 +117,7 @@ export function ReservationGrid({
                 const isToday = date === todayStr;
 
                 return (
-                  <td key={key} className="border-b border-border-light p-1">
+                  <td key={key} className="border-b border-border p-1">
                     <CellButton
                       reservation={reservation}
                       isOwn={isOwn}
@@ -167,9 +167,9 @@ function CellButton({
           type="button"
           onClick={() => onCellClick(computerId, date, reservation)}
           disabled={!isToday}
-          className={`flex h-10 w-full items-center justify-center rounded border border-blue-300 bg-blue-100 text-[10px] font-medium text-blue-800 transition-colors ${
+          className={`flex h-10 w-full items-center justify-center rounded border border-info/40 bg-info/15 text-[10px] font-medium text-info transition-colors ${
             isToday
-              ? 'hover:bg-blue-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400'
+              ? 'hover:bg-info/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30'
               : 'opacity-70 cursor-not-allowed'
           }`}
           title={isToday ? 'Sua reserva — clique para cancelar' : 'Sua reserva'}
@@ -183,7 +183,7 @@ function CellButton({
     // Someone else's reservation - gray, shows name on hover
     return (
       <div
-        className="flex h-10 w-full items-center justify-center rounded border border-gray-300 bg-gray-200 text-[10px] font-medium text-gray-600 cursor-not-allowed"
+        className="flex h-10 w-full items-center justify-center rounded border border-border bg-surface-raised text-[10px] font-medium text-text-soft cursor-not-allowed"
         title={reservation.user.name}
         aria-label={`Reservado por ${reservation.user.name} no PC ${computerId} em ${date}.`}
       >
@@ -196,7 +196,7 @@ function CellButton({
   if (isFullyBooked) {
     return (
       <div
-        className="flex h-10 w-full items-center justify-center rounded border border-red-200 bg-red-50 text-[10px] text-red-400"
+        className="flex h-10 w-full items-center justify-center rounded border border-brand bg-brand/20 text-[10px] text-danger"
         aria-label={`Dia lotado — PC ${computerId} em ${date}`}
       >
         —
@@ -208,7 +208,7 @@ function CellButton({
   if (!isToday) {
     return (
       <div
-        className="flex h-10 w-full items-center justify-center rounded border border-green-100 bg-green-50/50 text-[10px] font-medium text-green-500 opacity-60 cursor-not-allowed"
+        className="flex h-10 w-full items-center justify-center rounded border border-ok/40 bg-green-50/50 text-[10px] font-medium text-ok opacity-60 cursor-not-allowed"
         title="Disponível (somente reservas para hoje)"
         aria-label={`Disponível — PC ${computerId} em ${date}. Somente reservas para hoje.`}
       >
@@ -221,7 +221,7 @@ function CellButton({
     <button
       type="button"
       onClick={() => onCellClick(computerId, date)}
-      className="flex h-10 w-full items-center justify-center rounded border border-green-200 bg-green-50 text-[10px] font-medium text-green-700 transition-colors hover:border-green-400 hover:bg-green-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
+      className="flex h-10 w-full items-center justify-center rounded border border-ok/40 bg-ok/15 text-[10px] font-medium text-ok transition-colors hover:border-ok/40 hover:bg-ok/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
       title="Disponível — clique para reservar"
       aria-label={`Disponível — PC ${computerId} em ${date}. Clique para reservar.`}
     >

@@ -149,16 +149,15 @@ export function CronogramaShell({ year, month, events }: CronogramaShellProps) {
       {/* ─── Cabeçalho com título, navegação e ação de criar ─── */}
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            Cronograma
-          </p>
           <h1
             id="cronograma-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             {MONTH_NAMES[month]} de {year}
           </h1>
-          <p className="text-text-secondary">Eventos sincronizados com o Google Calendar.</p>
+          <p className="mt-1 text-base font-semibold text-brand">
+            Eventos sincronizados com o Google Calendar.
+          </p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -198,13 +197,10 @@ export function CronogramaShell({ year, month, events }: CronogramaShellProps) {
             {failedSyncCount > 0 && (
               <span
                 role="status"
-                className="inline-flex items-center gap-1.5 rounded-full bg-red-vivid/10 px-3 py-1 text-xs font-semibold text-red-vivid"
+                className="inline-flex items-center gap-1.5 rounded-full bg-brand/20 px-3 py-1 text-xs font-semibold text-danger"
                 title="Eventos com falha de sincronização com o Google Calendar"
               >
-                <span
-                  aria-hidden="true"
-                  className="inline-flex h-2 w-2 rounded-full bg-red-vivid"
-                />
+                <span aria-hidden="true" className="inline-flex h-2 w-2 rounded-full bg-brand" />
                 {failedSyncCount} {failedSyncCount === 1 ? 'falha' : 'falhas'} de sincronização
               </span>
             )}
@@ -228,7 +224,7 @@ export function CronogramaShell({ year, month, events }: CronogramaShellProps) {
 
       {/* Mensagem de leitura-somente para Membros (Req 8.5/8.6) */}
       {!permissionLoading && !canManage && (
-        <p role="note" className="text-xs text-text-muted">
+        <p role="note" className="text-xs text-text-faint">
           Visualização somente leitura. Clique em um evento para ver os detalhes. Apenas Diretor,
           Gerente e Coordenador podem criar, editar ou excluir eventos.
         </p>

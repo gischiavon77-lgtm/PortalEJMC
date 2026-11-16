@@ -103,32 +103,29 @@ export function PollCard({
 
   return (
     <article
-      className="rounded-lg border border-border-light bg-surface-card p-5 shadow-sm transition-shadow hover:shadow-md"
+      className="rounded-lg border border-border bg-surface p-5 shadow-sm transition-shadow"
       aria-labelledby={`poll-title-${poll.id}`}
     >
       {/* Header */}
       <header className="mb-3 flex flex-col gap-2">
         <div className="flex items-start justify-between gap-2">
-          <h2
-            id={`poll-title-${poll.id}`}
-            className="font-heading text-lg font-semibold text-text-primary"
-          >
+          <h2 id={`poll-title-${poll.id}`} className="font-heading text-lg font-semibold text-text">
             {poll.title}
           </h2>
           <span
             className={[
               'inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-              isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600',
+              isActive ? 'bg-ok/15 text-ok' : 'bg-surface-raised text-text-soft',
             ].join(' ')}
           >
             {isActive ? 'Ativa' : 'Encerrada'}
           </span>
         </div>
-        <p className="text-sm leading-relaxed text-text-secondary whitespace-pre-wrap">
+        <p className="text-sm leading-relaxed text-text-soft whitespace-pre-wrap">
           {poll.description}
         </p>
-        <div className="flex flex-wrap items-center gap-2 text-xs text-text-muted">
-          <span className="font-medium text-text-secondary">{poll.createdBy.name}</span>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-text-faint">
+          <span className="font-medium text-text-soft">{poll.createdBy.name}</span>
           <span aria-hidden="true">•</span>
           <time dateTime={poll.createdAt}>{formatDate(poll.createdAt)}</time>
           {totalVotes > 0 && (
@@ -155,10 +152,10 @@ export function PollCard({
                 className={[
                   'relative overflow-hidden rounded-md border p-3 transition-all',
                   isSelected
-                    ? 'border-red-core bg-red-core/5 ring-1 ring-red-core/20'
-                    : 'border-border-light bg-surface-bg',
+                    ? 'border-brand bg-brand/20 ring-1 ring-brand/40'
+                    : 'border-border bg-bg',
                   canVote && !isSelected
-                    ? 'cursor-pointer hover:border-red-core/40 hover:bg-red-core/5'
+                    ? 'cursor-pointer hover:border-brand hover:bg-brand/20'
                     : '',
                   canVote && isSelected ? 'cursor-pointer' : '',
                 ].join(' ')}
@@ -189,7 +186,7 @@ export function PollCard({
                   <div
                     className={[
                       'absolute inset-y-0 left-0 transition-all',
-                      isSelected ? 'bg-red-core/10' : 'bg-gray-100',
+                      isSelected ? 'bg-brand/20' : 'bg-surface-raised',
                     ].join(' ')}
                     style={{ width: `${percentage}%` }}
                     aria-hidden="true"
@@ -199,14 +196,14 @@ export function PollCard({
                 <div className="relative flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     {isSelected && (
-                      <span className="text-red-core" aria-label="Seu voto">
+                      <span className="text-danger" aria-label="Seu voto">
                         ✓
                       </span>
                     )}
                     <span
                       className={[
                         'text-sm',
-                        isSelected ? 'font-medium text-text-primary' : 'text-text-secondary',
+                        isSelected ? 'font-medium text-text' : 'text-text-soft',
                       ].join(' ')}
                     >
                       {option.text}
@@ -214,13 +211,13 @@ export function PollCard({
                   </div>
 
                   {(hasVoted || !isActive) && (
-                    <span className="shrink-0 text-xs font-medium text-text-muted">
+                    <span className="shrink-0 text-xs font-medium text-text-faint">
                       {option.voteCount} ({percentage}%)
                     </span>
                   )}
 
                   {isVoting && (
-                    <span className="shrink-0 text-xs text-text-muted animate-pulse">
+                    <span className="shrink-0 text-xs text-text-faint animate-pulse">
                       Votando...
                     </span>
                   )}
@@ -229,7 +226,7 @@ export function PollCard({
 
               {/* Voter names — shown after voting or when closed */}
               {(hasVoted || !isActive) && option.votes.length > 0 && (
-                <p className="ml-3 text-xs text-text-muted">
+                <p className="ml-3 text-xs text-text-faint">
                   {option.votes.map((v) => v.name).join(', ')}
                 </p>
               )}
@@ -240,13 +237,13 @@ export function PollCard({
 
       {/* Actions */}
       {((isActive && canClose) || canDelete) && (
-        <div className="mt-4 flex justify-end gap-2 border-t border-border-light pt-3">
+        <div className="mt-4 flex justify-end gap-2 border-t border-border pt-3">
           {canDelete && onDelete && (
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              className="text-red-vivid hover:bg-red-vivid/10"
+              className="text-danger hover:bg-brand/20"
               onClick={handleDelete}
               loading={deleting}
               disabled={deleting}
@@ -271,8 +268,8 @@ export function PollCard({
 
       {/* Closed info */}
       {!isActive && poll.closedAt && (
-        <div className="mt-3 border-t border-border-light pt-3">
-          <p className="text-xs text-text-muted">Encerrada em {formatDate(poll.closedAt)}</p>
+        <div className="mt-3 border-t border-border pt-3">
+          <p className="text-xs text-text-faint">Encerrada em {formatDate(poll.closedAt)}</p>
         </div>
       )}
     </article>

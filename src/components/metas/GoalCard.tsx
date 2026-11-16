@@ -90,7 +90,7 @@ export function GoalCard({
         'flex h-full flex-col gap-4',
         // Borda esquerda em vermelho para destacar metas vencidas.
         // Não substitui o badge textual — é só reforço visual.
-        overdue && 'border-l-4 border-l-red-vivid',
+        overdue && 'border-l-4 border-l-brand',
       )}
     >
       {/* Cabeçalho: tipo + área (se houver) + status */}
@@ -117,12 +117,10 @@ export function GoalCard({
 
       {/* Conteúdo principal */}
       <div className="flex flex-1 flex-col gap-2">
-        <h3 className="font-heading text-lg font-bold tracking-tight text-text-primary">
-          {goal.name}
-        </h3>
-        {goal.description && <p className="text-sm text-text-secondary">{goal.description}</p>}
+        <h3 className="font-heading text-lg font-bold tracking-tight text-text">{goal.name}</h3>
+        {goal.description && <p className="text-sm text-text-soft">{goal.description}</p>}
 
-        <p className="text-xs text-text-muted">
+        <p className="text-xs text-text-faint">
           Prazo:{' '}
           <time dateTime={goal.deadline} className="font-medium">
             {formatDeadline(goal.deadline)}
@@ -133,10 +131,8 @@ export function GoalCard({
       {/* Barra de progresso (Task 8.5) */}
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between text-xs">
-          <span className="font-semibold uppercase tracking-[1.5px] text-text-muted">
-            Progresso
-          </span>
-          <span className="font-semibold tabular-nums text-text-primary">{progressClamped}%</span>
+          <span className="font-semibold text-text-faint">Progresso</span>
+          <span className="font-semibold tabular-nums text-text">{progressClamped}%</span>
         </div>
         <div
           role="progressbar"
@@ -144,12 +140,12 @@ export function GoalCard({
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={progressClamped}
-          className="h-2 w-full overflow-hidden rounded-full bg-border-light"
+          className="h-2 w-full overflow-hidden rounded-full bg-border"
         >
           <div
             className={cn(
               'h-full rounded-full transition-[width] duration-300',
-              overdue ? 'bg-red-vivid' : completed ? 'bg-emerald-500' : 'bg-red-core',
+              overdue ? 'bg-brand' : completed ? 'bg-ok' : 'bg-brand',
             )}
             style={{ width: `${progressClamped}%` }}
           />
@@ -164,7 +160,7 @@ export function GoalCard({
               type="button"
               variant="ghost"
               size="sm"
-              className="text-red-vivid hover:bg-red-vivid/10"
+              className="text-danger hover:bg-brand/20"
               onClick={() => onDelete(goal)}
             >
               Excluir

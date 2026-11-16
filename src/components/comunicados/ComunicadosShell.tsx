@@ -108,16 +108,15 @@ export function ComunicadosShell({ announcements, pagination }: ComunicadosShell
     >
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            Mural
-          </p>
           <h1
             id="comunicados-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             Comunicados
           </h1>
-          <p className="text-text-secondary">Informes e avisos importantes da empresa.</p>
+          <p className="mt-1 text-base font-semibold text-brand">
+            Informes e avisos importantes da empresa.
+          </p>
         </div>
 
         {/* Botão "Novo comunicado" — visível apenas para Coordenador+ (Task 14.5) */}
@@ -134,7 +133,7 @@ export function ComunicadosShell({ announcements, pagination }: ComunicadosShell
       {isEmpty ? (
         <p
           role="status"
-          className="rounded-lg border border-dashed border-border-light bg-surface-card p-8 text-center text-sm text-text-muted"
+          className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint"
         >
           Nenhum comunicado disponível no momento.
         </p>

@@ -40,9 +40,9 @@
  * ─── Estilização ────────────────────────────────────────────────────
  *
  * - Largura fixa `w-64` (256px) em desktop, conforme Task 5.1.
- * - Fundo `bg-surface-sidebar` (token escuro definido em globals.css
- *   `--surface-sidebar: #1a0a0d`) e texto branco — a cor escura cria
- *   contraste com a área de conteúdo clara (`--surface-bg`).
+ * - Fundo `bg-surface` (token escuro definido em globals.css
+ *   `--surface: #1a0a0d`) e texto branco — a cor escura cria
+ *   contraste com a área de conteúdo clara (`--bg`).
  * - Item ativo recebe um destaque com `bg-white/10` + barra vermelha
  *   à esquerda, similar ao padrão do design.md.
  * - Em mobile (<768px) o componente renderiza por padrão fora da
@@ -71,6 +71,15 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { effectivePosition } from '@/lib/position';
 
 import { MENU_ITEMS, type SidebarIconName, type SidebarItem } from './sidebar-items';
+
+/** Rótulo do papel, usado na etiqueta do topo quando não há cargo preenchido. */
+const ROLE_LABELS: Record<UserRole, string> = {
+  ADMIN: 'Administrador',
+  DIRETOR: 'Diretor',
+  GERENTE: 'Gerente',
+  COORDENADOR: 'Coordenador',
+  MEMBRO: 'Trainee',
+};
 
 interface SidebarProps {
   /**
@@ -122,71 +131,78 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
     }
   }
 
+  const user = isAuthenticated ? session?.user : undefined;
+  const displayName = profile?.name ?? user?.name ?? 'Usuário';
+  const avatarSrc = profile?.avatarUrl ?? user?.image ?? null;
+  const roleForLabel =
+    (profile?.role as UserRole | undefined) ?? (user?.role as UserRole | undefined);
+  const roleTag =
+    effectivePosition(roleForLabel, profile?.position) ||
+    (roleForLabel ? ROLE_LABELS[roleForLabel] : '');
+  const areaLabel = formatAreaLabel((profile?.area as Area | null | undefined) ?? user?.area);
+
   return (
     <aside
       id="portal-sidebar"
       className={[
-        // Base
-        'flex h-screen w-64 flex-col bg-surface-sidebar text-white',
-        // Desktop/tablet: visível e fixo à esquerda.
-        'sticky top-0',
-        // Mobile: posicionamento fora da viewport por padrão. A Task
-        // 5.3 controla `isOpen` e adiciona overlay/transição. A
-        // duração 200ms reproduz o feel de drawers nativos sem
-        // criar atraso perceptível.
-        'mobile:fixed mobile:inset-y-0 mobile:left-0 mobile:z-40 mobile:transition-transform mobile:duration-200 mobile:ease-out',
-        isOpen ? 'mobile:translate-x-0' : 'mobile:-translate-x-full',
+        // Fixa à esquerda, ocupando a altura toda da janela.
+        'fixed inset-y-0 left-0 z-40 flex w-sidebar flex-col border-r border-border bg-surface text-text',
+        // Celular: fica fora da tela e desliza quando `isOpen`.
+        'transition-transform duration-200 ease-out',
+        isOpen ? 'translate-x-0' : '-translate-x-full',
+        // Tablet e desktop: sempre visível.
+        'tablet:translate-x-0',
       ].join(' ')}
       aria-label="Menu principal"
     >
-      {/* ─── Cabeçalho: emblema + subtítulo ─── */}
-      <div className="flex flex-col items-center border-b border-white/[0.08] px-4 py-6">
-        <div className="logo-emblem h-14 w-14">
-          <Image
-            src="/logoejmc.png"
-            alt="Logo EJMC"
-            width={56}
-            height={56}
-            className="relative z-[2] block h-14 w-14 object-contain"
-            priority
-          />
+      {/* ─── Topo: logo, nome da marca e etiqueta do cargo ─── */}
+      <div className="flex items-center gap-3 border-b border-border px-4 py-4">
+        <Image
+          src="/logoejmc.png"
+          alt="Logo EJMC"
+          width={40}
+          height={40}
+          className="h-10 w-10 shrink-0 object-contain"
+          priority
+        />
+        <div className="min-w-0">
+          <p className="font-heading text-lg font-bold leading-none text-text">EJMC</p>
+          {roleTag && (
+            <span
+              className="mt-1.5 inline-flex max-w-full items-center rounded-full border border-border px-2 py-0.5 text-[11px] font-medium text-text-soft"
+              data-testid="sidebar-role-tag"
+            >
+              <span className="truncate">{roleTag}</span>
+            </span>
+          )}
         </div>
-        <p className="mt-3 font-heading text-base font-bold tracking-[-0.3px] text-white">EJMC</p>
-        <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[2px] text-white/40">
-          Portal Interno
-        </p>
       </div>
 
-      {/* ─── Navegação ─── */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Navegação principal">
+      {/* ─── Navegação, em grupos separados por divisórias ─── */}
+      <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label="Navegação principal">
         <ul className="flex flex-col gap-0.5">
-          {visibleItems.map((item) => {
+          {visibleItems.map((item, index) => {
             const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+            const startsGroup = index > 0 && visibleItems[index - 1].group !== item.group;
 
             return (
-              <li key={item.href}>
+              <li
+                key={item.href}
+                className={startsGroup ? 'mt-2 border-t border-border pt-2' : undefined}
+              >
                 <Link
                   href={item.href}
                   prefetch={false}
                   onClick={onNavigate}
                   aria-current={isActive ? 'page' : undefined}
                   className={[
-                    // Base
-                    'group relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-bright/60',
+                    'flex min-h-[40px] items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
                     isActive
-                      ? 'bg-white/10 text-white'
-                      : 'text-white/65 hover:bg-white/[0.06] hover:text-white',
+                      ? 'bg-brand text-white'
+                      : 'text-text-soft hover:bg-surface-raised hover:text-text',
                   ].join(' ')}
                 >
-                  {/* Indicador de item ativo (barra vertical à esquerda) */}
-                  <span
-                    aria-hidden="true"
-                    className={[
-                      'absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-red-bright transition-opacity',
-                      isActive ? 'opacity-100' : 'opacity-0',
-                    ].join(' ')}
-                  />
                   <SidebarIcon name={item.icon} />
                   <span className="truncate">{item.label}</span>
                 </Link>
@@ -196,47 +212,44 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* ─── Rodapé: usuário + sair ─── */}
-      <div className="border-t border-white/[0.08] px-3 py-4">
-        {isAuthenticated && session?.user ? (
-          <div className="rounded-lg bg-white/[0.04] p-3">
-            <div className="flex items-center gap-3">
-              <Link
-                href="/perfil"
-                aria-label="Ir para perfil"
-                className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-bright/60"
-              >
-                {(profile?.avatarUrl ?? session.user.image) ? (
-                  <img
-                    src={(profile?.avatarUrl ?? session.user.image) as string}
-                    alt={profile?.name ?? session.user.name ?? 'Avatar'}
-                    className="h-9 w-9 rounded-full object-cover"
-                  />
-                ) : (
-                  <div
-                    className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-red-core to-red-vivid text-xs font-bold text-white"
-                    aria-hidden="true"
-                  >
-                    {getInitials(profile?.name ?? session.user.name ?? session.user.email ?? '?')}
-                  </div>
-                )}
-              </Link>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-white">
-                  {profile?.name ?? session.user.name ?? 'Usuário'}
-                </p>
-                <p className="truncate text-[11px] uppercase tracking-[1.5px] text-white/45">
-                  {effectivePosition(profile?.role as UserRole, profile?.position) ||
-                    formatAreaLabel((profile?.area as Area | null) ?? session.user.area)}
-                </p>
-              </div>
+      {/* ─── Rodapé: avatar, nome, área e sair ─── */}
+      <div className="border-t border-border px-3 py-3">
+        {user ? (
+          <div className="flex items-center gap-3">
+            <Link
+              href="/perfil"
+              onClick={onNavigate}
+              aria-label="Ir para perfil"
+              className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            >
+              {avatarSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={avatarSrc}
+                  alt={`Foto de ${displayName}`}
+                  className="h-9 w-9 rounded-full border border-border object-cover"
+                />
+              ) : (
+                <div
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface-raised text-xs font-semibold text-text"
+                  aria-hidden="true"
+                >
+                  {getInitials(displayName)}
+                </div>
+              )}
+            </Link>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-text">{displayName}</p>
+              <p className="truncate text-xs text-text-faint">{areaLabel}</p>
             </div>
             <button
               type="button"
               onClick={handleSignOut}
               disabled={isSigningOut}
               aria-busy={isSigningOut}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-[2px] text-white/85 transition-colors hover:border-white/25 hover:bg-white/10 focus-visible:border-white/40 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              aria-label="Sair"
+              title="Sair"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-text-soft transition-colors hover:bg-surface-raised hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSigningOut ? (
                 <span
@@ -246,13 +259,10 @@ export function Sidebar({ isOpen = false, onNavigate }: SidebarProps) {
               ) : (
                 <SidebarIcon name="logout" />
               )}
-              Sair
             </button>
           </div>
         ) : (
-          <p className="px-2 text-[11px] uppercase tracking-[1.5px] text-white/30">
-            Sessão não disponível
-          </p>
+          <p className="px-2 text-xs text-text-faint">Sessão não disponível</p>
         )}
       </div>
     </aside>

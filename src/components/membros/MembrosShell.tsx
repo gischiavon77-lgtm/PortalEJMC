@@ -93,35 +93,27 @@ export function MembrosShell({ members, currentArea }: MembrosShellProps) {
     >
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            Diretório
-          </p>
           <h1
             id="membros-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             Membros
           </h1>
-          <p className="text-text-secondary">
+          <p className="mt-1 text-base font-semibold text-brand">
             Lista de membros ativos da empresa, ordenada alfabeticamente.
           </p>
         </div>
 
         {/* Filtro por área (Task 10.3) */}
         <div className="flex w-full flex-col gap-1.5 tablet:max-w-xs desktop:max-w-xs">
-          <label
-            htmlFor="membros-area-filter"
-            className="text-xs font-semibold uppercase tracking-[1.5px] text-text-muted"
-          >
+          <label htmlFor="membros-area-filter" className="text-xs font-semibold text-text-faint">
             Filtrar por área
           </label>
           <select
             id="membros-area-filter"
             value={currentArea ?? 'ALL'}
-            onChange={(e) =>
-              handleAreaChange(e.target.value as 'ALL' | Area)
-            }
-            className="h-10 w-full rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30"
+            onChange={(e) => handleAreaChange(e.target.value as 'ALL' | Area)}
+            className="h-10 w-full rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
           >
             <option value="ALL">Todos</option>
             {FILTER_AREAS.map((area) => (
@@ -137,7 +129,7 @@ export function MembrosShell({ members, currentArea }: MembrosShellProps) {
       {isEmpty ? (
         <p
           role="status"
-          className="rounded-lg border border-dashed border-border-light bg-surface-card p-8 text-center text-sm text-text-muted"
+          className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint"
         >
           {emptyMessage}
         </p>

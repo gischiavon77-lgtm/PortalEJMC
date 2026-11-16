@@ -106,7 +106,7 @@ export function Pagination({
       )}
     >
       {summary && (
-        <p className="text-xs text-text-muted" aria-live="polite">
+        <p className="text-xs text-text-faint" aria-live="polite">
           {summary}
         </p>
       )}
@@ -128,8 +128,8 @@ export function Pagination({
             aria-label="Página anterior"
             className={cn(
               'inline-flex h-9 shrink-0 items-center justify-center rounded-md px-2.5 text-sm font-medium sm:px-3',
-              'border border-border-light bg-white text-text-primary',
-              'hover:bg-surface-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
+              'border border-border bg-surface text-text',
+              'hover:bg-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
               'disabled:cursor-not-allowed disabled:opacity-50',
             )}
           >
@@ -155,7 +155,7 @@ export function Pagination({
             return (
               <li
                 key={`${item}-${idx}`}
-                className="shrink-0 px-1 text-text-muted sm:px-2"
+                className="shrink-0 px-1 text-text-faint sm:px-2"
                 aria-hidden="true"
               >
                 …
@@ -173,10 +173,10 @@ export function Pagination({
                 aria-current={isCurrent ? 'page' : undefined}
                 className={cn(
                   'inline-flex h-9 min-w-9 shrink-0 items-center justify-center rounded-md px-2 text-sm font-medium sm:px-3',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
                   isCurrent
-                    ? 'border border-red-core bg-red-core text-white'
-                    : 'border border-border-light bg-white text-text-primary hover:bg-surface-bg',
+                    ? 'border border-brand bg-brand text-white'
+                    : 'border border-border bg-surface text-text-soft hover:bg-surface-raised hover:text-text',
                 )}
               >
                 {item}
@@ -193,8 +193,8 @@ export function Pagination({
             aria-label="Próxima página"
             className={cn(
               'inline-flex h-9 shrink-0 items-center justify-center rounded-md px-2.5 text-sm font-medium sm:px-3',
-              'border border-border-light bg-white text-text-primary',
-              'hover:bg-surface-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
+              'border border-border bg-surface text-text',
+              'hover:bg-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
               'disabled:cursor-not-allowed disabled:opacity-50',
             )}
           >

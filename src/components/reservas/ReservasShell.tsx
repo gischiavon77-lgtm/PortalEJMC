@@ -12,7 +12,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Modal, Toast } from '@/components/ui';
+import { Button, Modal, Toast, PageHeader } from '@/components/ui';
 import type { ReservationItem } from '@/app/(portal)/reservas/page';
 import { ReservationGrid } from './ReservationGrid';
 
@@ -151,39 +151,29 @@ export function ReservasShell({
       aria-labelledby="reservas-heading"
       className="mx-auto flex w-full max-w-5xl flex-col gap-6"
     >
-      {/* Header */}
-      <header className="flex flex-col gap-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-          Computadores
-        </p>
-        <h1
-          id="reservas-heading"
-          className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
-        >
-          Reservas
-        </h1>
-        <p className="text-text-secondary">
-          Selecione um computador e dia para reservar. Máximo de 1 reserva por dia, sem 3 dias
-          consecutivos.
-        </p>
-      </header>
+      <PageHeader
+        titleId="reservas-heading"
+        title="Reservas"
+        subtitle="Selecione um computador e dia para reservar. Máximo de 1 reserva por dia, sem 3 dias consecutivos."
+        className="mb-0"
+      />
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-4 text-xs text-text-secondary">
+      <div className="flex flex-wrap items-center gap-4 text-xs text-text-soft">
         <div className="flex items-center gap-1.5">
-          <span className="inline-block h-4 w-4 rounded border border-green-300 bg-green-50" />
+          <span className="inline-block h-4 w-4 rounded border border-ok/40 bg-ok/15" />
           <span>Disponível</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="inline-block h-4 w-4 rounded border border-blue-300 bg-blue-100" />
+          <span className="inline-block h-4 w-4 rounded border border-info/40 bg-info/15" />
           <span>Minha reserva</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="inline-block h-4 w-4 rounded border border-gray-300 bg-gray-200" />
+          <span className="inline-block h-4 w-4 rounded border border-border bg-surface-raised" />
           <span>Ocupado</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="inline-block h-4 w-4 rounded border border-red-300 bg-red-100" />
+          <span className="inline-block h-4 w-4 rounded border border-brand bg-brand/20" />
           <span>Dia lotado</span>
         </div>
       </div>
@@ -228,15 +218,15 @@ export function ReservasShell({
         }
       >
         <div className="space-y-3">
-          <div className="rounded-lg border border-border-light bg-surface-bg p-4">
+          <div className="rounded-lg border border-border bg-bg p-4">
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-text-secondary">Computador:</dt>
-                <dd className="font-medium text-text-primary">PC {confirmModal.computerId}</dd>
+                <dt className="text-text-soft">Computador:</dt>
+                <dd className="font-medium text-text">PC {confirmModal.computerId}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-text-secondary">Data:</dt>
-                <dd className="font-medium text-text-primary">{formatDateBR(confirmModal.date)}</dd>
+                <dt className="text-text-soft">Data:</dt>
+                <dd className="font-medium text-text">{formatDateBR(confirmModal.date)}</dd>
               </div>
             </dl>
           </div>
@@ -276,19 +266,19 @@ export function ReservasShell({
         }
       >
         <div className="space-y-3">
-          <div className="rounded-lg border border-border-light bg-surface-bg p-4">
+          <div className="rounded-lg border border-border bg-bg p-4">
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-text-secondary">Computador:</dt>
-                <dd className="font-medium text-text-primary">PC {cancelModal.computerId}</dd>
+                <dt className="text-text-soft">Computador:</dt>
+                <dd className="font-medium text-text">PC {cancelModal.computerId}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-text-secondary">Data:</dt>
-                <dd className="font-medium text-text-primary">{formatDateBR(cancelModal.date)}</dd>
+                <dt className="text-text-soft">Data:</dt>
+                <dd className="font-medium text-text">{formatDateBR(cancelModal.date)}</dd>
               </div>
             </dl>
           </div>
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-text-faint">
             O slot ficará disponível para outros membros após o cancelamento.
           </p>
         </div>

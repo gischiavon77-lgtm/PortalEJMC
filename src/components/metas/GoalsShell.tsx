@@ -94,16 +94,13 @@ export function GoalsShell({ goals }: GoalsShellProps) {
     >
       <header className="flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            Metas
-          </p>
           <h1
             id="metas-heading"
-            className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
+            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
           >
             Metas da empresa e da minha área
           </h1>
-          <p className="text-text-secondary">
+          <p className="mt-1 text-base font-semibold text-brand">
             Acompanhe o progresso das metas gerais e das metas da área à qual você pertence.
           </p>
         </div>
@@ -131,7 +128,7 @@ export function GoalsShell({ goals }: GoalsShellProps) {
       {goals.length === 0 ? (
         <p
           role="status"
-          className="rounded-lg border border-dashed border-border-light bg-surface-card p-8 text-center text-sm text-text-muted"
+          className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint"
         >
           Nenhuma meta visível para você no momento.
         </p>
@@ -187,7 +184,7 @@ export function GoalsShell({ goals }: GoalsShellProps) {
                 <Button
                   type="button"
                   variant="primary"
-                  className="bg-red-vivid hover:bg-red-vivid/90"
+                  className="bg-brand hover:bg-brand-hover"
                   loading={deleting}
                   onClick={handleConfirmDelete}
                 >
@@ -200,12 +197,12 @@ export function GoalsShell({ goals }: GoalsShellProps) {
               {deleteError && (
                 <div
                   role="alert"
-                  className="rounded-md border border-red-vivid/30 bg-red-vivid/5 px-3 py-2 text-sm text-red-vivid"
+                  className="rounded-md border border-brand bg-brand/20 px-3 py-2 text-sm text-danger"
                 >
                   {deleteError}
                 </div>
               )}
-              <p className="text-sm text-text-secondary">
+              <p className="text-sm text-text-soft">
                 Tem certeza que deseja excluir esta meta? Essa ação não pode ser desfeita e todo o
                 histórico de progresso será removido.
               </p>
@@ -224,9 +221,9 @@ interface SummaryPillProps {
 }
 
 const TONE_CLASSES: Record<SummaryPillProps['tone'], string> = {
-  neutral: 'bg-border-light text-text-secondary',
-  success: 'bg-emerald-100 text-emerald-700',
-  danger: 'bg-red-vivid/10 text-red-vivid',
+  neutral: 'bg-border text-text-soft',
+  success: 'bg-ok/15 text-ok',
+  danger: 'bg-brand/20 text-danger',
 };
 
 function SummaryPill({ label, value, tone }: SummaryPillProps) {
@@ -235,7 +232,7 @@ function SummaryPill({ label, value, tone }: SummaryPillProps) {
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${TONE_CLASSES[tone]}`}
     >
       <span className="tabular-nums">{value}</span>
-      <span className="uppercase tracking-[1.5px]">{label}</span>
+      <span className="">{label}</span>
     </span>
   );
 }

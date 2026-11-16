@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { ProfileForm } from '@/components/perfil/ProfileForm';
 import { ProfileBanner } from '@/components/perfil/ProfileBanner';
 import type { ProfileUser } from '@/components/perfil/ProfileForm';
+import { PageHeader } from '@/components/ui';
 
 /**
  * `/perfil` — Página de perfil do usuário (Tasks 11.3, 11.4, 11.5, 11.6 / Req 12).
@@ -83,16 +84,12 @@ export default async function PerfilPage() {
       aria-labelledby="perfil-heading"
       className="mx-auto flex w-full max-w-3xl flex-col gap-6"
     >
-      <header className="flex flex-col gap-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">Conta</p>
-        <h1
-          id="perfil-heading"
-          className="font-heading text-3xl font-bold tracking-[-0.5px] text-text-primary sm:text-4xl"
-        >
-          Meu Perfil
-        </h1>
-        <p className="text-text-secondary">Gerencie suas informações pessoais de contato.</p>
-      </header>
+      <PageHeader
+        titleId="perfil-heading"
+        title="Meu Perfil"
+        subtitle="Gerencie suas informações pessoais de contato."
+        className="mb-0"
+      />
 
       <ProfileBanner
         name={profileUser.name}
@@ -102,7 +99,7 @@ export default async function PerfilPage() {
         role={profileUser.role}
       />
 
-      <div className="rounded-xl border border-border-light bg-surface-card p-6 shadow-sm">
+      <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
         <ProfileForm user={profileUser} />
       </div>
     </section>

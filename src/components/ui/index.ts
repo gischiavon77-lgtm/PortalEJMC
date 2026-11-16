@@ -29,5 +29,17 @@ export type { BadgeProps, BadgeSize, BadgeVariant } from './Badge';
 export { Pagination } from './Pagination';
 export type { PaginationProps } from './Pagination';
 
+export { PageHeader } from './PageHeader';
+export type { PageHeaderProps } from './PageHeader';
+
+export { StatCard } from './StatCard';
+export type { StatCardProps } from './StatCard';
+
+export { StatusBadge } from './StatusBadge';
+export type { StatusBadgeProps, StatusTone } from './StatusBadge';
+
+export { EmptyState } from './EmptyState';
+export type { EmptyStateProps } from './EmptyState';
+
 export { Toast } from './Toast';
 export type { ToastProps, ToastVariant } from './Toast';

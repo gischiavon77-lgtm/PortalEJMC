@@ -17,7 +17,7 @@ import { LoginForm } from '@/components/auth/LoginForm';
  *
  * ─── Conteúdo desta página ────────────────────────────────────────
  *
- *   - `<section.glass-card>` com `aria-labelledby="login-title"`,
+ *   - `<section.auth-card>` com `aria-labelledby="login-title"`,
  *     reaproveitando todas as classes utilitárias definidas em
  *     `src/app/globals.css` (Task 1.6).
  *   - Logo emblem (gradiente vermelho com glow) com a `logoejmc.png`
@@ -44,12 +44,12 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <section
-      className="glass-card glass-card--reveal w-full max-w-[26.25rem] px-7 py-10 sm:px-11 sm:py-12"
+      className="auth-card w-full max-w-[26.25rem] px-7 py-10 sm:px-11 sm:py-12"
       aria-labelledby="login-title"
     >
       {/* ─── Logo + identificação ─── */}
       <header className="mb-10 flex flex-col items-center text-center animate-fade-up opacity-0 [animation-delay:0.15s]">
-        <div className="logo-emblem h-[100px] w-[100px]">
+        <div className="h-[100px] w-[100px]">
           <Image
             src="/logoejmc.png"
             alt="Logo EJMC"
@@ -61,13 +61,11 @@ export default function LoginPage() {
         </div>
         <h1
           id="login-title"
-          className="mt-6 font-heading text-[32px] font-black leading-none tracking-[-0.5px] text-white"
+          className="mt-6 font-heading text-[32px] font-extrabold leading-none tracking-[-0.5px] text-white"
         >
           EJMC
         </h1>
-        <p className="mt-2 text-[11px] font-medium uppercase tracking-[3px] text-white/35">
-          Portal Interno
-        </p>
+        <p className="mt-2 text-[11px] font-medium text-white/35">Portal Interno</p>
       </header>
 
       <Suspense

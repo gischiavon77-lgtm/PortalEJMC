@@ -143,7 +143,7 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
   const iconColor =
     tone === 'dark'
       ? 'text-white/70 hover:text-white hover:bg-white/10'
-      : 'text-text-muted hover:text-text-primary hover:bg-border-light';
+      : 'text-text-faint hover:text-text hover:bg-border';
 
   return (
     <div ref={containerRef} className={`relative ${className ?? ''}`}>
@@ -153,7 +153,7 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
         aria-label={unreadCount > 0 ? `Notificações (${unreadCount} não lidas)` : 'Notificações'}
         aria-haspopup="true"
         aria-expanded={open}
-        className={`relative flex h-9 w-9 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/40 ${iconColor}`}
+        className={`relative flex h-9 w-9 items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 ${iconColor}`}
       >
         <svg
           viewBox="0 0 24 24"
@@ -174,8 +174,8 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
             aria-hidden="true"
             className="absolute right-1.5 top-1.5 flex h-2.5 w-2.5 items-center justify-center"
           >
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-vivid opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-vivid ring-2 ring-white" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-brand ring-2 ring-bg" />
           </span>
         )}
       </button>
@@ -184,17 +184,17 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
         <div
           role="menu"
           aria-label="Lista de notificações"
-          className="absolute right-0 top-11 z-50 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border-light bg-white shadow-xl"
+          className="absolute right-0 top-11 z-50 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-surface"
         >
-          <div className="flex items-center justify-between border-b border-border-light px-4 py-3">
-            <p className="text-sm font-bold text-text-primary">Notificações</p>
-            <span className="text-[11px] font-medium uppercase tracking-[1.5px] text-text-muted">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <p className="text-sm font-bold text-text">Notificações</p>
+            <span className="text-[11px] font-medium text-text-faint">
               {visibleItems.length} {visibleItems.length === 1 ? 'aviso' : 'avisos'}
             </span>
           </div>
 
           {visibleItems.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-text-muted">
+            <p className="px-4 py-8 text-center text-sm text-text-faint">
               Nenhuma notificação por enquanto.
             </p>
           ) : (
@@ -208,14 +208,14 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
                         type="button"
                         role="menuitem"
                         onClick={() => handleItemClick(item)}
-                        className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 focus-visible:bg-gray-50 focus-visible:outline-none"
+                        className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-raised focus-visible:bg-surface-raised focus-visible:outline-none"
                       >
                         <span
                           aria-hidden="true"
                           className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
                             item.type === 'poll'
-                              ? 'bg-amber-100 text-amber-600'
-                              : 'bg-red-vivid/10 text-red-vivid'
+                              ? 'bg-warn/15 text-warn'
+                              : 'bg-brand/20 text-danger'
                           }`}
                         >
                           {item.type === 'poll' ? (
@@ -250,17 +250,17 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
                         </span>
                         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                           <span className="flex items-center gap-2">
-                            <span className="text-[11px] font-semibold uppercase tracking-[1px] text-text-muted">
+                            <span className="text-[11px] font-semibold text-text-faint">
                               {item.type === 'poll' ? 'Nova enquete' : 'Novo comunicado'}
                             </span>
                             {isNew && (
-                              <span className="inline-flex h-1.5 w-1.5 shrink-0 rounded-full bg-red-vivid" />
+                              <span className="inline-flex h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
                             )}
                           </span>
-                          <span className="truncate text-sm font-medium text-text-primary">
+                          <span className="truncate text-sm font-medium text-text">
                             {item.title}
                           </span>
-                          <span className="text-[11px] text-text-muted">
+                          <span className="text-[11px] text-text-faint">
                             {formatRelative(item.createdAt)}
                           </span>
                         </span>
@@ -271,11 +271,11 @@ export function NotificationBell({ tone = 'light', className }: NotificationBell
               </ul>
 
               {/* Rodapé: limpar notificações */}
-              <div className="border-t border-border-light p-2">
+              <div className="border-t border-border p-2">
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[1px] text-text-muted transition-colors hover:bg-gray-50 hover:text-red-vivid focus-visible:bg-gray-50 focus-visible:outline-none"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-text-faint transition-colors hover:bg-surface-raised hover:text-danger focus-visible:bg-surface-raised focus-visible:outline-none"
                 >
                   <svg
                     viewBox="0 0 24 24"

@@ -68,10 +68,7 @@ const formSchema = z
     description: z
       .string()
       .trim()
-      .max(
-        GOAL_DESCRIPTION_MAX_LENGTH,
-        GOAL_VALIDATION_MESSAGES.description.tooLong,
-      ),
+      .max(GOAL_DESCRIPTION_MAX_LENGTH, GOAL_VALIDATION_MESSAGES.description.tooLong),
     type: z.enum(['GENERAL', 'AREA'], {
       error: GOAL_VALIDATION_MESSAGES.type.invalid,
     }),
@@ -208,13 +205,11 @@ export function GoalForm({ open, onClose, onSaved }: GoalFormProps) {
       });
 
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as
-          | {
-              code?: string;
-              message?: string;
-              fields?: Array<{ path: string; message: string }>;
-            }
-          | null;
+        const data = (await res.json().catch(() => null)) as {
+          code?: string;
+          message?: string;
+          fields?: Array<{ path: string; message: string }>;
+        } | null;
 
         if (data?.fields?.length) {
           const next: FormErrors = {};
@@ -225,9 +220,7 @@ export function GoalForm({ open, onClose, onSaved }: GoalFormProps) {
           setErrors(next);
         } else {
           setErrors({
-            _global:
-              data?.message ??
-              'Não foi possível criar a meta. Tente novamente.',
+            _global: data?.message ?? 'Não foi possível criar a meta. Tente novamente.',
           });
         }
         return;
@@ -237,8 +230,7 @@ export function GoalForm({ open, onClose, onSaved }: GoalFormProps) {
       onClose();
     } catch {
       setErrors({
-        _global:
-          'Erro de conexão. Verifique sua internet e tente novamente.',
+        _global: 'Erro de conexão. Verifique sua internet e tente novamente.',
       });
     } finally {
       setSubmitting(false);
@@ -256,35 +248,20 @@ export function GoalForm({ open, onClose, onSaved }: GoalFormProps) {
       closeOnOverlayClick={!submitting}
       footer={
         <div className="flex w-full items-center justify-end gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={onClose}
-            disabled={submitting}
-          >
+          <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button
-            type="submit"
-            form="goal-form"
-            variant="primary"
-            loading={submitting}
-          >
+          <Button type="submit" form="goal-form" variant="primary" loading={submitting}>
             Criar meta
           </Button>
         </div>
       }
     >
-      <form
-        id="goal-form"
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4"
-        noValidate
-      >
+      <form id="goal-form" onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         {errors._global && (
           <div
             role="alert"
-            className="rounded-md border border-red-vivid/30 bg-red-vivid/5 px-3 py-2 text-sm text-red-vivid"
+            className="rounded-md border border-brand bg-brand/20 px-3 py-2 text-sm text-danger"
           >
             {errors._global}
           </div>
@@ -304,10 +281,7 @@ export function GoalForm({ open, onClose, onSaved }: GoalFormProps) {
         />
 
         <div className="flex w-full flex-col gap-1.5">
-          <label
-            htmlFor="goal-description"
-            className="text-sm font-medium text-text-primary"
-          >
+          <label htmlFor="goal-description" className="text-sm font-medium text-text">
             Descrição
           </label>
           <textarea
@@ -320,26 +294,24 @@ export function GoalForm({ open, onClose, onSaved }: GoalFormProps) {
             placeholder="Detalhe o objetivo da meta (opcional)."
             aria-invalid={Boolean(errors.description) || undefined}
             aria-describedby={
-              errors.description
-                ? 'goal-description-error'
-                : 'goal-description-hint'
+              errors.description ? 'goal-description-error' : 'goal-description-hint'
             }
             className={[
-              'w-full resize-y rounded-md border bg-white px-3 py-2 text-sm text-text-primary',
-              'placeholder:text-text-muted',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
+              'w-full resize-y rounded-md border bg-surface px-3 py-2 text-sm text-text',
+              'placeholder:text-text-faint',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
               errors.description
-                ? 'border-red-vivid focus-visible:border-red-vivid focus-visible:ring-red-vivid/30'
-                : 'border-border-light focus-visible:border-red-core',
-              'disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-text-muted',
+                ? 'border-brand focus-visible:border-white/60 focus-visible:ring-white/30'
+                : 'border-border focus-visible:border-white/60',
+              'disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-faint',
             ].join(' ')}
           />
           {errors.description ? (
-            <p id="goal-description-error" className="text-xs text-red-vivid">
+            <p id="goal-description-error" className="text-xs text-danger">
               {errors.description}
             </p>
           ) : (
-            <p id="goal-description-hint" className="text-xs text-text-muted">
+            <p id="goal-description-hint" className="text-xs text-text-faint">
               {values.description.trim().length}/{GOAL_DESCRIPTION_MAX_LENGTH} caracteres
             </p>
           )}
@@ -347,12 +319,9 @@ export function GoalForm({ open, onClose, onSaved }: GoalFormProps) {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex w-full flex-col gap-1.5">
-            <label
-              htmlFor="goal-type"
-              className="text-sm font-medium text-text-primary"
-            >
+            <label htmlFor="goal-type" className="text-sm font-medium text-text">
               Tipo
-              <span aria-hidden="true" className="ml-0.5 text-red-vivid">
+              <span aria-hidden="true" className="ml-0.5 text-danger">
                 *
               </span>
             </label>
@@ -367,27 +336,27 @@ export function GoalForm({ open, onClose, onSaved }: GoalFormProps) {
                   // Limpa área ao voltar para GENERAL.
                   area: nextType === 'GENERAL' ? '' : prev.area,
                 }));
-                setErrors((prev) => ({ ...prev, type: undefined, area: undefined, _global: undefined }));
+                setErrors((prev) => ({
+                  ...prev,
+                  type: undefined,
+                  area: undefined,
+                  _global: undefined,
+                }));
               }}
               disabled={submitting}
-              className="h-10 w-full rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30 disabled:cursor-not-allowed disabled:bg-surface-bg"
+              className="h-10 w-full rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 disabled:cursor-not-allowed disabled:bg-bg"
             >
               <option value="GENERAL">Geral (empresa toda)</option>
               <option value="AREA">Por área</option>
             </select>
-            {errors.type && (
-              <p className="text-xs text-red-vivid">{errors.type}</p>
-            )}
+            {errors.type && <p className="text-xs text-danger">{errors.type}</p>}
           </div>
 
           <div className="flex w-full flex-col gap-1.5">
-            <label
-              htmlFor="goal-area"
-              className="text-sm font-medium text-text-primary"
-            >
+            <label htmlFor="goal-area" className="text-sm font-medium text-text">
               Área
               {values.type === 'AREA' && (
-                <span aria-hidden="true" className="ml-0.5 text-red-vivid">
+                <span aria-hidden="true" className="ml-0.5 text-danger">
                   *
                 </span>
               )}
@@ -395,25 +364,19 @@ export function GoalForm({ open, onClose, onSaved }: GoalFormProps) {
             <select
               id="goal-area"
               value={values.area}
-              onChange={(e) =>
-                setField('area', e.target.value as '' | Area)
-              }
+              onChange={(e) => setField('area', e.target.value as '' | Area)}
               disabled={submitting || values.type !== 'AREA'}
               aria-invalid={Boolean(errors.area) || undefined}
-              className="h-10 w-full rounded-md border border-border-light bg-white px-3 text-sm text-text-primary focus-visible:border-red-core focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30 disabled:cursor-not-allowed disabled:bg-surface-bg"
+              className="h-10 w-full rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 disabled:cursor-not-allowed disabled:bg-bg"
             >
-              <option value="">
-                {values.type === 'AREA' ? 'Selecione…' : 'Não aplicável'}
-              </option>
+              <option value="">{values.type === 'AREA' ? 'Selecione…' : 'Não aplicável'}</option>
               {GOAL_AREAS.map((area) => (
                 <option key={area} value={area}>
                   {AREA_LABELS[area]}
                 </option>
               ))}
             </select>
-            {errors.area && (
-              <p className="text-xs text-red-vivid">{errors.area}</p>
-            )}
+            {errors.area && <p className="text-xs text-danger">{errors.area}</p>}
           </div>
         </div>
 

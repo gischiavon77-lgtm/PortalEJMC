@@ -82,9 +82,7 @@ function formatValue(value: number, format: KpiFormat): string {
   if (!Number.isFinite(value)) {
     return format === 'currency' ? 'R$ 0,00' : '0';
   }
-  return format === 'currency'
-    ? currencyFormatter.format(value)
-    : integerFormatter.format(value);
+  return format === 'currency' ? currencyFormatter.format(value) : integerFormatter.format(value);
 }
 
 export function KpiCard({
@@ -108,12 +106,10 @@ export function KpiCard({
     >
       <dl className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
-          <dt className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-            {label}
-          </dt>
+          <dt className="text-[11px] font-semibold text-text-faint">{label}</dt>
           {icon ? (
             <span
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-red-core/10 text-red-core"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-brand/20 text-danger"
               aria-hidden="true"
             >
               {icon}
@@ -121,14 +117,12 @@ export function KpiCard({
           ) : null}
         </div>
 
-        <dd className="font-heading text-3xl font-bold leading-none tracking-[-0.5px] text-text-primary sm:text-[32px]">
+        <dd className="font-heading text-3xl font-bold leading-none tracking-[-0.5px] text-text sm:text-[32px]">
           {formatValue(value, format)}
         </dd>
       </dl>
 
-      {hint ? (
-        <p className="mt-4 text-sm text-text-secondary">{hint}</p>
-      ) : null}
+      {hint ? <p className="mt-4 text-sm text-text-soft">{hint}</p> : null}
     </Card>
   );
 }

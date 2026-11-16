@@ -17,7 +17,6 @@ interface Area {
   id: string;
   name: string;
   emoji: string;
-  gradient: string;
   description: string;
   services: Service[];
 }
@@ -29,7 +28,6 @@ const AREAS: Area[] = [
     id: 'marketing',
     name: 'MARKETING',
     emoji: '📢',
-    gradient: 'from-pink-500 to-rose-600',
     description:
       'Construir posicionamento, comunicação e ativos de marca que gerem reconhecimento e aquisição de clientes.',
     services: [
@@ -93,7 +91,6 @@ const AREAS: Area[] = [
     id: 'inteligencia-mercado',
     name: 'INTELIGÊNCIA DE MERCADO',
     emoji: '🔍',
-    gradient: 'from-blue-500 to-indigo-600',
     description: 'Reduzir incertezas através de dados sobre consumidores, concorrentes e mercado.',
     services: [
       {
@@ -170,7 +167,6 @@ const AREAS: Area[] = [
     id: 'operacoes',
     name: 'OPERAÇÕES',
     emoji: '⚙️',
-    gradient: 'from-emerald-500 to-green-600',
     description: 'Estruturar processos, pessoas e organização para crescimento sustentável.',
     services: [
       {
@@ -219,7 +215,6 @@ const AREAS: Area[] = [
     id: 'tech',
     name: 'TECH',
     emoji: '💻',
-    gradient: 'from-violet-500 to-purple-700',
     description: 'Transformar tecnologia e dados em vantagem competitiva.',
     services: [
       {
@@ -324,7 +319,6 @@ const AREAS: Area[] = [
     id: 'estrategia',
     name: 'ESTRATÉGIA DE NOVOS NEGÓCIOS',
     emoji: '🚀',
-    gradient: 'from-amber-500 to-orange-600',
     description: 'Transformar ideias em negócios viáveis e escaláveis.',
     services: [
       {
@@ -404,7 +398,6 @@ const AREAS: Area[] = [
     id: 'financeiro',
     name: 'FINANCEIRO',
     emoji: '💰',
-    gradient: 'from-teal-500 to-cyan-600',
     description:
       'Garantir sustentabilidade financeira, tomada de decisão baseada em números e crescimento saudável.',
     services: [
@@ -472,20 +465,18 @@ export function PortfolioInterativo() {
   // ── Service Detail View ──────────────────────────────────────────────────────
   if (area && service !== null && selectedService !== null) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+      <div>
         <div className="mx-auto max-w-3xl">
           <button
             onClick={() => setSelectedService(null)}
-            className="mb-6 flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
+            className="mb-6 flex items-center gap-2 text-sm font-medium text-text-soft transition-colors hover:text-text"
           >
             <span aria-hidden="true">←</span> Voltar
           </button>
 
           {/* Header */}
-          <div
-            className={`mb-8 rounded-2xl bg-gradient-to-br ${area.gradient} p-6 text-white shadow-lg`}
-          >
-            <p className="mb-1 text-sm font-medium uppercase tracking-wide opacity-80">
+          <div className={`mb-8 rounded-lg border border-border bg-surface p-6 text-text`}>
+            <p className="mb-1 text-sm font-medium opacity-80">
               {area.emoji} {area.name}
             </p>
             <h1 className="text-2xl font-bold sm:text-3xl">{service.name}</h1>
@@ -493,29 +484,29 @@ export function PortfolioInterativo() {
 
           {/* Description */}
           <section className="mb-6">
-            <h2 className="mb-2 text-lg font-semibold text-gray-800">Descrição</h2>
-            <p className="text-gray-600">{service.description}</p>
+            <h2 className="mb-2 text-lg font-semibold text-text">Descrição</h2>
+            <p className="text-text-soft">{service.description}</p>
           </section>
 
           {/* Objective */}
           <section className="mb-6">
-            <h2 className="mb-2 text-lg font-semibold text-gray-800">Objetivo</h2>
-            <p className="text-gray-600">{service.objective}</p>
+            <h2 className="mb-2 text-lg font-semibold text-text">Objetivo</h2>
+            <p className="text-text-soft">{service.objective}</p>
           </section>
 
           {/* Macro Steps — Timeline (only if macroSteps has content) */}
           {service.macroSteps.length > 0 && (
             <section className="mb-6">
-              <h2 className="mb-4 text-lg font-semibold text-gray-800">Macroetapas</h2>
-              <ol className="relative border-l-2 border-gray-200 pl-6">
+              <h2 className="mb-4 text-lg font-semibold text-text">Macroetapas</h2>
+              <ol className="relative border-l-2 border-border pl-6">
                 {service.macroSteps.map((step, i) => (
                   <li key={i} className="relative mb-6 last:mb-0">
                     <span
-                      className={`absolute -left-[31px] flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br ${area.gradient} text-xs font-bold text-white shadow`}
+                      className={`absolute -left-[31px] flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold text-white`}
                     >
                       {i + 1}
                     </span>
-                    <p className="text-gray-700">{step}</p>
+                    <p className="text-text">{step}</p>
                   </li>
                 ))}
               </ol>
@@ -525,27 +516,25 @@ export function PortfolioInterativo() {
           {/* Sub-Services */}
           {service.subServices && service.subServices.length > 0 && (
             <section className="mb-6">
-              <h2 className="mb-4 text-lg font-semibold text-gray-800">Modalidades</h2>
+              <h2 className="mb-4 text-lg font-semibold text-text">Modalidades</h2>
               <div className="space-y-5">
                 {service.subServices.map((sub, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+                    className="rounded-xl border border-border bg-surface p-5 shadow-sm"
                   >
-                    <h3
-                      className={`mb-3 text-base font-semibold text-transparent bg-clip-text bg-gradient-to-r ${area.gradient}`}
-                    >
+                    <h3 className={`mb-3 font-heading text-base font-bold text-text`}>
                       {sub.name}
                     </h3>
-                    <ol className="relative border-l-2 border-gray-200 pl-5">
+                    <ol className="relative border-l-2 border-border pl-5">
                       {sub.steps.map((step, i) => (
                         <li key={i} className="relative mb-4 last:mb-0">
                           <span
-                            className={`absolute -left-[25px] flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br ${area.gradient} text-[10px] font-bold text-white shadow`}
+                            className={`absolute -left-[25px] flex h-5 w-5 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-white`}
                           >
                             {i + 1}
                           </span>
-                          <p className="text-sm text-gray-700">{step}</p>
+                          <p className="text-sm text-text">{step}</p>
                         </li>
                       ))}
                     </ol>
@@ -558,12 +547,12 @@ export function PortfolioInterativo() {
           {/* Modules */}
           {service.modules && service.modules.length > 0 && (
             <section className="mb-6">
-              <h2 className="mb-3 text-lg font-semibold text-gray-800">Módulo adicional</h2>
+              <h2 className="mb-3 text-lg font-semibold text-text">Módulo adicional</h2>
               <div className="flex flex-wrap gap-2">
                 {service.modules.map((mod, i) => (
                   <span
                     key={i}
-                    className={`inline-flex items-center rounded-full bg-gradient-to-r ${area.gradient} px-3 py-1 text-xs font-medium text-white shadow-sm`}
+                    className={`inline-flex items-center rounded-full border border-border bg-surface-raised px-3 py-1 text-xs font-medium text-text-soft`}
                   >
                     {mod}
                   </span>
@@ -579,22 +568,20 @@ export function PortfolioInterativo() {
   // ── Area Services View ───────────────────────────────────────────────────────
   if (area) {
     return (
-      <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+      <div>
         <div className="mx-auto max-w-4xl">
           <button
             onClick={() => {
               setSelectedArea(null);
               setSelectedService(null);
             }}
-            className="mb-6 flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
+            className="mb-6 flex items-center gap-2 text-sm font-medium text-text-soft transition-colors hover:text-text"
           >
             <span aria-hidden="true">←</span> Voltar ao mapa
           </button>
 
           {/* Area Header */}
-          <div
-            className={`mb-8 rounded-2xl bg-gradient-to-br ${area.gradient} p-6 text-white shadow-lg`}
-          >
+          <div className={`mb-8 rounded-lg border border-border bg-surface p-6 text-text`}>
             <div className="flex items-center gap-3">
               <span className="text-4xl">{area.emoji}</span>
               <div>
@@ -610,12 +597,12 @@ export function PortfolioInterativo() {
               <button
                 key={idx}
                 onClick={() => setSelectedService(idx)}
-                className="group rounded-xl border border-gray-200 bg-white p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2"
+                className="group rounded-xl border border-border bg-surface-raised p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2"
               >
-                <h3 className="mb-1 text-lg font-semibold text-gray-800 group-hover:text-gray-900">
+                <h3 className="mb-1 text-lg font-semibold text-text group-hover:text-text">
                   {svc.name}
                 </h3>
-                <p className="line-clamp-2 text-sm text-gray-500">{svc.description}</p>
+                <p className="line-clamp-2 text-sm text-text-soft">{svc.description}</p>
               </button>
             ))}
           </div>
@@ -626,11 +613,15 @@ export function PortfolioInterativo() {
 
   // ── Map View (default) ───────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div>
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-800 sm:text-4xl">Portfólio de Serviços</h1>
-          <p className="mt-2 text-gray-500">Clique em uma área para explorar nossos serviços</p>
+        <div className="mb-6">
+          <h1 className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl">
+            Portfólio de Serviços
+          </h1>
+          <p className="mt-1 text-base font-semibold text-brand">
+            Clique em uma área para explorar nossos serviços
+          </p>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -638,7 +629,7 @@ export function PortfolioInterativo() {
             <button
               key={a.id}
               onClick={() => setSelectedArea(a.id)}
-              className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${a.gradient} p-6 text-left text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2`}
+              className={`group relative overflow-hidden rounded-lg border border-border bg-surface-raised p-6 text-left text-text transition-colors hover:border-brand focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30`}
             >
               <span className="absolute right-4 top-4 text-5xl opacity-30 transition-transform group-hover:scale-110">
                 {a.emoji}

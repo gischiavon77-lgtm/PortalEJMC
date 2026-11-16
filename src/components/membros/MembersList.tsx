@@ -11,7 +11,7 @@
  *     horizontal (Req 20.4).
  *
  *   - **Desktop/Tablet (≥768px)**: tabela com colunas Nome, Cargo e
- *     Área. Cabeçalhos em tipografia pequena e `uppercase` para
+ *     Área. Cabeçalhos em tipografia pequena e `` para
  *     destaque, divisórias sutis usando `border-light`.
  *
  * A escolha de duplicar o markup (em vez de manipular CSS via
@@ -83,14 +83,14 @@ function Avatar({ name, avatarUrl }: { name: string; avatarUrl: string | null })
         src={avatarUrl}
         alt=""
         aria-hidden="true"
-        className="h-10 w-10 flex-none rounded-full object-cover ring-1 ring-border-light"
+        className="h-10 w-10 flex-none rounded-full object-cover ring-1 ring-border"
       />
     );
   }
   return (
     <span
       aria-hidden="true"
-      className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-red-core/10 text-sm font-semibold uppercase tracking-wide text-red-core ring-1 ring-red-core/20"
+      className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-brand/20 text-sm font-semibold text-danger ring-1 ring-brand/40"
     >
       {getInitials(name)}
     </span>
@@ -106,18 +106,15 @@ export function MembersList({ members }: MembersListProps) {
         aria-label="Membros (visualização em cartões)"
       >
         {members.map((member) => (
-          <li
-            key={member.id}
-            className="rounded-lg border border-border-light bg-surface-card p-4 shadow-sm"
-          >
+          <li key={member.id} className="rounded-lg border border-border bg-surface p-4 shadow-sm">
             <div className="flex items-start gap-3">
               <Avatar name={member.name} avatarUrl={member.avatarUrl} />
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                <p className="truncate font-heading text-base font-semibold text-text-primary">
+                <p className="truncate font-heading text-base font-semibold text-text">
                   {member.name}
                 </p>
                 {effectivePosition(member.role, member.position) && (
-                  <p className="truncate text-sm text-text-secondary">
+                  <p className="truncate text-sm text-text-soft">
                     {effectivePosition(member.role, member.position)}
                   </p>
                 )}
@@ -131,28 +128,28 @@ export function MembersList({ members }: MembersListProps) {
       </ul>
 
       {/* ─── Desktop/Tablet: tabela (escondido em <768px) ─── */}
-      <div className="hidden tablet:block w-full overflow-hidden rounded-lg border border-border-light bg-surface-card shadow-sm">
+      <div className="hidden tablet:block w-full overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
         <table className="w-full border-collapse text-sm">
           <caption className="sr-only">
             Lista de membros ativos da empresa, ordenada alfabeticamente por nome.
           </caption>
-          <thead className="bg-surface-bg/60">
+          <thead className="bg-bg/60">
             <tr>
               <th
                 scope="col"
-                className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
               >
                 Nome
               </th>
               <th
                 scope="col"
-                className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
               >
                 Cargo
               </th>
               <th
                 scope="col"
-                className="border-b border-border-light px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-text-secondary"
+                className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
               >
                 Área
               </th>
@@ -160,14 +157,14 @@ export function MembersList({ members }: MembersListProps) {
           </thead>
           <tbody>
             {members.map((member) => (
-              <tr key={member.id} className="border-b border-border-light last:border-b-0">
+              <tr key={member.id} className="border-b border-border last:border-b-0">
                 <td className="px-4 py-3 align-middle">
                   <div className="flex items-center gap-3">
                     <Avatar name={member.name} avatarUrl={member.avatarUrl} />
-                    <span className="font-medium text-text-primary">{member.name}</span>
+                    <span className="font-medium text-text">{member.name}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 align-middle text-text-secondary">
+                <td className="px-4 py-3 align-middle text-text-soft">
                   {effectivePosition(member.role, member.position) || '—'}
                 </td>
                 <td className="px-4 py-3 align-middle">

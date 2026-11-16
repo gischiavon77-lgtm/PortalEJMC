@@ -27,20 +27,20 @@ describe('Button', () => {
   it('aplica classes da variante primary por padrão', () => {
     render(<Button>Salvar</Button>);
     const btn = screen.getByRole('button');
-    expect(btn.className).toMatch(/bg-red-core/);
+    expect(btn.className).toMatch(/bg-brand/);
   });
 
   it('aplica classes da variante secondary', () => {
     render(<Button variant="secondary">Cancelar</Button>);
     const btn = screen.getByRole('button');
-    expect(btn.className).toMatch(/text-red-core/);
-    expect(btn.className).toMatch(/bg-white/);
+    expect(btn.className).toMatch(/border-border/);
+    expect(btn.className).toMatch(/bg-transparent/);
   });
 
   it('aplica classes da variante destructive', () => {
     render(<Button variant="destructive">Excluir</Button>);
     const btn = screen.getByRole('button');
-    expect(btn.className).toMatch(/bg-red-vivid/);
+    expect(btn.className).toMatch(/border-brand/);
   });
 
   it('respeita o tamanho lg (mais alto que md)', () => {
@@ -82,7 +82,10 @@ describe('Button', () => {
 
   it('renderiza ícones esquerdo e direito quando não está em loading', () => {
     render(
-      <Button leftIcon={<span data-testid="left">L</span>} rightIcon={<span data-testid="right">R</span>}>
+      <Button
+        leftIcon={<span data-testid="left">L</span>}
+        rightIcon={<span data-testid="right">R</span>}
+      >
         Texto
       </Button>,
     );
@@ -92,7 +95,11 @@ describe('Button', () => {
 
   it('em loading, esconde leftIcon (substituído pelo spinner) e rightIcon', () => {
     render(
-      <Button loading leftIcon={<span data-testid="left">L</span>} rightIcon={<span data-testid="right">R</span>}>
+      <Button
+        loading
+        leftIcon={<span data-testid="left">L</span>}
+        rightIcon={<span data-testid="right">R</span>}
+      >
         Texto
       </Button>,
     );

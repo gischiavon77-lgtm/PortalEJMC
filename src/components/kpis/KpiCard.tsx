@@ -69,15 +69,10 @@ function formatRecordedAt(iso: string): string {
   return dateFormatter.format(date);
 }
 
-function formatInterval(
-  min: number | null,
-  max: number | null,
-  unit: KpiUnit,
-): string | null {
+function formatInterval(min: number | null, max: number | null, unit: KpiUnit): string | null {
   if (min === null && max === null) return null;
 
-  const fmt = (v: number) =>
-    formatKpiValue(v, unit).replace(/^—$/, String(v));
+  const fmt = (v: number) => formatKpiValue(v, unit).replace(/^—$/, String(v));
 
   if (min !== null && max !== null) {
     return `${fmt(min)} a ${fmt(max)}`;
@@ -102,68 +97,53 @@ export function KpiCard({ kpi, canWriteValue = false, onWriteValue }: KpiCardPro
       {/* Cabeçalho: área + unidade */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge
-            variant={kpi.area === null ? 'neutral' : 'info'}
-            size="sm"
-          >
+          <Badge variant={kpi.area === null ? 'neutral' : 'info'} size="sm">
             {areaLabel}
           </Badge>
-          <span className="text-[10px] font-semibold uppercase tracking-[1.5px] text-text-muted">
+          <span className="text-[10px] font-semibold text-text-faint">
             {KPI_UNIT_LABELS[kpi.unit]}
           </span>
         </div>
       </div>
 
       {/* Nome */}
-      <h3 className="font-heading text-lg font-bold tracking-tight text-text-primary">
-        {kpi.name}
-      </h3>
+      <h3 className="font-heading text-lg font-bold tracking-tight text-text">{kpi.name}</h3>
 
       {/* Valor mais recente */}
       <div className="flex flex-col gap-1.5">
-        <p className="text-[11px] font-semibold uppercase tracking-[2px] text-text-muted">
-          Valor mais recente
-        </p>
+        <p className="text-[11px] font-semibold text-text-faint">Valor mais recente</p>
         <p
-          className="font-heading text-3xl font-bold leading-none tracking-[-0.5px] text-text-primary tabular-nums"
+          className="font-heading text-3xl font-bold leading-none tracking-[-0.5px] text-text tabular-nums"
           aria-label={hasValue ? undefined : 'Sem valor registrado'}
         >
           {hasValue ? formatKpiValue(kpi.latestValue, kpi.unit) : '—'}
         </p>
         {hasValue && kpi.latestRecordedAt ? (
-          <p className="text-xs text-text-muted">
+          <p className="text-xs text-text-faint">
             Registrado em{' '}
             <time
               dateTime={kpi.latestRecordedAt}
-              className="font-medium tabular-nums text-text-secondary"
+              className="font-medium tabular-nums text-text-soft"
             >
               {formatRecordedAt(kpi.latestRecordedAt)}
             </time>
           </p>
         ) : (
-          <p className="text-xs text-text-muted">
-            Nenhum valor registrado ainda.
-          </p>
+          <p className="text-xs text-text-faint">Nenhum valor registrado ainda.</p>
         )}
       </div>
 
       {/* Intervalo configurado (quando houver) */}
       {interval && (
-        <p className="text-xs text-text-muted">
-          Intervalo permitido:{' '}
-          <span className="font-medium text-text-secondary">{interval}</span>
+        <p className="text-xs text-text-faint">
+          Intervalo permitido: <span className="font-medium text-text-soft">{interval}</span>
         </p>
       )}
 
       {/* Ação */}
       {canWriteValue && onWriteValue && (
         <div className="mt-auto flex justify-end">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => onWriteValue(kpi)}
-          >
+          <Button type="button" variant="secondary" size="sm" onClick={() => onWriteValue(kpi)}>
             Inserir valor
           </Button>
         </div>

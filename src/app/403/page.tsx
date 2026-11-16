@@ -79,74 +79,17 @@ export const metadata: Metadata = {
 export default function ForbiddenPage() {
   return (
     <div className="relative min-h-screen min-w-[320px] overflow-hidden text-white">
-      {/* ─── Background (idêntico ao de /login e /cadastro) ─── */}
-      <div className="scene" aria-hidden="true">
-        <div className="blob blob-1" />
-        <div className="blob blob-2" />
-        <div className="blob blob-3" />
-        <div className="blob blob-4" />
-
-        <svg
-          className="organic-svg"
-          viewBox="0 0 1440 900"
-          preserveAspectRatio="xMidYMid slice"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M-80,200 C100,100 300,350 500,200 S800,50 1000,200 S1300,400 1520,250"
-            stroke="#c0182e"
-            strokeWidth="1.5"
-            fill="none"
-          />
-          <path
-            d="M0,500 C200,380 400,600 600,480 S900,350 1100,500 S1350,650 1520,520"
-            stroke="#e8203a"
-            strokeWidth="1"
-            fill="none"
-            opacity="0.6"
-          />
-          <path
-            d="M200,750 C350,680 550,800 700,720 S950,600 1150,750 S1380,850 1520,780"
-            stroke="#7a1220"
-            strokeWidth="2"
-            fill="none"
-            opacity="0.4"
-          />
-          <ellipse
-            cx="200"
-            cy="150"
-            rx="300"
-            ry="180"
-            fill="#7a1220"
-            opacity="0.12"
-            transform="rotate(-15,200,150)"
-          />
-          <ellipse
-            cx="1200"
-            cy="720"
-            rx="280"
-            ry="160"
-            fill="#c0182e"
-            opacity="0.1"
-            transform="rotate(10,1200,720)"
-          />
-        </svg>
-
-        <div className="grain" />
-        <div className="light-leak" />
-      </div>
-
       {/* ─── Card centralizado ─── */}
       <main className="relative z-10 flex min-h-screen items-center justify-center px-4 py-10 sm:px-6">
         <section
-          className="glass-card glass-card--reveal w-full max-w-[26.25rem] px-7 py-10 sm:px-11 sm:py-12"
+          className="auth-card w-full max-w-[26.25rem] px-7 py-10 sm:px-11 sm:py-12"
           aria-labelledby="forbidden-title"
           role="alert"
           aria-live="polite"
         >
           {/* ─── Logo + identificação ─── */}
           <header className="mb-8 flex flex-col items-center text-center animate-fade-up opacity-0 [animation-delay:0.15s]">
-            <div className="logo-emblem h-[100px] w-[100px]">
+            <div className="h-[100px] w-[100px]">
               <Image
                 src="/logoejmc.png"
                 alt="Logo EJMC"
@@ -156,12 +99,10 @@ export default function ForbiddenPage() {
                 priority
               />
             </div>
-            <p className="mt-6 text-[11px] font-medium uppercase tracking-[3px] text-red-bright/80">
-              403 · Erro
-            </p>
+            <p className="mt-6 text-[11px] font-medium text-danger">403 · Erro</p>
             <h1
               id="forbidden-title"
-              className="mt-2 font-heading text-[28px] font-black leading-tight tracking-[-0.5px] text-white"
+              className="mt-2 font-heading text-[28px] font-extrabold leading-tight tracking-[-0.5px] text-white"
             >
               Acesso restrito
             </h1>
@@ -173,7 +114,7 @@ export default function ForbiddenPage() {
 
           {/* ─── Ações (voltar / sair) ─── */}
           <div className="flex flex-col gap-3 animate-fade-up opacity-0 [animation-delay:0.28s]">
-            <Link href="/dashboard" className="btn-light" prefetch={false}>
+            <Link href="/dashboard" className="auth-button" prefetch={false}>
               Voltar ao Dashboard
               <svg
                 viewBox="0 0 24 24"

@@ -191,7 +191,7 @@ export function ServiceForm({ open, onClose, onSaved, editingService }: ServiceF
         {errors._global && (
           <div
             role="alert"
-            className="rounded-md border border-red-vivid/30 bg-red-vivid/5 px-3 py-2 text-sm text-red-vivid"
+            className="rounded-md border border-brand bg-brand/20 px-3 py-2 text-sm text-danger"
           >
             {errors._global}
           </div>
@@ -211,9 +211,9 @@ export function ServiceForm({ open, onClose, onSaved, editingService }: ServiceF
         />
 
         <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="service-description" className="text-sm font-medium text-text-primary">
+          <label htmlFor="service-description" className="text-sm font-medium text-text">
             Descrição
-            <span aria-hidden="true" className="ml-0.5 text-red-vivid">
+            <span aria-hidden="true" className="ml-0.5 text-danger">
               *
             </span>
           </label>
@@ -231,21 +231,21 @@ export function ServiceForm({ open, onClose, onSaved, editingService }: ServiceF
               errors.description ? 'service-description-error' : 'service-description-hint'
             }
             className={[
-              'w-full resize-y rounded-md border bg-white px-3 py-2 text-sm text-text-primary',
-              'placeholder:text-text-muted',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-core/30',
+              'w-full resize-y rounded-md border bg-surface px-3 py-2 text-sm text-text',
+              'placeholder:text-text-faint',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
               errors.description
-                ? 'border-red-vivid focus-visible:border-red-vivid focus-visible:ring-red-vivid/30'
-                : 'border-border-light focus-visible:border-red-core',
-              'disabled:cursor-not-allowed disabled:bg-surface-bg disabled:text-text-muted',
+                ? 'border-brand focus-visible:border-white/60 focus-visible:ring-white/30'
+                : 'border-border focus-visible:border-white/60',
+              'disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-faint',
             ].join(' ')}
           />
           {errors.description ? (
-            <p id="service-description-error" className="text-xs text-red-vivid">
+            <p id="service-description-error" className="text-xs text-danger">
               {errors.description}
             </p>
           ) : (
-            <p id="service-description-hint" className="text-xs text-text-muted">
+            <p id="service-description-hint" className="text-xs text-text-faint">
               {values.description.trim().length}/{SERVICE_DESCRIPTION_MAX_LENGTH} caracteres
             </p>
           )}

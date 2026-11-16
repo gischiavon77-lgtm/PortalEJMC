@@ -168,25 +168,25 @@ export function UserTable({ users, status, onActionComplete, onActionError }: Us
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-border-light bg-surface-card shadow-sm">
+    <div className="overflow-x-auto rounded-lg border border-border bg-surface shadow-sm">
       <table className="w-full text-sm" aria-label="Tabela de usuários">
         <thead>
-          <tr className="border-b border-border-light bg-surface-bg/50">
-            <th className="px-4 py-3 text-left font-medium text-text-secondary">Nome</th>
-            <th className="px-4 py-3 text-left font-medium text-text-secondary">Email</th>
-            <th className="px-4 py-3 text-left font-medium text-text-secondary">Nível</th>
-            <th className="px-4 py-3 text-left font-medium text-text-secondary">Área</th>
-            <th className="px-4 py-3 text-left font-medium text-text-secondary">Desde</th>
+          <tr className="border-b border-border bg-bg/50">
+            <th className="px-4 py-3 text-left font-medium text-text-soft">Nome</th>
+            <th className="px-4 py-3 text-left font-medium text-text-soft">Email</th>
+            <th className="px-4 py-3 text-left font-medium text-text-soft">Nível</th>
+            <th className="px-4 py-3 text-left font-medium text-text-soft">Área</th>
+            <th className="px-4 py-3 text-left font-medium text-text-soft">Desde</th>
             {status !== 'INACTIVE' && (
-              <th className="px-4 py-3 text-right font-medium text-text-secondary">Ações</th>
+              <th className="px-4 py-3 text-right font-medium text-text-soft">Ações</th>
             )}
           </tr>
         </thead>
-        <tbody className="divide-y divide-border-light">
+        <tbody className="divide-y divide-border">
           {users.map((user) => (
-            <tr key={user.id} className="hover:bg-surface-bg/30 transition-colors">
-              <td className="px-4 py-3 font-medium text-text-primary">{user.name}</td>
-              <td className="px-4 py-3 text-text-secondary">{user.email}</td>
+            <tr key={user.id} className="hover:bg-bg/30 transition-colors">
+              <td className="px-4 py-3 font-medium text-text">{user.name}</td>
+              <td className="px-4 py-3 text-text-soft">{user.email}</td>
               <td className="px-4 py-3">
                 <Badge
                   variant={
@@ -197,10 +197,10 @@ export function UserTable({ users, status, onActionComplete, onActionError }: Us
                   {ROLE_LABELS[user.role]}
                 </Badge>
               </td>
-              <td className="px-4 py-3 text-text-secondary">
+              <td className="px-4 py-3 text-text-soft">
                 {user.area ? AREA_LABELS[user.area] : '—'}
               </td>
-              <td className="px-4 py-3 text-text-muted">
+              <td className="px-4 py-3 text-text-faint">
                 {new Date(user.createdAt).toLocaleDateString('pt-BR')}
               </td>
               {status !== 'INACTIVE' && (
@@ -291,7 +291,7 @@ function RoleSelector({ currentRole, disabled, loading, onChange }: RoleSelector
         }
       }}
       aria-label="Alterar nível de permissão"
-      className="rounded-md border border-border-light bg-surface-card px-2 py-1.5 text-xs font-medium text-text-primary transition-colors hover:border-text-muted focus:outline-none focus:ring-2 focus:ring-red-core/30 disabled:opacity-50"
+      className="rounded-md border border-border bg-surface-raised px-2 py-1.5 text-xs font-medium text-text transition-colors hover:border-text-faint focus:outline-none focus:ring-2 focus:ring-white/30 disabled:opacity-50"
     >
       {ROLES.map((role) => (
         <option key={role} value={role}>
@@ -324,7 +324,7 @@ function AreaSelector({ currentArea, disabled, loading, onChange }: AreaSelector
         }
       }}
       aria-label="Alterar área"
-      className="rounded-md border border-border-light bg-surface-card px-2 py-1.5 text-xs font-medium text-text-primary transition-colors hover:border-text-muted focus:outline-none focus:ring-2 focus:ring-red-core/30 disabled:opacity-50"
+      className="rounded-md border border-border bg-surface-raised px-2 py-1.5 text-xs font-medium text-text transition-colors hover:border-text-faint focus:outline-none focus:ring-2 focus:ring-white/30 disabled:opacity-50"
     >
       <option value="">Sem área</option>
       {AREAS.map((area) => (

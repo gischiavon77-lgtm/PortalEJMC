@@ -57,10 +57,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { z } from 'zod';
 
 import { Button, Input, Modal } from '@/components/ui';
-import {
-  EVENT_TITLE_MAX_LENGTH,
-  EVENT_VALIDATION_MESSAGES,
-} from '@/lib/validators/calendar';
+import { EVENT_TITLE_MAX_LENGTH, EVENT_VALIDATION_MESSAGES } from '@/lib/validators/calendar';
 import type { CalendarEvent } from './calendar-utils';
 
 /**
@@ -142,10 +139,7 @@ function toDatetimeLocal(date: Date): string {
 /**
  * Constrói o estado inicial do formulário de acordo com o modo.
  */
-function buildInitialState(
-  event?: CalendarEvent | null,
-  defaultDate?: Date | null,
-) {
+function buildInitialState(event?: CalendarEvent | null, defaultDate?: Date | null) {
   if (isEditingMode(event)) {
     return {
       title: event.title,
@@ -159,15 +153,7 @@ function buildInitialState(
   // evento corporativo e evita o usuário ter que ajustar horários
   // mínimos.
   const base = defaultDate ?? new Date();
-  const start = new Date(
-    base.getFullYear(),
-    base.getMonth(),
-    base.getDate(),
-    9,
-    0,
-    0,
-    0,
-  );
+  const start = new Date(base.getFullYear(), base.getMonth(), base.getDate(), 9, 0, 0, 0);
   const end = new Date(start.getTime() + 60 * 60 * 1000);
   return {
     title: '',
@@ -184,9 +170,7 @@ export function EventForm({
   onSaved,
 }: EventFormProps) {
   const editing = isEditingMode(event);
-  const [values, setValues] = useState(() =>
-    buildInitialState(event, defaultDate),
-  );
+  const [values, setValues] = useState(() => buildInitialState(event, defaultDate));
   const [errors, setErrors] = useState<FormErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -237,9 +221,7 @@ export function EventForm({
 
     setSubmitting(true);
     try {
-      const url = editing
-        ? `/api/calendar/events/${event!.id}`
-        : '/api/calendar/events';
+      const url = editing ? `/api/calendar/events/${event!.id}` : '/api/calendar/events';
       const method = editing ? 'PATCH' : 'POST';
 
       const res = await fetch(url, {
@@ -249,13 +231,11 @@ export function EventForm({
       });
 
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as
-          | {
-              code?: string;
-              message?: string;
-              fields?: Array<{ path: string; message: string }>;
-            }
-          | null;
+        const data = (await res.json().catch(() => null)) as {
+          code?: string;
+          message?: string;
+          fields?: Array<{ path: string; message: string }>;
+        } | null;
 
         if (data?.fields?.length) {
           const next: FormErrors = {};
@@ -266,17 +246,14 @@ export function EventForm({
           setErrors(next);
         } else {
           setErrors({
-            _global:
-              data?.message ?? 'Não foi possível salvar o evento. Tente novamente.',
+            _global: data?.message ?? 'Não foi possível salvar o evento. Tente novamente.',
           });
         }
         return;
       }
 
       // Sucesso: pode vir um warning de sync (Task 7.9).
-      const data = (await res.json().catch(() => null)) as
-        | { sync?: { status?: string } }
-        | null;
+      const data = (await res.json().catch(() => null)) as { sync?: { status?: string } } | null;
       if (data?.sync?.status === 'failed') {
         setSyncWarning(
           'Evento salvo, mas a sincronização com o Google Calendar falhou. O sistema tentará novamente em segundos.',
@@ -293,8 +270,7 @@ export function EventForm({
       }
     } catch {
       setErrors({
-        _global:
-          'Erro de conexão. Verifique sua internet e tente novamente.',
+        _global: 'Erro de conexão. Verifique sua internet e tente novamente.',
       });
     } finally {
       setSubmitting(false);
@@ -317,12 +293,9 @@ export function EventForm({
         method: 'DELETE',
       });
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as
-          | { message?: string }
-          | null;
+        const data = (await res.json().catch(() => null)) as { message?: string } | null;
         setErrors({
-          _global:
-            data?.message ?? 'Não foi possível excluir o evento. Tente novamente.',
+          _global: data?.message ?? 'Não foi possível excluir o evento. Tente novamente.',
         });
         return;
       }
@@ -330,8 +303,7 @@ export function EventForm({
       onClose();
     } catch {
       setErrors({
-        _global:
-          'Erro de conexão. Verifique sua internet e tente novamente.',
+        _global: 'Erro de conexão. Verifique sua internet e tente novamente.',
       });
     } finally {
       setDeleting(false);
@@ -389,16 +361,11 @@ export function EventForm({
         </div>
       }
     >
-      <form
-        id="event-form"
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-4"
-        noValidate
-      >
+      <form id="event-form" onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         {errors._global && (
           <div
             role="alert"
-            className="rounded-md border border-red-vivid/30 bg-red-vivid/5 px-3 py-2 text-sm text-red-vivid"
+            className="rounded-md border border-brand bg-brand/20 px-3 py-2 text-sm text-danger"
           >
             {errors._global}
           </div>
@@ -407,7 +374,7 @@ export function EventForm({
         {syncWarning && (
           <div
             role="status"
-            className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+            className="rounded-md border border-warn/40 bg-warn/15 px-3 py-2 text-sm text-warn"
           >
             {syncWarning}
           </div>
