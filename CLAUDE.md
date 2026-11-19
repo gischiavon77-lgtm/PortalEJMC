@@ -58,7 +58,7 @@ Tokens (definidos em `tailwind.config.ts`, espelhados como CSS variables em `src
 
 | Grupo       | Tokens                                                                                                                 |
 | ----------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Superfícies | `bg` #0a0a0b · `surface` #141416 · `surface-raised` #1c1c1f · `border` #26262a                                         |
+| Superfícies | `bg` #0a0a0b · `surface` #141416 · `surface-raised` #1c1c1f · `surface-hover` #0c0c0e · `border` #26262a               |
 | Texto       | `text` #ffffff · `text-soft` #a1a1aa · `text-faint` #71717a                                                            |
 | Marca       | `brand` #87000a · `brand-hover` #a1000c                                                                                |
 | Auxiliares  | `danger` #e0545c · `ok` #5fb38a · `warn` #c9a24a · `info` #6f9bd1                                                      |
@@ -69,7 +69,11 @@ Tokens (definidos em `tailwind.config.ts`, espelhados como CSS variables em `src
 
 Componentes reutilizáveis em `@/components/ui`: `PageHeader`, `StatCard` (número grande + rótulo), `StatusBadge`, `EmptyState`, além de `Button` (`primary` em `brand`), `Card`, `Input`, `Modal`, `DataTable`, `Badge`, `Pagination`, `Toast`.
 
-Layout: `Sidebar` fixa à esquerda na altura toda (logo e etiqueta do cargo no topo, itens em grupos com divisórias definidos por `group` em `sidebar-items.ts`, avatar/nome/área/sair no rodapé). Abaixo de 768px ela vira menu recolhível, aberto pelo botão da barra superior. A barra superior (`PortalShell`) mantém o sino de notificações e o menu do avatar.
+Layout: `Sidebar` fixa à esquerda na altura toda (logo, etiqueta do cargo e sino de notificações no topo; itens em grupos com divisórias definidos por `group` em `sidebar-items.ts`; avatar/nome/área/sair no rodapé). A partir de 768px não há barra superior. Abaixo disso a sidebar vira menu recolhível, aberto pelo botão da barra superior, que só existe no celular (`PortalShell`) e traz também o sino.
+
+Destaque ao passar o mouse: cards e caixas de conteúdo recebem a classe `hover-card` (`globals.css`), que escurece o fundo para `surface-hover` e deixa a borda em `brand`. `Card` e `StatCard` já a aplicam. Linhas de tabela e dias do calendário usam `hover:bg-surface-hover`. Não usar em modais, menus suspensos nem no contêiner de tabelas.
+
+**Cache após mudar o tema:** depois de alterar `tailwind.config.ts` ou `globals.css`, reinicie o `npm run dev` apagando a pasta `.next`. Com o cache antigo, o servidor serve o CSS anterior e as páginas aparecem sem cores e com fonte serifada.
 
 Telas públicas (login, cadastro, 403) usam as classes `auth-card`, `auth-input`, `auth-button` de `globals.css`.
 
