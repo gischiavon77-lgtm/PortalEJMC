@@ -13,7 +13,7 @@
  * Módulo puro: pode ser usado em Server e Client Components.
  */
 
-export type ImageKind = 'avatar' | 'album' | 'destaque' | 'post';
+export type ImageKind = 'avatar' | 'album' | 'destaque' | 'post' | 'projeto';
 
 function versionOf(path: string): string {
   const fileName = path.split('/').pop() ?? '';
@@ -52,6 +52,14 @@ export function postImageUrlFor(
   imagePath: string | null | undefined,
 ): string | null {
   return imageUrl('post', postId, imagePath);
+}
+
+/** URL do banner de um projeto, ou `null` se ele não tem banner. */
+export function projectBannerUrlFor(
+  projectId: string,
+  bannerPath: string | null | undefined,
+): string | null {
+  return imageUrl('projeto', projectId, bannerPath);
 }
 
 /** URL de download da proposta (PDF) de um projeto. */

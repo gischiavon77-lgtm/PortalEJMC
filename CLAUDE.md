@@ -38,7 +38,7 @@ O escopo detalhado está em `docs/ROADMAP-REDESIGN.md`; em caso de conflito com 
 
 1. ~~Sidebar fixa.~~ **Concluída** na Fase 1 da reforma visual.
 2. ~~Página inicial em feed.~~ **Concluída** na Fase 2 da reforma.
-3. Projetos com imagem, descrição, status, contadores e equipe ligada a usuários.
+3. ~~Projetos com imagem, descrição, status, contadores e equipe ligada a usuários.~~ **Concluída** na Fase 3 da reforma.
 4. Categorias nos eventos do calendário.
 5. Organograma por área gerado a partir dos usuários, com data de entrada. O álbum continua como histórico por gestão.
 
@@ -188,20 +188,20 @@ Fonte única: `src/lib/permissions.ts`.
 ### Banco de dados
 
 - Client singleton em `src/lib/prisma.ts` (`import { prisma } from '@/lib/prisma'`); força `sslmode=require`.
-- Modelos: `User`, `Event`, `Goal`, `GoalUpdate`, `Kpi`, `KpiValue`, `Project`, `Announcement`, `Poll`, `PollOption`, `PollVote`, `Infraction`, `InfractionConfig`, `Reservation`, `Service`, `Highlight`, `AlbumMember`, `Post`, `PostLike`.
+- Modelos: `User`, `Event`, `Goal`, `GoalUpdate`, `Kpi`, `KpiValue`, `Project`, `Announcement`, `Poll`, `PollOption`, `PollVote`, `Infraction`, `InfractionConfig`, `Reservation`, `Service`, `Highlight`, `AlbumMember`, `Post`, `PostLike`, `ProjectMember`.
 - Imagens e PDFs ficam no Supabase Storage; o banco guarda só o caminho (`User.avatarPath`, `AlbumMember.photoPath`, `Highlight.photoPath`, `Project.proposalPath`). Ver "Arquivos (Supabase Storage)".
 - O schema do banco é atualizado por `prisma migrate deploy` no build. `prisma/migrations/` cobre o schema atual. A migração `20260612000000_redesign_project` é idempotente porque a mudança tinha sido aplicada no banco antigo via `db push`; num banco novo ela aplica o redesenho normalmente.
 
 ### Arquivos (Supabase Storage)
 
-- Dois buckets **privados**, sem policies: `portal-imagens` (`avatars/`, `album/`, `destaques/`, `posts/`) e `portal-propostas` (`propostas/`).
+- Dois buckets **privados**, sem policies: `portal-imagens` (`avatars/`, `album/`, `destaques/`, `posts/`, `projetos/`) e `portal-propostas` (`propostas/`).
 - `src/lib/storage.ts` é o único módulo que conhece a chave de serviço. Só pode ser importado por route handlers e Server Components.
 - O navegador nunca acessa o Storage. Upload e download passam pelas rotas do portal, que conferem login/permissão antes.
 - **Upload**: a rota chama `storeUpload` (`src/lib/upload-handler.ts`), que valida e envia; depois grava o caminho no banco e remove o arquivo anterior com `deleteFile`. Se o banco falhar, o arquivo recém-enviado é removido.
 - **Validação** (`src/lib/validators/upload.ts`): tipo decidido pelo conteúdo do arquivo (assinatura), nunca por `file.type`; limite de 4 MB por causa do teto de ~4,5 MB por requisição na Vercel.
-- **Download**: `GET /api/files/{avatar|album|destaque|post}/:id` (qualquer usuário logado) e `GET /api/projects/:id/proposal` (`project:readProposal`, Admin e Diretor). O caminho do arquivo é sempre lido do banco; o cliente só informa o id.
+- **Download**: `GET /api/files/{avatar|album|destaque|post|projeto}/:id` (qualquer usuário logado) e `GET /api/projects/:id/proposal` (`project:readProposal`, Admin e Diretor). O caminho do arquivo é sempre lido do banco; o cliente só informa o id.
 - **URLs para a tela**: as APIs devolvem `avatarUrl`/`photoUrl` já apontando para as rotas de download (`src/lib/file-urls.ts`). O caminho do bucket nunca vai ao cliente.
-- **Projetos**: a listagem envia só `hasProposal` (`src/lib/projects.ts`). Escrita em projetos usa `project:write`.
+- **Projetos**: a listagem nunca envia preço nem proposta; os detalhes trazem `management` só para `project:write` (`src/lib/projects.ts`).
 - O login Google não copia mais a foto do Google para o avatar.
 
 ### Página inicial (feed)
@@ -210,6 +210,13 @@ Fonte única: `src/lib/permissions.ts`.
 - Leitura e formato público em `src/lib/posts.ts` (paginação por cursor, `canDelete` calculado pela matriz) e `src/lib/home.ts` (coluna direita, datas no fuso de São Paulo).
 - Publicar: `post:create`. Apagar: `post:delete`, com `context.ownerId` = autor. Curtir: qualquer usuário logado.
 - O carrossel completo de destaques fica em `/destaques` (sem item no menu).
+
+### Projetos ("Radar")
+
+- `/projetos`: números no topo (em andamento, concluídos, pessoas envolvidas), grade de cards e detalhes numa janela. Detalhes e decisões em `docs/ROADMAP-REDESIGN.md` (Fase 3).
+- `src/lib/projects.ts`: `ProjectItem` (listagem, sem preço/proposta) e `ProjectDetail` (com `management` só para `project:write`); `computeProjectStats` é função pura.
+- Criar/editar: `src/lib/project-form-handler.ts` valida os campos (`src/lib/validators/project.ts`, com a lista `PROJECT_TOOLS`), confere a equipe (só usuários ativos) e só então envia banner e proposta ao Storage.
+- A equipe de um projeto vem do vínculo `ProjectMember`; só usuários ativos aparecem.
 
 ### Regras de domínio que vivem em `src/lib`
 
@@ -227,7 +234,7 @@ Fonte única: `src/lib/permissions.ts`.
 
 O código evoluiu depois das specs. **Em caso de conflito, o código vale.** Diferenças conhecidas:
 
-- `Project` foi redesenhado: `ferramenta`, `progress`, `team` (texto), `price`, `proposalPath`. Não existem mais `ProjectStatus`, `ProjectMember` nem `ProjectStatusHistory`.
+- `Project` foi redesenhado (Fase 3 da reforma): `ferramenta`, `description`, `status` (`EM_ANDAMENTO`/`CONCLUIDO`, enum `ProjectStatus` novo), `bannerPath`, `price`, `proposalPath`, equipe em `ProjectMember` (ligada a usuários). Não existe mais `ProjectStatusHistory`.
 - Nomes de campo: `Event.startsAt/endsAt`, `Reservation.reservedDate`, `Infraction.userId/occurredAt/semester`, `KpiValue.recordedAt/recordedById`, `GoalUpdate.oldProgress/newProgress`.
 - A matriz RBAC usa lista explícita de papéis + predicados em OU, não `minLevel` + `customCheck`. As ações são `recurso:verbo`, não `recurso.verbo`.
 - Módulos fora das specs: álbum de figurinhas (`AlbumMember`, `/api/album`), destaques do dashboard (`Highlight`, `/api/highlights`), sino de notificações (`/api/notifications`), exclusão de comunicados/enquetes/metas.

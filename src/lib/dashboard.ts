@@ -203,8 +203,10 @@ export async function getDashboardSummary(now: Date = new Date()): Promise<Dashb
 
   const tasks = [
     safeCount(() => prisma.user.count({ where: { status: 'ACTIVE' } })),
-    safeCount(() => prisma.project.count({ where: { progress: { lt: 100 } } })),
-    safeCount(() => prisma.project.count({ where: { progress: 0 } })),
+    safeCount(() => prisma.project.count({ where: { status: 'EM_ANDAMENTO' } })),
+    // Projetos não têm mais "congelado" (Fase 3: só em andamento/concluído).
+    // O campo segue no resumo por compatibilidade da API e vale sempre 0.
+    Promise.resolve(0),
     readMonthlyKpiValue(KPI_NAMES.monthlyRevenue, start, end),
     readMonthlyKpiValue(KPI_NAMES.revenueGoal, start, end),
     readMonthlyKpiValue(KPI_NAMES.monthlyLeads, start, end),

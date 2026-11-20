@@ -39,6 +39,12 @@ enum Area {
   ADM_FIN
 }
 
+// Situação do projeto (Fase 3 da reforma).
+enum ProjectStatus {
+  EM_ANDAMENTO
+  CONCLUIDO
+}
+
 enum InfractionType {
   ATRASO
   FALTA
@@ -97,14 +103,15 @@ model User {
   goalUpdates  GoalUpdate[]
   kpiValues    KpiValue[]
 
-  announcements Announcement[]
-  pollsCreated  Poll[]
-  pollVotes     PollVote[]
-  infractions   Infraction[]   @relation("InfractionTarget")
-  infractionsBy Infraction[]   @relation("InfractionCreator")
-  reservations  Reservation[]
-  posts         Post[]
-  postLikes     PostLike[]
+  announcements      Announcement[]
+  pollsCreated       Poll[]
+  pollVotes          PollVote[]
+  infractions        Infraction[]    @relation("InfractionTarget")
+  infractionsBy      Infraction[]    @relation("InfractionCreator")
+  reservations       Reservation[]
+  posts              Post[]
+  postLikes          PostLike[]
+  projectMemberships ProjectMember[]
 
   @@index([email])
   @@index([status])
@@ -203,17 +210,32 @@ model KpiValue {
 
 // Projeto da empresa júnior com campos simplificados.
 model Project {
-  id           String   @id @default(cuid())
-  name         String   @db.VarChar(200)
-  ferramenta   String   @default("") @db.VarChar(200) // portfolio service name
-  progress     Int      @default(0) // 0-100
-  team         String   @default("") @db.Text // comma-separated names
-  price        Decimal  @default(0) @db.Decimal(12, 2)
-  proposalPath String?  @db.VarChar(300) // caminho do PDF no bucket privado de propostas
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id           String          @id @default(cuid())
+  name         String          @db.VarChar(200)
+  ferramenta   String          @default("") @db.VarChar(200) // serviço do portfólio usado no projeto
+  description  String          @default("") @db.VarChar(2000)
+  status       ProjectStatus   @default(EM_ANDAMENTO)
+  bannerPath   String?         @db.VarChar(300) // caminho do banner no bucket de imagens (projetos/)
+  price        Decimal         @default(0) @db.Decimal(12, 2) // só para gestão (project:write)
+  proposalPath String?         @db.VarChar(300) // caminho do PDF no bucket privado de propostas
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  members      ProjectMember[]
 
   @@index([ferramenta])
+  @@index([status])
+}
+
+// Fase 3 da reforma — equipe do projeto ligada a usuários cadastrados.
+model ProjectMember {
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([projectId, userId])
+  @@index([userId])
 }
 
 // Task 2.6 — Modelos `Announcement`, `Poll`, `PollOption`, `PollVote`.

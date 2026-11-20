@@ -8,7 +8,7 @@ Reforma visual e funcional do portal, feita em fases na branch `redesign`.
 | 0    | Pré-requisito: Storage    | ✅ Concluída |
 | 1    | Base visual               | ✅ Concluída |
 | 2    | Página inicial em feed    | ✅ Concluída |
-| 3    | Projetos (estilo "Radar") | ⏳ Pendente  |
+| 3    | Projetos (estilo "Radar") | ✅ Concluída |
 | 4    | Calendário                | ⏳ Pendente  |
 | 5    | Estrutura (organograma)   | ⏳ Pendente  |
 
@@ -73,7 +73,22 @@ Substituir o dashboard atual (carrossel de destaques) por três colunas: sidebar
   - (c) Próximos Eventos: os próximos eventos do calendário, com dia, mês, título e horário.
 - Cada card com estado vazio quando não houver conteúdo.
 
-## Fase 3 — Projetos (estilo "Radar") ⏳
+## Fase 3 — Projetos (estilo "Radar") ✅
+
+**Situação:** concluída (commit da Fase 3). Migração `20261121000000_projects_radar`: rodar `npx prisma migrate deploy` em cada banco.
+
+O que foi feito e decisões aprovadas:
+
+- `Project` ganhou `description`, `status` (`EM_ANDAMENTO`/`CONCLUIDO`) e `bannerPath`; a equipe virou a tabela `ProjectMember` ligada a usuários.
+- Saíram `team` (texto livre) e `progress` (0-100%). Não havia projetos cadastrados; a migração ainda converte 100% em "concluído" por segurança.
+- Listagem (`GET /api/projects`) nunca traz preço nem proposta, para ninguém. Detalhes (`GET /api/projects/:id`) trazem `management` (preço e se há proposta) só para `project:write`.
+- Equipe só aceita usuários ativos; desativados continuam ligados, mas somem da tela.
+- "Pessoas envolvidas" = pessoas distintas (ativas) nos projetos em andamento.
+- "Ver detalhes" abre uma janela sobre a lista; Editar e Excluir ficam nela, para a gestão.
+- Banner no Storage (`projetos/` do bucket de imagens), servido por `/api/files/projeto/:id`.
+- Permissões inalteradas: `project:write` e `project:readProposal` (Admin e Diretor).
+
+Escopo original:
 
 - **Topo:** cards de número com "em andamento", "concluídos" e "pessoas envolvidas".
 - **Grade de cards:** banner (imagem opcional), etiquetas de ferramenta e de status, nome, descrição curta, equipe alocada e "Ver detalhes".

@@ -1,25 +1,31 @@
 /**
- * `PATCH /api/projects/:id` — Atualiza um projeto (Admin/Diretor).
- * `DELETE /api/projects/:id` — Remove um projeto (Admin/Diretor).
+ * `/api/projects/:id` — detalhes, edição e exclusão (Fase 3, "Radar").
  *
- * Ambas exigem a permissão `project:write`.
+ * GET — qualquer usuário logado. Formato de detalhes; `management`
+ *   (preço e se há proposta) só vem para quem tem `project:write`.
+ *   200 { project } · 404
  *
- * PATCH aceita multipart/form-data com campos opcionais:
- *   - name, ferramenta, progress, team, price, proposal
+ * PATCH — `project:write`. multipart/form-data com os campos a alterar
+ *   (name, ferramenta, description, status, memberIds, price, banner,
+ *   proposal). Para salvar a equipe vazia, envie `memberIdsSent=1` sem
+ *   nenhum `memberIds`. `removeBanner=1` tira o banner.
+ *   Banner ou proposta substituídos são removidos do Storage.
+ *   200 { project } · 400 · 404
  *
- * A proposta (PDF, máx. 4 MB, validada pelo conteúdo) vai para o bucket
- * privado do Storage; o banco guarda só o caminho. Ao trocar a proposta
- * ou excluir o projeto, o arquivo anterior é removido do Storage.
+ * DELETE — `project:write`. Remove o projeto, a equipe (em cascata), o
+ *   banner e a proposta no Storage.
+ *   200 { success: true } · 404
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
+import type { Prisma } from '@prisma/client';
 
 import { withAuth } from '@/lib/api-auth';
+import { discardUploads, parseProjectForm } from '@/lib/project-form-handler';
+import { getProjectDetail } from '@/lib/projects';
 import { prisma } from '@/lib/prisma';
-import { PROJECT_PUBLIC_SELECT, serializeProject } from '@/lib/projects';
 import { deleteFile } from '@/lib/storage';
-import { storeUpload } from '@/lib/upload-handler';
-import { PDF_MIMES } from '@/lib/validators/upload';
+import { updateProjectSchema } from '@/lib/validators/project';
 
 export const runtime = 'nodejs';
 
@@ -34,161 +40,94 @@ function notFoundResponse(): Response {
   );
 }
 
+// ─── GET ─────────────────────────────────────────────────────────────
+
+export const GET = withAuth<ProjectRouteParams>(
+  null,
+  async (_req: NextRequest, { session, params }) => {
+    const id = params?.id;
+    const project = id ? await getProjectDetail(id, session.user) : null;
+    if (!project) return notFoundResponse();
+    return NextResponse.json({ project }, { status: 200 });
+  },
+);
+
 // ─── PATCH ───────────────────────────────────────────────────────────
 
-async function patchHandler(
-  req: NextRequest,
-  ctx: { session: import('next-auth').Session; params?: ProjectRouteParams },
-): Promise<Response> {
-  const id = ctx.params?.id;
-  if (!id) return notFoundResponse();
+export const PATCH = withAuth<ProjectRouteParams>(
+  'project:write',
+  async (req: NextRequest, { session, params }) => {
+    const id = params?.id;
+    const existing = id
+      ? await prisma.project.findUnique({
+          where: { id },
+          select: { id: true, bannerPath: true, proposalPath: true },
+        })
+      : null;
+    if (!existing) return notFoundResponse();
 
-  const existing = await prisma.project.findUnique({ where: { id } });
-  if (!existing) return notFoundResponse();
+    const result = await parseProjectForm(req, updateProjectSchema, { canManage: true });
+    if (!result.ok) return result.response;
 
-  let formData: FormData;
-  try {
-    formData = await req.formData();
-  } catch {
-    return NextResponse.json(
-      {
-        error: true,
-        code: 'BAD_REQUEST',
-        message: 'Corpo da requisição inválido. Envie como multipart/form-data.',
-      },
-      { status: 400 },
-    );
-  }
+    const { fields, bannerPath, proposalPath, removeBanner } = result.value;
 
-  const errors: Array<{ path: string; message: string }> = [];
-  const data: Record<string, unknown> = {};
-
-  // Name
-  const nameField = formData.get('name');
-  if (nameField !== null) {
-    const name = (nameField as string).trim();
-    if (!name) {
-      errors.push({ path: 'name', message: 'Nome é obrigatório.' });
-    } else if (name.length > 200) {
-      errors.push({ path: 'name', message: 'Nome deve ter no máximo 200 caracteres.' });
-    } else {
-      data.name = name;
+    const data: Prisma.ProjectUpdateInput = {};
+    if (fields.name !== undefined) data.name = fields.name;
+    if (fields.ferramenta !== undefined) data.ferramenta = fields.ferramenta;
+    if (fields.description !== undefined) data.description = fields.description;
+    if (fields.status !== undefined) data.status = fields.status;
+    if (fields.price !== undefined) data.price = fields.price;
+    if (bannerPath) data.bannerPath = bannerPath;
+    else if (removeBanner) data.bannerPath = null;
+    if (proposalPath) data.proposalPath = proposalPath;
+    if (fields.memberIds !== undefined) {
+      data.members = {
+        deleteMany: {},
+        create: fields.memberIds.map((userId) => ({ userId })),
+      };
     }
-  }
 
-  // Ferramenta
-  const ferramentaField = formData.get('ferramenta');
-  if (ferramentaField !== null) {
-    const ferramenta = (ferramentaField as string).trim();
-    if (!ferramenta) {
-      errors.push({ path: 'ferramenta', message: 'Ferramenta é obrigatória.' });
-    } else if (ferramenta.length > 200) {
-      errors.push({ path: 'ferramenta', message: 'Ferramenta deve ter no máximo 200 caracteres.' });
-    } else {
-      data.ferramenta = ferramenta;
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json(
+        { error: true, code: 'BAD_REQUEST', message: 'Nenhum campo para atualizar.' },
+        { status: 400 },
+      );
     }
-  }
 
-  // Progress
-  const progressField = formData.get('progress');
-  if (progressField !== null) {
-    const progress = parseInt(progressField as string, 10);
-    if (isNaN(progress) || progress < 0 || progress > 100) {
-      errors.push({ path: 'progress', message: 'Progresso deve ser um número entre 0 e 100.' });
-    } else {
-      data.progress = progress;
+    try {
+      await prisma.project.update({ where: { id: existing.id }, data, select: { id: true } });
+    } catch (err) {
+      await discardUploads({ bannerPath, proposalPath });
+      throw err;
     }
-  }
 
-  // Team
-  const teamField = formData.get('team');
-  if (teamField !== null) {
-    data.team = (teamField as string).trim();
-  }
+    // Arquivos substituídos (ou banner removido) saem do Storage.
+    if (bannerPath || removeBanner) await deleteFile('images', existing.bannerPath);
+    if (proposalPath) await deleteFile('proposals', existing.proposalPath);
 
-  // Price
-  const priceField = formData.get('price');
-  if (priceField !== null) {
-    const price = parseFloat(priceField as string);
-    if (isNaN(price) || price < 0) {
-      errors.push({ path: 'price', message: 'Preço deve ser um número positivo.' });
-    } else {
-      data.price = price;
-    }
-  }
-
-  if (errors.length > 0) {
-    return NextResponse.json(
-      { error: true, code: 'VALIDATION_ERROR', message: 'Dados inválidos.', fields: errors },
-      { status: 400 },
-    );
-  }
-
-  // Proposta: só envia ao Storage depois que os demais campos passaram
-  // na validação, para não gravar arquivo de uma edição recusada.
-  const proposalFile = formData.get('proposal');
-  let newProposalPath: string | null = null;
-  if (proposalFile instanceof File && proposalFile.size > 0) {
-    const stored = await storeUpload(proposalFile, {
-      bucket: 'proposals',
-      folder: 'propostas',
-      allowed: PDF_MIMES,
-      formatsLabel: 'PDF',
-    });
-    if (!stored.ok) {
-      return stored.response;
-    }
-    newProposalPath = stored.path;
-    data.proposalPath = stored.path;
-  }
-
-  if (Object.keys(data).length === 0) {
-    return NextResponse.json(
-      { error: true, code: 'BAD_REQUEST', message: 'Nenhum campo para atualizar.' },
-      { status: 400 },
-    );
-  }
-
-  let project;
-  try {
-    project = await prisma.project.update({
-      where: { id },
-      data,
-      select: PROJECT_PUBLIC_SELECT,
-    });
-  } catch (err) {
-    // O banco não aceitou: remove o PDF recém-enviado para não ficar órfão.
-    await deleteFile('proposals', newProposalPath);
-    throw err;
-  }
-
-  // Proposta substituída: remove o PDF anterior do Storage.
-  if (newProposalPath) {
-    await deleteFile('proposals', existing.proposalPath);
-  }
-
-  return NextResponse.json({ project: serializeProject(project) }, { status: 200 });
-}
-
-export const PATCH = withAuth<ProjectRouteParams>('project:write', patchHandler);
+    const project = await getProjectDetail(existing.id, session.user);
+    return NextResponse.json({ project }, { status: 200 });
+  },
+);
 
 // ─── DELETE ──────────────────────────────────────────────────────────
 
-async function deleteHandler(
-  _req: NextRequest,
-  ctx: { session: import('next-auth').Session; params?: ProjectRouteParams },
-): Promise<Response> {
-  const id = ctx.params?.id;
-  if (!id) return notFoundResponse();
+export const DELETE = withAuth<ProjectRouteParams>(
+  'project:write',
+  async (_req: NextRequest, { params }) => {
+    const id = params?.id;
+    const existing = id
+      ? await prisma.project.findUnique({
+          where: { id },
+          select: { id: true, bannerPath: true, proposalPath: true },
+        })
+      : null;
+    if (!existing) return notFoundResponse();
 
-  const existing = await prisma.project.findUnique({ where: { id } });
-  if (!existing) return notFoundResponse();
+    await prisma.project.delete({ where: { id: existing.id } });
+    await deleteFile('images', existing.bannerPath);
+    await deleteFile('proposals', existing.proposalPath);
 
-  await prisma.project.delete({ where: { id } });
-  // Projeto removido: apaga também o PDF da proposta no Storage.
-  await deleteFile('proposals', existing.proposalPath);
-
-  return NextResponse.json({ success: true }, { status: 200 });
-}
-
-export const DELETE = withAuth<ProjectRouteParams>('project:write', deleteHandler);
+    return NextResponse.json({ success: true }, { status: 200 });
+  },
+);

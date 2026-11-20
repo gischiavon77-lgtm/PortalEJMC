@@ -7,7 +7,7 @@
  *   2. a proposta (PDF) só é baixada por quem tem `project:readProposal`;
  *   3. tipo (pelo conteúdo) e tamanho são validados no servidor antes de
  *      qualquer envio ao Storage;
- *   4. a listagem de projetos não envia o conteúdo nem o caminho do PDF.
+ *   4. listagem de projetos e uploads de projeto: tests/unit/api-projects.test.ts.
  *
  * Tudo é simulado: `auth()` (sessão), Prisma e o módulo `@/lib/storage`.
  * Nenhum banco e nenhum Storage real são acessados.
@@ -56,7 +56,6 @@ vi.mock('@/lib/storage', () => ({
 
 import { GET as getFile } from '@/app/api/files/[kind]/[id]/route';
 import { GET as getProposal } from '@/app/api/projects/[id]/proposal/route';
-import { GET as listProjects, POST as createProject } from '@/app/api/projects/route';
 import { PATCH as uploadAvatar } from '@/app/api/users/me/avatar/route';
 
 // ─── Helpers ─────────────────────────────────────────────────────────
@@ -88,21 +87,6 @@ function formRequest(path: string, method: string, fields: Record<string, string
     form.append(key, value);
   }
   return new Request(`http://localhost${path}`, { method, body: form });
-}
-
-function projectRow(overrides: Record<string, unknown> = {}) {
-  return {
-    id: 'proj-1',
-    name: 'Projeto A',
-    ferramenta: 'Power BI',
-    progress: 40,
-    team: 'Ana, Bia',
-    price: 1500,
-    proposalPath: null,
-    createdAt: new Date('2026-01-01T00:00:00Z'),
-    updatedAt: new Date('2026-01-02T00:00:00Z'),
-    ...overrides,
-  };
 }
 
 beforeEach(() => {
@@ -271,134 +255,8 @@ describe('GET /api/projects/:id/proposal (PDF privado)', () => {
   });
 });
 
-// ─── Listagem de projetos ────────────────────────────────────────────
-
-describe('GET /api/projects (listagem)', () => {
-  it('não envia o conteúdo nem o caminho do PDF, só hasProposal', async () => {
-    authMock.mockResolvedValue(sessionOf('MEMBRO'));
-    db.project.findMany.mockResolvedValue([
-      projectRow({ id: 'p1', proposalPath: 'propostas/segredo.pdf' }),
-      projectRow({ id: 'p2', proposalPath: null }),
-    ]);
-
-    const res = await call(listProjects, getRequest('/api/projects'));
-    const text = await res.text();
-    const body = JSON.parse(text) as { projects: Array<Record<string, unknown>> };
-
-    expect(res.status).toBe(200);
-    expect(body.projects.map((p) => p.hasProposal)).toEqual([true, false]);
-    for (const project of body.projects) {
-      expect(project).not.toHaveProperty('proposalPath');
-      expect(project).not.toHaveProperty('proposalUrl');
-    }
-    expect(text).not.toContain('segredo.pdf');
-    expect(text).not.toContain('base64');
-  });
-});
-
-// ─── Upload de proposta ──────────────────────────────────────────────
-
-describe('POST /api/projects (upload de proposta)', () => {
-  const fields = { name: 'Projeto Novo', ferramenta: 'Excel', progress: '10', price: '100' };
-
-  it('membro sem permissão → 403, nada é enviado ao Storage', async () => {
-    authMock.mockResolvedValue(sessionOf('MEMBRO'));
-
-    const res = await call(
-      createProject,
-      formRequest('/api/projects', 'POST', {
-        ...fields,
-        proposal: new File([PDF_BYTES], 'proposta.pdf', { type: 'application/pdf' }),
-      }),
-    );
-
-    expect(res.status).toBe(403);
-    expect(storage.uploadFile).not.toHaveBeenCalled();
-    expect(db.project.create).not.toHaveBeenCalled();
-  });
-
-  it('arquivo que diz ser PDF mas não é → 400, nada é enviado nem gravado', async () => {
-    authMock.mockResolvedValue(sessionOf('DIRETOR'));
-
-    const res = await call(
-      createProject,
-      formRequest('/api/projects', 'POST', {
-        ...fields,
-        // Nome e tipo declarados de PDF, conteúdo HTML.
-        proposal: new File([HTML_BYTES], 'proposta.pdf', { type: 'application/pdf' }),
-      }),
-    );
-
-    expect(res.status).toBe(400);
-    expect((await res.json()).code).toBe('INVALID_FORMAT');
-    expect(storage.uploadFile).not.toHaveBeenCalled();
-    expect(db.project.create).not.toHaveBeenCalled();
-  });
-
-  it('PDF acima de 4 MB → 400, nada é enviado', async () => {
-    authMock.mockResolvedValue(sessionOf('DIRETOR'));
-    const big = new Uint8Array(4 * 1024 * 1024 + 10);
-    big.set(PDF_BYTES);
-
-    const res = await call(
-      createProject,
-      formRequest('/api/projects', 'POST', {
-        ...fields,
-        proposal: new File([big], 'grande.pdf', { type: 'application/pdf' }),
-      }),
-    );
-
-    expect(res.status).toBe(400);
-    expect((await res.json()).code).toBe('FILE_TOO_LARGE');
-    expect(storage.uploadFile).not.toHaveBeenCalled();
-  });
-
-  it('PDF válido → vai para o bucket privado e o banco guarda só o caminho', async () => {
-    authMock.mockResolvedValue(sessionOf('DIRETOR'));
-    db.project.create.mockImplementation(async ({ data }: { data: Record<string, unknown> }) =>
-      projectRow({ ...data, id: 'novo' }),
-    );
-
-    const res = await call(
-      createProject,
-      formRequest('/api/projects', 'POST', {
-        ...fields,
-        proposal: new File([PDF_BYTES], 'Proposta Cliente X.pdf', { type: 'application/pdf' }),
-      }),
-    );
-    const body = (await res.json()) as { project: Record<string, unknown> };
-
-    expect(res.status).toBe(201);
-    expect(storage.uploadFile).toHaveBeenCalledTimes(1);
-    const [bucket, path, bytes, contentType] = storage.uploadFile.mock.calls[0];
-    expect(bucket).toBe('proposals');
-    // Caminho gerado pelo servidor; o nome original do arquivo não entra.
-    expect(path).toBe('propostas/novo-arquivo.pdf');
-    expect(contentType).toBe('application/pdf');
-    expect(new Uint8Array(bytes as Uint8Array)).toEqual(PDF_BYTES);
-
-    expect(db.project.create.mock.calls[0][0].data.proposalPath).toBe('propostas/novo-arquivo.pdf');
-    expect(body.project.hasProposal).toBe(true);
-    expect(body.project).not.toHaveProperty('proposalPath');
-  });
-
-  it('se o banco falhar depois do upload, o PDF enviado é removido', async () => {
-    authMock.mockResolvedValue(sessionOf('DIRETOR'));
-    db.project.create.mockRejectedValue(new Error('falha no banco'));
-
-    await expect(
-      call(
-        createProject,
-        formRequest('/api/projects', 'POST', {
-          ...fields,
-          proposal: new File([PDF_BYTES], 'p.pdf', { type: 'application/pdf' }),
-        }),
-      ),
-    ).rejects.toThrow('falha no banco');
-
-    expect(storage.deleteFile).toHaveBeenCalledWith('proposals', 'propostas/novo-arquivo.pdf');
-  });
-});
+// Listagem, criação e upload de proposta/banner de projetos: ver
+// tests/unit/api-projects.test.ts (Fase 3 da reforma).
 
 // ─── Upload de avatar ────────────────────────────────────────────────
 

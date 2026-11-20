@@ -1,397 +1,131 @@
 'use client';
 
 /**
- * `ProjectsShell` — Casca client-side da página `/projetos` (redesenhada).
+ * `ProjectsShell` — tela de projetos no estilo "Radar" (Fase 3).
  *
- * Exibe uma tabela/card list com colunas:
- *   Nome, Ferramenta, Progresso (barra), Equipe, Preço, Proposta
+ *   - Cabeçalho com "Novo projeto" para quem tem `project:write`.
+ *   - Números no topo: em andamento, concluídos e pessoas envolvidas.
+ *   - Grade de cards (`ProjectCard`); "Ver detalhes" abre
+ *     `ProjectDetailModal`, que traz preço e proposta só para a gestão.
+ *   - Criar e editar em `ProjectForm`.
  *
- * Features:
- *   - Tabela no desktop, cards no mobile
- *   - Progress bar com cor por faixa (vermelho/amarelo/verde)
- *   - Preço formatado como R$ X.XXX,XX
- *   - Equipe em badges/pills
- *   - Proposta como link "📄 Ver Proposta"
- *   - Botão "+ Novo Projeto" (Admin/Diretor via album:manage)
- *   - Edit/Delete inline (Admin/Diretor)
+ * Depois de salvar ou excluir, `router.refresh()` recarrega os dados do
+ * servidor (lista e números).
  */
 
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Button, Toast } from '@/components/ui';
+import { Button, EmptyState, PageHeader, StatCard, Toast } from '@/components/ui';
 import { usePermission } from '@/hooks/usePermission';
+import type { ProjectDetail, ProjectItem, ProjectStats } from '@/lib/projects';
 
-import { proposalUrlFor } from '@/lib/file-urls';
-import type { ProjectItem } from '@/lib/projects';
-
+import { ProjectCard } from './ProjectCard';
+import { ProjectDetailModal } from './ProjectDetailModal';
 import { ProjectForm } from './ProjectForm';
 
-// O formato do projeto é definido em `@/lib/projects` (compartilhado com
-// a API). Reexportado aqui para os componentes vizinhos.
 export type { ProjectItem };
 
 export interface ProjectsShellProps {
   projects: ProjectItem[];
+  stats: ProjectStats;
 }
 
-/** Formata número como moeda brasileira (R$ 1.500,00). */
-function formatBRL(value: number): string {
-  return value.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
-}
-
-/** Retorna classe de cor da progress bar conforme faixa. */
-function progressBarColor(progress: number): string {
-  if (progress <= 33) return 'bg-brand';
-  if (progress <= 66) return 'bg-warn';
-  return 'bg-ok';
-}
-
-/**
- * Abre a proposta (PDF) em uma nova aba.
- *
- * O PDF não vem mais na listagem: fica no bucket privado do Storage e é
- * servido por `GET /api/projects/:id/proposal`, que confere a permissão
- * `project:readProposal` a cada download. Aqui só abrimos essa rota; o
- * cookie de sessão vai junto por ser a mesma origem.
- */
-function openProposal(projectId: string): void {
-  window.open(proposalUrlFor(projectId), '_blank', 'noopener,noreferrer');
-}
-
-export function ProjectsShell({ projects }: ProjectsShellProps) {
+export function ProjectsShell({ projects, stats }: ProjectsShellProps) {
   const router = useRouter();
+  const { allowed: canManage } = usePermission('project:write');
 
-  const { allowed: canManage, isLoading: permissionLoading } = usePermission('project:write');
-  // Só quem pode baixar a proposta vê o botão; a rota revalida de qualquer forma.
-  const { allowed: canReadProposal } = usePermission('project:readProposal');
-
-  // Modal state
+  const [opened, setOpened] = useState<ProjectItem | null>(null);
   const [formOpen, setFormOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
-
-  // Toast
+  const [editing, setEditing] = useState<ProjectDetail | null>(null);
   const [toast, setToast] = useState<{ message: string; visible: boolean }>({
     message: '',
     visible: false,
   });
-  const dismissToast = useCallback(() => {
-    setToast((prev) => ({ ...prev, visible: false }));
-  }, []);
+  const dismissToast = useCallback(() => setToast((t) => ({ ...t, visible: false })), []);
 
-  function handleSaved() {
+  function openCreate() {
+    setEditing(null);
+    setFormOpen(true);
+  }
+
+  function openEdit(detail: ProjectDetail) {
+    setOpened(null);
+    setEditing(detail);
+    setFormOpen(true);
+  }
+
+  function handleSaved(message: string) {
+    setFormOpen(false);
+    setEditing(null);
     router.refresh();
-    setToast({
-      message: editingProject ? 'Projeto atualizado!' : 'Projeto criado com sucesso!',
-      visible: true,
-    });
-    setEditingProject(null);
+    setToast({ message, visible: true });
   }
 
-  function handleEdit(project: ProjectItem) {
-    setEditingProject(project);
-    setFormOpen(true);
+  function handleDeleted() {
+    setOpened(null);
+    router.refresh();
+    setToast({ message: 'Projeto excluído.', visible: true });
   }
-
-  async function handleDelete(project: ProjectItem) {
-    if (!confirm(`Deseja realmente excluir o projeto "${project.name}"?`)) return;
-
-    try {
-      const res = await fetch(`/api/projects/${project.id}`, { method: 'DELETE' });
-      if (res.ok) {
-        router.refresh();
-        setToast({ message: 'Projeto excluído.', visible: true });
-      } else {
-        setToast({ message: 'Erro ao excluir projeto.', visible: true });
-      }
-    } catch {
-      setToast({ message: 'Erro de conexão.', visible: true });
-    }
-  }
-
-  function handleOpenCreate() {
-    setEditingProject(null);
-    setFormOpen(true);
-  }
-
-  const isEmpty = projects.length === 0;
 
   return (
-    <section
-      aria-labelledby="projetos-heading"
-      className="mx-auto flex w-full max-w-6xl flex-col gap-6"
-    >
-      <header className="flex flex-col gap-3">
-        <div className="flex flex-col gap-1">
-          <h1
-            id="projetos-heading"
-            className="font-heading text-3xl font-bold leading-tight text-text tablet:text-4xl"
-          >
-            Projetos
-          </h1>
-          <p className="mt-1 text-base font-semibold text-brand">
-            Lista de projetos da empresa, com progresso, equipe e proposta comercial.
-          </p>
-        </div>
-
-        {/* Botão "+ Novo Projeto" — visível apenas para Admin/Diretor */}
-        {!permissionLoading && canManage && (
-          <div className="flex items-center">
-            <Button type="button" variant="primary" size="sm" onClick={handleOpenCreate}>
-              + Novo Projeto
+    <div className="mx-auto w-full max-w-7xl">
+      <PageHeader
+        title="Projetos"
+        subtitle="Projetos da EJMC, com ferramenta, status e equipe."
+        action={
+          canManage ? (
+            <Button onClick={openCreate} data-testid="project-new">
+              + Novo projeto
             </Button>
-          </div>
-        )}
-      </header>
+          ) : undefined
+        }
+      />
 
-      {isEmpty ? (
-        <p
-          role="status"
-          className="rounded-lg border border-dashed border-border bg-surface p-8 text-center text-sm text-text-faint"
-        >
-          Nenhum projeto cadastrado no momento.
-        </p>
+      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        <StatCard value={stats.inProgress} label="Em andamento" />
+        <StatCard value={stats.completed} label="Concluídos" />
+        <StatCard
+          value={stats.peopleInvolved}
+          label="Pessoas envolvidas"
+          hint="Nos projetos em andamento"
+        />
+      </div>
+
+      {projects.length === 0 ? (
+        <EmptyState
+          bordered
+          message="Nenhum projeto cadastrado."
+          hint={canManage ? 'Use "Novo projeto" para cadastrar o primeiro.' : undefined}
+        />
       ) : (
-        <>
-          {/* ─── Mobile: cards (visible <768px) ─── */}
-          <ul className="flex tablet:hidden flex-col gap-3" aria-label="Projetos (cartões)">
-            {projects.map((project) => (
-              <li key={project.id}>
-                <div className="rounded-lg border border-border bg-surface p-4 shadow-sm">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-heading text-base font-semibold text-text truncate">
-                        {project.name}
-                      </p>
-                      <p className="text-xs text-text-faint mt-0.5">{project.ferramenta}</p>
-                    </div>
-                    {canManage && (
-                      <div className="flex gap-1 flex-shrink-0">
-                        <button
-                          onClick={() => handleEdit(project)}
-                          className="text-xs text-text hover:underline"
-                          aria-label={`Editar ${project.name}`}
-                        >
-                          ✏️
-                        </button>
-                        <button
-                          onClick={() => handleDelete(project)}
-                          className="text-xs text-danger hover:underline"
-                          aria-label={`Excluir ${project.name}`}
-                        >
-                          🗑️
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Progress bar */}
-                  <div className="mt-3">
-                    <div className="flex items-center justify-between text-xs text-text-faint mb-1">
-                      <span>Progresso</span>
-                      <span>{project.progress}%</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-border overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${progressBarColor(project.progress)}`}
-                        style={{ width: `${project.progress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Team */}
-                  {project.team && (
-                    <div className="mt-3 flex flex-wrap gap-1">
-                      {project.team.split(',').map((member, i) => (
-                        <span
-                          key={i}
-                          className="inline-block rounded-full bg-surface-raised px-2 py-0.5 text-xs text-text-soft"
-                        >
-                          {member.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Price & Proposal */}
-                  <div className="mt-3 flex items-center justify-between text-sm">
-                    <span className="font-medium text-text">{formatBRL(project.price)}</span>
-                    {project.hasProposal && canReadProposal && (
-                      <button
-                        type="button"
-                        onClick={() => openProposal(project.id)}
-                        className="text-text hover:underline text-xs"
-                      >
-                        📄 Ver Proposta
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          {/* ─── Desktop/Tablet: table (hidden <768px) ─── */}
-          <div className="hidden tablet:block w-full overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <caption className="sr-only">Lista de projetos da empresa.</caption>
-                <thead className="bg-bg/60">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
-                    >
-                      Nome
-                    </th>
-                    <th
-                      scope="col"
-                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
-                    >
-                      Ferramenta
-                    </th>
-                    <th
-                      scope="col"
-                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
-                    >
-                      Progresso
-                    </th>
-                    <th
-                      scope="col"
-                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
-                    >
-                      Equipe
-                    </th>
-                    <th
-                      scope="col"
-                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
-                    >
-                      Preço
-                    </th>
-                    <th
-                      scope="col"
-                      className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
-                    >
-                      Proposta
-                    </th>
-                    {canManage && (
-                      <th
-                        scope="col"
-                        className="border-b border-border px-4 py-3 text-left text-xs font-semibold text-text-soft"
-                      >
-                        Ações
-                      </th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody>
-                  {projects.map((project) => (
-                    <tr
-                      key={project.id}
-                      className="border-b border-border last:border-b-0 transition-colors hover:bg-surface-hover"
-                    >
-                      <td className="px-4 py-3 align-middle font-medium text-text">
-                        {project.name}
-                      </td>
-                      <td className="px-4 py-3 align-middle text-text-soft">
-                        {project.ferramenta}
-                      </td>
-                      <td className="px-4 py-3 align-middle">
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 w-20 rounded-full bg-border overflow-hidden">
-                            <div
-                              className={`h-full rounded-full ${progressBarColor(project.progress)}`}
-                              style={{ width: `${project.progress}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-text-faint">{project.progress}%</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 align-middle">
-                        <div className="flex flex-wrap gap-1 max-w-[200px]">
-                          {project.team ? (
-                            project.team.split(',').map((member, i) => (
-                              <span
-                                key={i}
-                                className="inline-block rounded-full bg-surface-raised px-2 py-0.5 text-xs text-text-soft"
-                              >
-                                {member.trim()}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-text-faint text-xs">—</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 align-middle text-text whitespace-nowrap">
-                        {formatBRL(project.price)}
-                      </td>
-                      <td className="px-4 py-3 align-middle">
-                        {project.hasProposal && canReadProposal ? (
-                          <button
-                            type="button"
-                            onClick={() => openProposal(project.id)}
-                            className="text-text hover:underline text-xs whitespace-nowrap"
-                          >
-                            📄 Ver Proposta
-                          </button>
-                        ) : (
-                          <span className="text-text-faint text-xs">—</span>
-                        )}
-                      </td>
-                      {canManage && (
-                        <td className="px-4 py-3 align-middle">
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEdit(project)}
-                              className="text-xs text-text hover:underline"
-                              aria-label={`Editar ${project.name}`}
-                            >
-                              Editar
-                            </button>
-                            <button
-                              onClick={() => handleDelete(project)}
-                              className="text-xs text-danger hover:underline"
-                              aria-label={`Excluir ${project.name}`}
-                            >
-                              Excluir
-                            </button>
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
+        <div className="grid gap-4 tablet:grid-cols-2 desktop:grid-cols-3">
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} onOpen={setOpened} />
+          ))}
+        </div>
       )}
 
-      {/* Modal de criação/edição */}
+      <ProjectDetailModal
+        project={opened}
+        onClose={() => setOpened(null)}
+        onEdit={openEdit}
+        onDeleted={handleDeleted}
+      />
+
       {canManage && (
         <ProjectForm
           open={formOpen}
+          editProject={editing}
           onClose={() => {
             setFormOpen(false);
-            setEditingProject(null);
+            setEditing(null);
           }}
           onSaved={handleSaved}
-          editProject={editingProject}
         />
       )}
 
-      {/* Toast de confirmação */}
-      <Toast
-        message={toast.message}
-        variant="success"
-        visible={toast.visible}
-        onDismiss={dismissToast}
-        duration={4000}
-      />
-    </section>
+      <Toast message={toast.message} visible={toast.visible} onDismiss={dismissToast} />
+    </div>
   );
 }

@@ -1,360 +1,435 @@
 'use client';
 
 /**
- * `ProjectForm` — Formulário de criação/edição de projeto.
+ * Formulário de projeto (Fase 3, "Radar"): criar e editar.
  *
- * Modal com campos: Nome, Ferramenta (dropdown), Progresso (slider 0-100),
- * Equipe (texto, comma-separated), Preço (R$), Proposta Comercial (PDF upload).
+ * Campos: banner (imagem opcional, com prévia), ferramenta, nome,
+ * descrição, status, equipe (usuários ativos, escolhidos numa lista com
+ * busca), preço e proposta em PDF. Só quem tem `project:write` chega a
+ * este formulário; a API confere de novo.
  *
- * Envia como FormData (multipart) para suportar upload de arquivo.
+ * A equipe vem de `GET /api/users/members` (usuários ativos). Na edição,
+ * preço e "há proposta" vêm dos detalhes (`ProjectDetail.management`).
  */
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react';
 
-import { Button, Input, Modal } from '@/components/ui';
-
+import { Button, Modal } from '@/components/ui';
+import { getAreaTheme } from '@/lib/area-theme';
+import type { ProjectDetail } from '@/lib/projects';
+import {
+  PROJECT_DESCRIPTION_MAX,
+  PROJECT_NAME_MAX,
+  PROJECT_STATUS_LABELS,
+  PROJECT_STATUSES,
+  PROJECT_TOOLS,
+  type ProjectStatusValue,
+} from '@/lib/validators/project';
 import { UPLOAD_MAX_BYTES, UPLOAD_MAX_LABEL } from '@/lib/validators/upload';
 
-import type { ProjectItem } from './ProjectsShell';
+import { MemberAvatar } from './MemberAvatar';
 
-// ─── Ferramenta dropdown options (hardcoded from portfolio) ───
-
-const FERRAMENTAS = [
-  'Branding Innovation',
-  'Marketing Estratégico',
-  'Plano de Marketing Digital',
-  'Apresentação Estratégica',
-  'Pesquisa de Mercado',
-  'Análise Concorrencial',
-  'Análise Setorial',
-  'Geomarketing',
-  'Estudo de Mercado',
-  'Mapeamento de Processos',
-  'Mapeamento de Profissionais',
-  'Plano de Salários',
-  'Base de Dados',
-  'Indicadores e BI',
-  'Desenvolvimento Web',
-  'Viabilidade de Negócios',
-  'Plano de Negócios',
-  'Estruturação Comercial e CRM',
-  'Estruturação de Fluxo de Caixa e DRE',
-  'Precificação',
-  'Análise de Viabilidade Econômico-Financeira',
-  'Reestruturação Financeira',
-] as const;
-
-// Mesmo limite aplicado no servidor (ver `@/lib/validators/upload`).
-const MAX_PROPOSAL_SIZE = UPLOAD_MAX_BYTES;
-
-type FormErrors = Partial<
-  Record<'name' | 'ferramenta' | 'progress' | 'team' | 'price' | 'proposal' | '_global', string>
->;
+interface MemberOption {
+  id: string;
+  name: string;
+  area: Parameters<typeof getAreaTheme>[0];
+  avatarUrl: string | null;
+}
 
 export interface ProjectFormProps {
   open: boolean;
+  /** `null` = criar; com valor = editar este projeto. */
+  editProject: ProjectDetail | null;
   onClose: () => void;
-  onSaved: () => void;
-  editProject?: ProjectItem | null;
+  onSaved: (message: string) => void;
 }
 
-export function ProjectForm({ open, onClose, onSaved, editProject }: ProjectFormProps) {
+const inputClass =
+  'w-full rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text placeholder:text-text-faint focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30';
+const labelClass = 'text-sm font-medium text-text';
+const fileClass =
+  'text-sm text-text-soft file:mr-3 file:rounded-md file:border-0 file:bg-surface-raised file:px-3 file:py-2 file:text-sm file:font-medium file:text-text hover:file:bg-border';
+
+function normalize(s: string): string {
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
+export function ProjectForm({ open, editProject, onClose, onSaved }: ProjectFormProps) {
+  const ids = {
+    name: useId(),
+    tool: useId(),
+    description: useId(),
+    status: useId(),
+    banner: useId(),
+    price: useId(),
+    proposal: useId(),
+    search: useId(),
+  };
+  const bannerInput = useRef<HTMLInputElement>(null);
+  const proposalInput = useRef<HTMLInputElement>(null);
+
   const [name, setName] = useState('');
-  const [ferramenta, setFerramenta] = useState<string>(FERRAMENTAS[0]);
-  const [progress, setProgress] = useState(0);
-  const [team, setTeam] = useState('');
+  const [ferramenta, setFerramenta] = useState<string>(PROJECT_TOOLS[0]);
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState<ProjectStatusValue>('EM_ANDAMENTO');
+  const [memberIds, setMemberIds] = useState<string[]>([]);
   const [price, setPrice] = useState('');
-  const [proposalFile, setProposalFile] = useState<File | null>(null);
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [banner, setBanner] = useState<File | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  const [removeBanner, setRemoveBanner] = useState(false);
+  const [proposal, setProposal] = useState<File | null>(null);
+
+  const [members, setMembers] = useState<MemberOption[]>([]);
+  const [membersError, setMembersError] = useState(false);
+  const [search, setSearch] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const isEditing = Boolean(editProject);
-
+  // Preenche o formulário ao abrir (vazio para criar, dados atuais para editar).
   useEffect(() => {
     if (!open) return;
-    if (editProject) {
-      setName(editProject.name);
-      setFerramenta(editProject.ferramenta);
-      setProgress(editProject.progress);
-      setTeam(editProject.team);
-      setPrice(editProject.price > 0 ? String(editProject.price) : '');
-    } else {
-      setName('');
-      setFerramenta(FERRAMENTAS[0]);
-      setProgress(0);
-      setTeam('');
-      setPrice('');
-    }
-    setProposalFile(null);
-    setErrors({});
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    setName(editProject?.name ?? '');
+    setFerramenta(editProject?.ferramenta ?? PROJECT_TOOLS[0]);
+    setDescription(editProject?.description ?? '');
+    setStatus(editProject?.status ?? 'EM_ANDAMENTO');
+    setMemberIds(editProject?.members.map((m) => m.id) ?? []);
+    setPrice(editProject?.management ? String(editProject.management.price) : '');
+    setBanner(null);
+    setRemoveBanner(false);
+    setProposal(null);
+    setSearch('');
+    setError(null);
+    if (bannerInput.current) bannerInput.current.value = '';
+    if (proposalInput.current) proposalInput.current.value = '';
   }, [open, editProject]);
 
-  async function handleSubmit(ev: FormEvent<HTMLFormElement>) {
-    ev.preventDefault();
+  // Lista de usuários ativos para a equipe.
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    setMembersError(false);
+    fetch('/api/users/members', { cache: 'no-store' })
+      .then(async (res) => {
+        if (!res.ok) throw new Error();
+        const data = (await res.json()) as { members: MemberOption[] };
+        if (!cancelled) setMembers(data.members);
+      })
+      .catch(() => {
+        if (!cancelled) setMembersError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!banner) {
+      setBannerPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(banner);
+    setBannerPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [banner]);
+
+  const filtered = useMemo(() => {
+    const q = normalize(search.trim());
+    return q ? members.filter((m) => normalize(m.name).includes(q)) : members;
+  }, [members, search]);
+
+  function toggleMember(id: string) {
+    setMemberIds((current) =>
+      current.includes(id) ? current.filter((x) => x !== id) : [...current, id],
+    );
+  }
+
+  function pickFile(file: File | null, kind: 'banner' | 'proposal') {
+    setError(null);
+    if (file && file.size > UPLOAD_MAX_BYTES) {
+      setError(`O arquivo deve ter no máximo ${UPLOAD_MAX_LABEL}.`);
+      const input = kind === 'banner' ? bannerInput.current : proposalInput.current;
+      if (input) input.value = '';
+      return;
+    }
+    if (kind === 'banner') {
+      setBanner(file);
+      if (file) setRemoveBanner(false);
+    } else {
+      setProposal(file);
+    }
+  }
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
     if (submitting) return;
-
-    setErrors({});
-
-    const trimmedName = name.trim();
-    const trimmedTeam = team.trim();
-
-    // Client-side validation
-    const next: FormErrors = {};
-    if (!trimmedName) {
-      next.name = 'Nome é obrigatório.';
-    } else if (trimmedName.length > 200) {
-      next.name = 'Nome deve ter no máximo 200 caracteres.';
-    }
-    if (!ferramenta) {
-      next.ferramenta = 'Ferramenta é obrigatória.';
-    }
-    if (progress < 0 || progress > 100) {
-      next.progress = 'Progresso deve estar entre 0 e 100.';
-    }
-    const priceNum = price ? parseFloat(price) : 0;
-    if (price && (isNaN(priceNum) || priceNum < 0)) {
-      next.price = 'Preço deve ser um número positivo.';
-    }
-    if (proposalFile) {
-      if (proposalFile.type !== 'application/pdf') {
-        next.proposal = 'Apenas arquivos PDF são aceitos.';
-      } else if (proposalFile.size > MAX_PROPOSAL_SIZE) {
-        next.proposal = `O arquivo deve ter no máximo ${UPLOAD_MAX_LABEL}.`;
-      }
-    }
-
-    if (Object.keys(next).length > 0) {
-      setErrors(next);
+    if (!name.trim()) {
+      setError('Nome é obrigatório.');
       return;
     }
 
+    const body = new FormData();
+    body.append('name', name);
+    body.append('ferramenta', ferramenta);
+    body.append('description', description);
+    body.append('status', status);
+    body.append('memberIdsSent', '1');
+    memberIds.forEach((id) => body.append('memberIds', id));
+    body.append('price', price);
+    if (banner) body.append('banner', banner);
+    else if (removeBanner) body.append('removeBanner', '1');
+    if (proposal) body.append('proposal', proposal);
+
     setSubmitting(true);
+    setError(null);
     try {
-      const formData = new FormData();
-      formData.append('name', trimmedName);
-      formData.append('ferramenta', ferramenta);
-      formData.append('progress', String(progress));
-      formData.append('team', trimmedTeam);
-      formData.append('price', String(priceNum));
-      if (proposalFile) {
-        formData.append('proposal', proposalFile);
-      }
-
-      const url = isEditing ? `/api/projects/${editProject!.id}` : '/api/projects';
-      const method = isEditing ? 'PATCH' : 'POST';
-
-      const res = await fetch(url, { method, body: formData });
-
+      const url = editProject
+        ? `/api/projects/${encodeURIComponent(editProject.id)}`
+        : '/api/projects';
+      const res = await fetch(url, { method: editProject ? 'PATCH' : 'POST', body });
+      const data = (await res.json().catch(() => null)) as {
+        message?: string;
+        fields?: { message: string }[];
+      } | null;
       if (!res.ok) {
-        const data = (await res.json().catch(() => null)) as {
-          code?: string;
-          message?: string;
-          fields?: Array<{ path: string; message: string }>;
-        } | null;
-
-        if (data?.fields?.length) {
-          const fieldErrors: FormErrors = {};
-          for (const f of data.fields) {
-            const key = (f.path as keyof FormErrors) ?? '_global';
-            if (!fieldErrors[key]) fieldErrors[key] = f.message;
-          }
-          setErrors(fieldErrors);
-        } else {
-          setErrors({
-            _global: data?.message ?? 'Não foi possível salvar o projeto. Tente novamente.',
-          });
-        }
+        setError(
+          data?.fields?.[0]?.message ?? data?.message ?? 'Não foi possível salvar o projeto.',
+        );
         return;
       }
-
-      onSaved();
-      onClose();
+      onSaved(editProject ? 'Projeto atualizado!' : 'Projeto criado!');
     } catch {
-      setErrors({
-        _global: 'Erro de conexão. Verifique sua internet e tente novamente.',
-      });
+      setError('Não foi possível salvar. Verifique a conexão e tente novamente.');
     } finally {
       setSubmitting(false);
     }
   }
 
+  const currentBanner = !removeBanner && !bannerPreview ? editProject?.bannerUrl : null;
+
   return (
     <Modal
       open={open}
-      onClose={submitting ? () => {} : onClose}
-      title={isEditing ? 'Editar projeto' : 'Novo projeto'}
-      description={
-        isEditing ? 'Atualize os dados do projeto.' : 'Cadastre um novo projeto da empresa.'
-      }
-      size="md"
-      closeOnEscape={!submitting}
-      closeOnOverlayClick={!submitting}
+      onClose={submitting ? () => undefined : onClose}
+      title={editProject ? 'Editar projeto' : 'Novo projeto'}
+      size="xl"
       footer={
-        <div className="flex w-full items-center justify-end gap-2">
-          <Button type="button" variant="ghost" onClick={onClose} disabled={submitting}>
+        <>
+          <Button variant="ghost" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button type="submit" form="project-form" variant="primary" loading={submitting}>
-            {isEditing ? 'Salvar' : 'Criar projeto'}
+          <Button type="submit" form="project-form" loading={submitting}>
+            {editProject ? 'Salvar' : 'Criar projeto'}
           </Button>
-        </div>
+        </>
       }
     >
       <form id="project-form" onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-        {errors._global && (
-          <div
-            role="alert"
-            className="rounded-md border border-brand bg-brand/20 px-3 py-2 text-sm text-danger"
-          >
-            {errors._global}
-          </div>
-        )}
-
-        {/* Nome */}
-        <Input
-          label="Nome"
-          name="name"
-          value={name}
-          onChange={(e) => {
-            setName(e.target.value);
-            setErrors((prev) => ({ ...prev, name: undefined, _global: undefined }));
-          }}
-          maxLength={200}
-          required
-          placeholder="Ex.: Redesign do site corporativo"
-          error={errors.name}
-          disabled={submitting}
-        />
-
-        {/* Ferramenta (dropdown) */}
-        <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="project-ferramenta" className="text-sm font-medium text-text">
-            Ferramenta <span className="text-danger">*</span>
+        {/* Banner */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={ids.banner} className={labelClass}>
+            Banner (opcional)
           </label>
-          <select
-            id="project-ferramenta"
-            value={ferramenta}
-            onChange={(e) => {
-              setFerramenta(e.target.value);
-              setErrors((prev) => ({ ...prev, ferramenta: undefined, _global: undefined }));
-            }}
-            disabled={submitting}
-            className={[
-              'h-10 w-full rounded-md border bg-surface px-3 text-sm text-text',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
-              errors.ferramenta
-                ? 'border-brand focus-visible:border-white/60'
-                : 'border-border focus-visible:border-white/60',
-              'disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-faint',
-            ].join(' ')}
-          >
-            {FERRAMENTAS.map((f) => (
-              <option key={f} value={f}>
-                {f}
-              </option>
-            ))}
-          </select>
-          {errors.ferramenta && <p className="text-xs text-danger">{errors.ferramenta}</p>}
+          {(bannerPreview || currentBanner) && (
+            <div className="relative overflow-hidden rounded-md border border-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={(bannerPreview ?? currentBanner) as string}
+                alt="Prévia do banner"
+                className="aspect-[16/9] w-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setBanner(null);
+                  if (bannerInput.current) bannerInput.current.value = '';
+                  if (!bannerPreview) setRemoveBanner(true);
+                }}
+                className="absolute right-2 top-2 rounded-md bg-bg/80 px-2 py-1 text-xs font-medium text-text hover:bg-bg"
+              >
+                Remover
+              </button>
+            </div>
+          )}
+          <input
+            ref={bannerInput}
+            id={ids.banner}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(e) => pickFile(e.target.files?.[0] ?? null, 'banner')}
+            className={fileClass}
+          />
+          <p className="text-xs text-text-faint">
+            PNG, JPG ou WEBP, até {UPLOAD_MAX_LABEL}. Formato 16:9.
+          </p>
         </div>
 
-        {/* Progresso (slider) */}
-        <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="project-progress" className="text-sm font-medium text-text">
-            Progresso: {progress}%
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={ids.tool} className={labelClass}>
+              Ferramenta
+            </label>
+            <select
+              id={ids.tool}
+              value={ferramenta}
+              onChange={(e) => setFerramenta(e.target.value)}
+              className={inputClass}
+            >
+              {PROJECT_TOOLS.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={ids.status} className={labelClass}>
+              Status
+            </label>
+            <select
+              id={ids.status}
+              value={status}
+              onChange={(e) => setStatus(e.target.value as ProjectStatusValue)}
+              className={inputClass}
+            >
+              {PROJECT_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {PROJECT_STATUS_LABELS[s]}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={ids.name} className={labelClass}>
+            Nome
           </label>
           <input
-            id="project-progress"
-            type="range"
-            min={0}
-            max={100}
-            value={progress}
-            onChange={(e) => {
-              setProgress(parseInt(e.target.value, 10));
-              setErrors((prev) => ({ ...prev, progress: undefined, _global: undefined }));
-            }}
-            disabled={submitting}
-            className="w-full accent-brand"
+            id={ids.name}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            maxLength={PROJECT_NAME_MAX}
+            className={inputClass}
+            data-testid="project-form-name"
           />
-          {errors.progress && <p className="text-xs text-danger">{errors.progress}</p>}
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor={ids.description} className={labelClass}>
+            Descrição
+          </label>
+          <textarea
+            id={ids.description}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            maxLength={PROJECT_DESCRIPTION_MAX}
+            rows={4}
+            className={`${inputClass} resize-y`}
+          />
+          <p className="text-right text-xs text-text-faint">
+            {PROJECT_DESCRIPTION_MAX - description.length} caracteres restantes
+          </p>
         </div>
 
         {/* Equipe */}
-        <Input
-          label="Equipe"
-          name="team"
-          value={team}
-          onChange={(e) => {
-            setTeam(e.target.value);
-            setErrors((prev) => ({ ...prev, team: undefined, _global: undefined }));
-          }}
-          placeholder="Nomes separados por vírgula (ex.: João, Maria, Pedro)"
-          error={errors.team}
-          disabled={submitting}
-        />
-
-        {/* Preço */}
-        <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="project-price" className="text-sm font-medium text-text">
-            Preço (R$)
-          </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-text-faint">
-              R$
-            </span>
-            <input
-              id="project-price"
-              type="number"
-              min={0}
-              step="0.01"
-              value={price}
-              onChange={(e) => {
-                setPrice(e.target.value);
-                setErrors((prev) => ({ ...prev, price: undefined, _global: undefined }));
-              }}
-              disabled={submitting}
-              placeholder="0,00"
-              className={[
-                'h-10 w-full rounded-md border bg-surface pl-10 pr-3 text-sm text-text',
-                'placeholder:text-text-faint',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
-                errors.price
-                  ? 'border-brand focus-visible:border-white/60'
-                  : 'border-border focus-visible:border-white/60',
-                'disabled:cursor-not-allowed disabled:bg-bg disabled:text-text-faint',
-              ].join(' ')}
-            />
-          </div>
-          {errors.price && <p className="text-xs text-danger">{errors.price}</p>}
-        </div>
-
-        {/* Proposta Comercial (PDF upload) */}
-        <div className="flex w-full flex-col gap-1.5">
-          <label htmlFor="project-proposal" className="text-sm font-medium text-text">
-            Proposta Comercial (PDF, máx. {UPLOAD_MAX_LABEL})
+        <fieldset className="flex flex-col gap-1.5">
+          <legend className={`${labelClass} mb-1.5`}>
+            Equipe{' '}
+            {memberIds.length > 0 && <span className="text-text-faint">({memberIds.length})</span>}
+          </legend>
+          <label htmlFor={ids.search} className="sr-only">
+            Buscar pessoa
           </label>
           <input
-            id="project-proposal"
-            ref={fileInputRef}
-            type="file"
-            accept=".pdf"
-            onChange={(e) => {
-              const file = e.target.files?.[0] ?? null;
-              setProposalFile(file);
-              setErrors((prev) => ({ ...prev, proposal: undefined, _global: undefined }));
-            }}
-            disabled={submitting}
-            className="text-sm text-text-soft file:mr-3 file:rounded-md file:border-0 file:bg-surface-raised file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-text hover:file:bg-border"
+            id={ids.search}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar pessoa pelo nome"
+            className={inputClass}
           />
-          {isEditing && editProject?.hasProposal && !proposalFile && (
-            <p className="text-xs text-text-faint">
-              📄 Proposta existente. Selecione um novo arquivo para substituir.
-            </p>
+          {membersError ? (
+            <p className="text-sm text-danger">Não foi possível carregar os usuários.</p>
+          ) : (
+            <ul
+              className="max-h-56 overflow-y-auto rounded-md border border-border"
+              data-testid="project-form-members"
+            >
+              {filtered.length === 0 && (
+                <li className="px-3 py-3 text-sm text-text-faint">Nenhuma pessoa encontrada.</li>
+              )}
+              {filtered.map((m) => {
+                const checked = memberIds.includes(m.id);
+                return (
+                  <li key={m.id} className="border-b border-border last:border-b-0">
+                    <label className="flex min-h-[44px] cursor-pointer items-center gap-3 px-3 py-2 hover:bg-surface-hover">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleMember(m.id)}
+                        className="h-4 w-4 accent-brand"
+                      />
+                      <MemberAvatar
+                        name={m.name}
+                        avatarUrl={m.avatarUrl}
+                        className="border-border"
+                      />
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm text-text">{m.name}</span>
+                        <span className="block truncate text-xs text-text-faint">
+                          {getAreaTheme(m.area).label}
+                        </span>
+                      </span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
           )}
-          {errors.proposal && <p className="text-xs text-danger">{errors.proposal}</p>}
+        </fieldset>
+
+        {/* Gestão */}
+        <div className="grid gap-4 rounded-md border border-border p-4 sm:grid-cols-2">
+          <p className="text-xs text-text-faint sm:col-span-2">
+            Preço e proposta só aparecem para a gestão de projetos, nunca na listagem.
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={ids.price} className={labelClass}>
+              Preço (R$)
+            </label>
+            <input
+              id={ids.price}
+              inputMode="decimal"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="0,00"
+              className={inputClass}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor={ids.proposal} className={labelClass}>
+              Proposta (PDF, até {UPLOAD_MAX_LABEL})
+            </label>
+            <input
+              ref={proposalInput}
+              id={ids.proposal}
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => pickFile(e.target.files?.[0] ?? null, 'proposal')}
+              className={fileClass}
+            />
+            {editProject?.management?.hasProposal && !proposal && (
+              <p className="text-xs text-text-faint">
+                Já existe uma proposta; envie outra para substituir.
+              </p>
+            )}
+          </div>
         </div>
+
+        {error && (
+          <p role="alert" className="text-sm text-danger">
+            {error}
+          </p>
+        )}
       </form>
     </Modal>
   );

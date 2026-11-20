@@ -5,6 +5,7 @@
  *   - `/api/files/album/:memberId`   → foto de um membro do álbum
  *   - `/api/files/destaque/:slot`    → foto de um destaque do dashboard
  *   - `/api/files/post/:postId`      → imagem de uma publicação do feed
+ *   - `/api/files/projeto/:projectId` → banner de um projeto
  *
  * Exige apenas sessão válida (`withAuth(null, ...)`): são as mesmas
  * imagens que qualquer membro logado já vê no portal. Sem login, 401.
@@ -57,6 +58,13 @@ async function resolveImagePath(kind: string, id: string): Promise<string | null
     case 'post': {
       const post = await prisma.post.findUnique({ where: { id }, select: { imagePath: true } });
       return post?.imagePath ?? null;
+    }
+    case 'projeto': {
+      const project = await prisma.project.findUnique({
+        where: { id },
+        select: { bannerPath: true },
+      });
+      return project?.bannerPath ?? null;
     }
     default:
       return null;

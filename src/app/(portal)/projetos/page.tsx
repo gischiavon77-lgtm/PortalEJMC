@@ -1,21 +1,21 @@
+/**
+ * `/projetos` — projetos no estilo "Radar" (Fase 3 da reforma).
+ *
+ * Server Component: carrega todos os projetos e os números do topo
+ * (`listProjects`) e entrega ao `ProjectsShell`. A listagem nunca traz
+ * preço nem proposta; isso só aparece nos detalhes, para a gestão.
+ */
+
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { PROJECT_PUBLIC_SELECT, serializeProject, type ProjectItem } from '@/lib/projects';
 import { ProjectsShell } from '@/components/projetos/ProjectsShell';
-
-/**
- * `/projetos` — Listagem de projetos (redesenhada).
- *
- * Server Component que carrega os projetos diretamente do Prisma,
- * ordenados por nome, e entrega ao `ProjectsShell` client-side.
- */
+import { auth } from '@/lib/auth';
+import { listProjects, type ProjectItem, type ProjectStats } from '@/lib/projects';
 
 export const metadata: Metadata = {
   title: 'Projetos',
-  description: 'Listagem de projetos do Portal Interno EJMC.',
+  description: 'Projetos da EJMC.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -27,18 +27,12 @@ export default async function ProjetosPage() {
   }
 
   let projects: ProjectItem[] = [];
+  let stats: ProjectStats = { inProgress: 0, completed: 0, peopleInvolved: 0 };
   try {
-    const raw = await prisma.project.findMany({
-      orderBy: { name: 'asc' },
-      select: PROJECT_PUBLIC_SELECT,
-    });
-
-    // Só `hasProposal` vai para o cliente; o PDF é baixado sob demanda.
-    projects = raw.map(serializeProject);
+    ({ projects, stats } = await listProjects());
   } catch (err) {
     console.error('[projetos] DB error:', err);
-    projects = [];
   }
 
-  return <ProjectsShell projects={projects} />;
+  return <ProjectsShell projects={projects} stats={stats} />;
 }
