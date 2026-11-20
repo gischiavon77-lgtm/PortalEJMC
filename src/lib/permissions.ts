@@ -164,8 +164,9 @@ export type Action =
   // Acesso ao módulo de administração — usado pelo middleware da Task 4.3
   // e pela visibilidade do menu (Property 8 / Req 5.3).
   | 'admin:access'
-  // Álbum de figurinhas — Diretor+ pode adicionar/remover membros do álbum.
-  | 'album:manage'
+  // Destaques do mês (carrossel da página inicial e `/destaques`).
+  // Era `album:manage` até a Fase 5 da reforma, que removeu o álbum.
+  | 'highlight:manage'
   // Feed da página inicial (Fase 2 da reforma). `post:create` publica;
   // `post:delete` apaga — Diretor/Admin pela matriz, autor pelo predicado.
   | 'post:create'
@@ -247,8 +248,8 @@ export const PERMISSION_MATRIX: Record<Action, UserRole[]> = {
   // ─── Página de administração (Admin, Req 4.1) ──────────────────────
   'admin:access': ['ADMIN'],
 
-  // ─── Álbum de figurinhas (Admin/Diretor) ───────────────────────────
-  'album:manage': ['ADMIN', 'DIRETOR'],
+  // ─── Destaques do mês (Admin/Diretor) ──────────────────────────────
+  'highlight:manage': ['ADMIN', 'DIRETOR'],
 
   // ─── Feed da página inicial (Fase 2 da reforma) ────────────────────
   // Quem publica: Coordenador+. Para mudar, basta editar esta lista.

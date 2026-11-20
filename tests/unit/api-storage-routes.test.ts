@@ -27,7 +27,6 @@ vi.mock('@/lib/auth', () => ({ auth: (...args: unknown[]) => authMock(...args) }
 const { db } = vi.hoisted(() => ({
   db: {
     user: { findUnique: vi.fn(), update: vi.fn() },
-    albumMember: { findUnique: vi.fn() },
     highlight: { findUnique: vi.fn() },
     project: { findMany: vi.fn(), findUnique: vi.fn(), create: vi.fn() },
   },
@@ -135,25 +134,24 @@ describe('GET /api/files/:kind/:id (imagens)', () => {
     expect(new Uint8Array(await res.arrayBuffer())).toEqual(PNG_BYTES);
   });
 
-  it('resolve álbum pelo id do membro e destaque pelo slot', async () => {
+  it('resolve destaque pelo slot; o tipo antigo "album" não existe mais', async () => {
     authMock.mockResolvedValue(sessionOf('MEMBRO'));
     storage.downloadFile.mockResolvedValue({ bytes: PNG_BYTES.buffer, contentType: 'image/png' });
-    db.albumMember.findUnique.mockResolvedValue({ photoPath: 'album/m1.jpg' });
     db.highlight.findUnique.mockResolvedValue({ photoPath: 'destaques/h1.webp' });
 
-    await call(getFile, getRequest('/api/files/album/m1'), { kind: 'album', id: 'm1' });
+    const album = await call(getFile, getRequest('/api/files/album/m1'), {
+      kind: 'album',
+      id: 'm1',
+    });
+    expect(album.status).toBe(404);
     await call(getFile, getRequest('/api/files/destaque/trainee'), {
       kind: 'destaque',
       id: 'trainee',
     });
 
-    expect(db.albumMember.findUnique).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: 'm1' } }),
-    );
     expect(db.highlight.findUnique).toHaveBeenCalledWith(
       expect.objectContaining({ where: { slot: 'trainee' } }),
     );
-    expect(storage.downloadFile).toHaveBeenCalledWith('images', 'album/m1.jpg');
     expect(storage.downloadFile).toHaveBeenCalledWith('images', 'destaques/h1.webp');
   });
 

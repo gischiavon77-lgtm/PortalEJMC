@@ -16,7 +16,7 @@
  *   - O banco guarda apenas o CAMINHO do arquivo dentro do bucket.
  *
  * Buckets:
- *   - imagens   (`portal-imagens`):   avatars/, album/, destaques/, posts/, projetos/
+ *   - imagens   (`portal-imagens`):   avatars/, destaques/, posts/, projetos/
  *   - propostas (`portal-propostas`): propostas/
  *
  * Sem configuração (`SUPABASE_URL`/`SUPABASE_SERVICE_ROLE_KEY` ausentes),
@@ -31,7 +31,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 export type StorageBucket = 'images' | 'proposals';
 
 /** Pastas (prefixos) usadas dentro dos buckets. */
-export type StorageFolder = 'avatars' | 'album' | 'destaques' | 'posts' | 'projetos' | 'propostas';
+export type StorageFolder = 'avatars' | 'destaques' | 'posts' | 'projetos' | 'propostas';
 
 const DEFAULT_BUCKET_NAMES: Record<StorageBucket, string> = {
   images: 'portal-imagens',

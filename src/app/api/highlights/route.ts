@@ -2,7 +2,7 @@
  * `GET /api/highlights` e `POST /api/highlights` — Destaques do Dashboard.
  *
  * GET — retorna todos os highlights (qualquer usuário autenticado).
- * POST — cria/atualiza um highlight por slot (Admin/Diretor via `album:manage`).
+ * POST — cria/atualiza um highlight por slot (Admin/Diretor via `highlight:manage`).
  *
  * A foto (PNG, JPG ou WEBP, máx. 4 MB, validada pelo conteúdo) vai para o
  * bucket de imagens do Storage; o banco guarda só o caminho. As respostas
@@ -148,4 +148,4 @@ async function upsertHandler(
   return NextResponse.json({ highlight: serializeHighlight(highlight) }, { status: 200 });
 }
 
-export const POST = withAuth('album:manage', upsertHandler);
+export const POST = withAuth('highlight:manage', upsertHandler);

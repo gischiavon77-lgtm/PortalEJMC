@@ -21,7 +21,7 @@ test.describe('Navegação responsiva', () => {
 
     // Navigation items should be visible
     await expect(sidebar.getByText('Dashboard')).toBeVisible();
-    await expect(sidebar.getByText('Membros')).toBeVisible();
+    await expect(sidebar.getByText('Estrutura')).toBeVisible();
   });
 
   test('mobile: sidebar deve estar oculta, hamburger visível', async ({ membroPage }) => {

@@ -1,6 +1,7 @@
 /**
  * Avatar de uma pessoa da equipe de projeto: foto ou iniciais.
- * Componente sem estado; serve a cards, detalhes e formulário.
+ * Componente sem estado; serve a cards, detalhes e formulário de projetos
+ * e aos cards do organograma da Estrutura (tamanho `lg`).
  */
 
 import { cn } from '@/components/ui/cn';
@@ -8,7 +9,7 @@ import { cn } from '@/components/ui/cn';
 export interface MemberAvatarProps {
   name: string;
   avatarUrl: string | null;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
 
@@ -19,7 +20,11 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-const SIZES = { sm: 'h-8 w-8 text-[11px]', md: 'h-10 w-10 text-xs' } as const;
+const SIZES = {
+  sm: 'h-8 w-8 text-[11px]',
+  md: 'h-10 w-10 text-xs',
+  lg: 'h-16 w-16 text-base',
+} as const;
 
 export function MemberAvatar({ name, avatarUrl, size = 'sm', className }: MemberAvatarProps) {
   const base = cn('shrink-0 rounded-full border-2 border-surface', SIZES[size], className);

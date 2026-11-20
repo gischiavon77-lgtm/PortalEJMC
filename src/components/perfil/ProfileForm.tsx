@@ -3,8 +3,9 @@
 /**
  * `ProfileForm` — Formulário de edição do perfil do usuário (Tasks 11.3–11.6).
  *
- * Campos editáveis: nome, email, telefone, CPF.
- * Campos somente leitura: área, cargo, nível de permissão.
+ * Campos editáveis: nome, email, telefone, CPF e cargo (texto livre para
+ * Coordenador ou acima; Trainee/Assessor(a) para MEMBRO — Fase 5).
+ * Campos somente leitura: área, nível de permissão.
  *
  * Comportamento:
  *   - Validação client-side com Zod antes de enviar (sem perder dados dos outros campos)
@@ -21,7 +22,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { updateProfileSchema, validateCpf, validatePhone } from '@/lib/validators/profile';
-import { canEditOwnPosition, TRAINEE_LABEL } from '@/lib/position';
+import { canEditOwnPosition, effectivePosition, MEMBER_POSITIONS } from '@/lib/position';
 
 // ─── Labels ──────────────────────────────────────────────────────────────────
 
@@ -96,7 +97,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 
   const canEditPosition = canEditOwnPosition(user.role);
   const [position, setPosition] = useState(
-    user.role === 'MEMBRO' ? TRAINEE_LABEL : (user.position ?? ''),
+    user.role === 'MEMBRO' ? effectivePosition(user.role, user.position) : (user.position ?? ''),
   );
 
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -156,7 +157,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
           email: email.trim(),
           phone: phone || undefined,
           cpf: cpf || undefined,
-          position: canEditPosition ? position.trim() || undefined : undefined,
+          position: position.trim() || undefined,
         });
 
         const res = await fetch('/api/users/me', {
@@ -254,16 +255,6 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
             </div>
           </div>
 
-          {user.role === 'MEMBRO' && (
-            <div className="flex flex-col gap-1.5">
-              <span className="text-sm font-medium text-text">Cargo</span>
-              <div className="flex h-10 items-center rounded-md border border-border bg-bg px-3 text-sm text-text-soft">
-                {TRAINEE_LABEL}
-              </div>
-              <span className="text-xs text-text-faint">Membros têm o cargo fixo de Trainee.</span>
-            </div>
-          )}
-
           <div className="flex flex-col gap-1.5">
             <span className="text-sm font-medium text-text">Nível de acesso</span>
             <div className="flex h-10 items-center rounded-md border border-border bg-bg px-3 text-sm text-text-soft">
@@ -323,6 +314,28 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
             autoComplete="off"
             inputMode="numeric"
           />
+
+          {!canEditPosition && (
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="profile-position" className="text-sm font-medium text-text">
+                Cargo
+              </label>
+              <select
+                id="profile-position"
+                data-testid="profile-position"
+                value={position}
+                onChange={(e) => setPosition(e.target.value)}
+                className="h-10 rounded-md border border-border bg-surface px-3 text-sm text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+              >
+                {MEMBER_POSITIONS.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+              <span className="text-xs text-text-faint">Aparece no seu card da Estrutura.</span>
+            </div>
+          )}
 
           {canEditPosition && (
             <Input

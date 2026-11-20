@@ -1,7 +1,7 @@
 /**
  * `DELETE /api/highlights/:slot` — Remove um destaque por slot.
  *
- * Apenas Admin/Diretor (via `album:manage`).
+ * Apenas Admin/Diretor (via `highlight:manage`).
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
@@ -65,4 +65,4 @@ async function deleteHandler(
   return NextResponse.json({ success: true }, { status: 200 });
 }
 
-export const DELETE = withAuth<SlotRouteParams>('album:manage', deleteHandler);
+export const DELETE = withAuth<SlotRouteParams>('highlight:manage', deleteHandler);

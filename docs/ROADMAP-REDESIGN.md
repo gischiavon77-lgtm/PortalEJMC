@@ -10,7 +10,7 @@ Reforma visual e funcional do portal, feita em fases na branch `redesign`.
 | 2    | Página inicial em feed    | ✅ Concluída |
 | 3    | Projetos (estilo "Radar") | ✅ Concluída |
 | 4    | Calendário                | ✅ Concluída |
-| 5    | Estrutura (organograma)   | ⏳ Pendente  |
+| 5    | Estrutura (organograma)   | ✅ Concluída |
 
 Ao concluir uma fase, atualize a tabela acima e a seção da fase (situação e commit).
 
@@ -52,7 +52,7 @@ O que foi feito e decisões aprovadas:
 - API: `GET/POST /api/posts` (paginação por cursor, 10 por página), `DELETE /api/posts/:id`, `POST/DELETE /api/posts/:id/like`, imagem em `GET /api/files/post/:id` (pasta `posts/` do bucket de imagens).
 - Permissões: `post:create` (Coordenador+) e `post:delete` (Diretor e Admin pela matriz; autor pelo predicado com `context.ownerId`). `PermissionUser` ganhou `id` opcional.
 - Mural de Avisos: comunicados dos últimos 30 dias, os 3 mais recentes (comunicados não têm data de validade).
-- Destaque do Mês: os cinco destaques principais; o carrossel completo (com Referências e Prêmio Cultura) foi para `/destaques`, aberto pelo link do card. A permissão dos destaques continua `album:manage`; renomear para `highlight:manage` na Fase 5.
+- Destaque do Mês: os cinco destaques principais; o carrossel completo (com Referências e Prêmio Cultura) foi para `/destaques`, aberto pelo link do card. A permissão dos destaques era `album:manage` e foi renomeada para `highlight:manage` na Fase 5.
 - Responsivo: três colunas a partir de 1280px; abaixo disso a coluna direita vem antes do feed.
 
 Escopo original:
@@ -116,7 +116,21 @@ Escopo original:
 - Adicionar categoria ao evento, com cor, legenda e filtros no topo. Propor as categorias adequadas a uma empresa júnior.
 - Garantir, com teste automatizado, que um evento futuro criado no calendário aparece em "Próximos Eventos" na página inicial.
 
-## Fase 5 — Estrutura (organograma) ⏳
+## Fase 5 — Estrutura (organograma) ✅
+
+**Situação:** concluída (commit da Fase 5). Migração `20261123000000_remove_album_member` (apaga a tabela `AlbumMember`): rodar `npx prisma migrate deploy` em cada banco.
+
+O que foi feito e decisões aprovadas:
+
+- `/estrutura` substitui `/membros` (que agora redireciona). Menu: "Estrutura". Visão geral com os números (membros, áreas) e um card por área; cada card abre `/estrutura/<slug>` (ex.: `/estrutura/gestao-de-pessoas`); slug desconhecido dá 404.
+- Organograma em camadas: Diretoria (Diretor e Admin com área) > Gerência > Coordenação > Membros. Camada vazia não aparece. Card com foto (ou iniciais), nome e cargo; fio fino na cor da área.
+- Fonte: usuários ATIVOS com área (`src/lib/structure.ts`); montagem pura em `src/lib/org-chart.ts`, coberta por teste de propriedade. Quem não tem área não aparece nem entra na contagem. O admin do seed tem área Presidência, então aparece lá.
+- Cargo do MEMBRO: o próprio membro escolhe "Trainee" ou "Assessor(a)" no Perfil (lista fechada; a API recusa outro valor). Valor fora da lista aparece como "Trainee". Demais papéis continuam com texto livre.
+- Removidos: álbum por gestão (`/api/album/*`, `src/components/membros/`), `GET /api/files/album/:id` e o modelo `AlbumMember`. Fotos antigas na pasta `album/` do bucket não são apagadas pelo código.
+- Permissão `album:manage` renomeada para `highlight:manage` (mesmos papéis: Admin e Diretor).
+- Sem "data de entrada": o banco só tem a data de criação da conta, que não é a entrada na EJ.
+
+Escopo original:
 
 Substituir a tela de membros/álbum por "Estrutura".
 

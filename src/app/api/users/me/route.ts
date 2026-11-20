@@ -4,8 +4,10 @@
  * GET  /api/users/me  → Retorna dados do usuário autenticado
  * PATCH /api/users/me → Atualiza campos editáveis (name, email, phone, cpf)
  *
- * Campos readonly (area, position, role, status) são ignorados mesmo
- * se enviados no body. A API nunca os altera.
+ * Campos readonly (area, role, status) são ignorados mesmo se enviados
+ * no body. O cargo (position) segue `resolveOwnPositionUpdate`: papéis
+ * acima de MEMBRO digitam livremente; MEMBRO escolhe "Trainee" ou
+ * "Assessor(a)" (Fase 5 da reforma).
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
@@ -13,6 +15,7 @@ import { ZodError } from 'zod';
 
 import { withAuth } from '@/lib/api-auth';
 import { avatarUrlFor } from '@/lib/file-urls';
+import { resolveOwnPositionUpdate } from '@/lib/position';
 import { prisma } from '@/lib/prisma';
 import { updateProfileSchema } from '@/lib/validators/profile';
 
@@ -98,19 +101,27 @@ export const PATCH = withAuth(null, async (req: NextRequest, { session }) => {
   if (parsed.phone !== undefined) data.phone = parsed.phone;
   if (parsed.cpf !== undefined) data.cpf = parsed.cpf;
 
-  // Cargo (position): MEMBRO tem cargo fixo "Trainee" e não pode editar.
-  // Demais papéis editam livremente. Lemos o papel ATUAL do banco para
-  // não depender de sessão possivelmente desatualizada.
+  // Cargo (position): MEMBRO escolhe na lista fechada; demais papéis
+  // editam livremente. Lemos o papel ATUAL do banco para não depender
+  // de sessão possivelmente desatualizada.
   const dbUser = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { role: true },
   });
   const role = dbUser?.role ?? session.user.role;
-  if (role === 'MEMBRO') {
-    data.position = 'Trainee';
-  } else if (parsed.position !== undefined) {
-    data.position = parsed.position;
+  const positionUpdate = resolveOwnPositionUpdate(role, parsed.position);
+  if (!positionUpdate.ok) {
+    return NextResponse.json(
+      {
+        error: true,
+        code: 'VALIDATION_ERROR',
+        message: 'Dados inválidos.',
+        fields: [{ path: 'position', message: 'Escolha Trainee ou Assessor(a).' }],
+      },
+      { status: 422 },
+    );
   }
+  if (positionUpdate.value !== undefined) data.position = positionUpdate.value;
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json(

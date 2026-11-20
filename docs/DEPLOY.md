@@ -208,16 +208,16 @@ Se não tiver `openssl`, use: https://generate-secret.vercel.app/32
 
 ## Arquivos no Supabase Storage
 
-Avatares, fotos do álbum, fotos de destaques e propostas em PDF ficam no Supabase Storage. O banco guarda só o caminho de cada arquivo. O navegador nunca fala com o Storage: todo upload e download passa pelas rotas de API do portal, que conferem login e permissão.
+Avatares, fotos de destaques, imagens do feed, banners de projetos e propostas em PDF ficam no Supabase Storage. O banco guarda só o caminho de cada arquivo. O navegador nunca fala com o Storage: todo upload e download passa pelas rotas de API do portal, que conferem login e permissão.
 
 ### O que criar no Supabase
 
 No painel do projeto, em **Storage → New bucket**, crie dois buckets com **"Public bucket" desligado**:
 
-| Bucket             | Conteúdo                           | Limite por arquivo | Tipos aceitos (MIME)                    |
-| ------------------ | ---------------------------------- | ------------------ | --------------------------------------- |
-| `portal-imagens`   | `avatars/`, `album/`, `destaques/` | 4 MB               | `image/png`, `image/jpeg`, `image/webp` |
-| `portal-propostas` | `propostas/`                       | 4 MB               | `application/pdf`                       |
+| Bucket             | Conteúdo                                        | Limite por arquivo | Tipos aceitos (MIME)                    |
+| ------------------ | ----------------------------------------------- | ------------------ | --------------------------------------- |
+| `portal-imagens`   | `avatars/`, `destaques/`, `posts/`, `projetos/` | 4 MB               | `image/png`, `image/jpeg`, `image/webp` |
+| `portal-propostas` | `propostas/`                                    | 4 MB               | `application/pdf`                       |
 
 - **Não crie policies** nesses buckets. Sem policy, só a chave de serviço acessa os arquivos.
 - O limite e os tipos no bucket são uma segunda barreira; o portal já valida tamanho e tipo (pelo conteúdo do arquivo) antes de enviar.
@@ -236,11 +236,11 @@ Sem essas variáveis, upload e download de arquivos respondem erro 503 e o resta
 
 ### Quem acessa o quê
 
-| Arquivo                       | Envia             | Baixa                   |
-| ----------------------------- | ----------------- | ----------------------- |
-| Avatar                        | O próprio usuário | Qualquer usuário logado |
-| Fotos do álbum e de destaques | Admin e Diretor   | Qualquer usuário logado |
-| Proposta (PDF)                | Admin e Diretor   | Admin e Diretor         |
+| Arquivo            | Envia             | Baixa                   |
+| ------------------ | ----------------- | ----------------------- |
+| Avatar             | O próprio usuário | Qualquer usuário logado |
+| Fotos de destaques | Admin e Diretor   | Qualquer usuário logado |
+| Proposta (PDF)     | Admin e Diretor   | Admin e Diretor         |
 
 ### Limite de 4 MB
 

@@ -17,6 +17,7 @@ const PRIVATE_PREFIXES = [
   '/metas',
   '/kpis',
   '/membros',
+  '/estrutura',
   '/perfil',
   '/portfolio',
   '/projetos',

@@ -2,7 +2,7 @@
  * Tema visual por Área — cor de destaque (fio discreto) e animal (emoji).
  *
  * Fonte única da verdade para a identidade visual de cada área,
- * reutilizada no álbum de figurinhas e no banner do perfil.
+ * reutilizada na Estrutura (cards de área e organograma) e no banner do perfil.
  *
  * Animais/cores (identidade EJMC):
  *   - Vendas            🦈 tubarão     — verde-água (teal)

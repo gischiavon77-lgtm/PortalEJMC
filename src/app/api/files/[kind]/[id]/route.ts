@@ -2,7 +2,6 @@
  * `GET /api/files/:kind/:id` — Download de imagens guardadas no Storage.
  *
  *   - `/api/files/avatar/:userId`    → avatar de um usuário
- *   - `/api/files/album/:memberId`   → foto de um membro do álbum
  *   - `/api/files/destaque/:slot`    → foto de um destaque do dashboard
  *   - `/api/files/post/:postId`      → imagem de uma publicação do feed
  *   - `/api/files/projeto/:projectId` → banner de um projeto
@@ -40,13 +39,6 @@ async function resolveImagePath(kind: string, id: string): Promise<string | null
     case 'avatar': {
       const user = await prisma.user.findUnique({ where: { id }, select: { avatarPath: true } });
       return user?.avatarPath ?? null;
-    }
-    case 'album': {
-      const member = await prisma.albumMember.findUnique({
-        where: { id },
-        select: { photoPath: true },
-      });
-      return member?.photoPath ?? null;
     }
     case 'destaque': {
       const highlight = await prisma.highlight.findUnique({

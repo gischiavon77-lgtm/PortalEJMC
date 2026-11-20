@@ -4,9 +4,10 @@
  * Lista os **membros ativos** do diretório, com filtro opcional por
  * área e ordenação alfabética por nome (`name ASC`, case-insensitive).
  *
- * Cada item do payload contém os campos exibidos pela página
- * `/membros` (Task 10.2): `id`, `name`, `position` (cargo), `area` e
- * `avatarUrl` (consumido pelos cards mobile / linhas desktop).
+ * Cada item traz `id`, `name`, `position` (cargo), `area`, `role` e
+ * `avatarUrl`. Hoje é usado pelo formulário de Projetos (escolha da
+ * equipe); a tela antiga `/membros` virou a Estrutura (Fase 5 da
+ * reforma), que lê os usuários direto no servidor (`src/lib/structure.ts`).
  *
  * ─── Decisões de design ─────────────────────────────────────────────
  *

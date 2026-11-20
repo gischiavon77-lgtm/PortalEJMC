@@ -387,22 +387,6 @@ model Highlight {
   createdAt DateTime @default(now())
 }
 
-// Álbum de figurinhas — membros por gestão e área
-model AlbumMember {
-  id        String   @id @default(cuid())
-  name      String   @db.VarChar(150)
-  position  String   @db.VarChar(100) // cargo
-  area      Area
-  gestao    String   @db.VarChar(10) // ex: "2026.1"
-  photoPath String?  @db.VarChar(300) // caminho da foto no bucket de imagens
-  order     Int      @default(0) // posição no grid da área
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([gestao, area])
-  @@index([gestao])
-}
-
 // Fase 2 da reforma — feed da página inicial.
 
 // Publicação do feed. Texto obrigatório; imagem opcional no Storage.

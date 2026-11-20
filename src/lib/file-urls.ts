@@ -13,7 +13,7 @@
  * Módulo puro: pode ser usado em Server e Client Components.
  */
 
-export type ImageKind = 'avatar' | 'album' | 'destaque' | 'post' | 'projeto';
+export type ImageKind = 'avatar' | 'destaque' | 'post' | 'projeto';
 
 function versionOf(path: string): string {
   const fileName = path.split('/').pop() ?? '';
@@ -28,14 +28,6 @@ function imageUrl(kind: ImageKind, id: string, path: string | null | undefined):
 /** URL do avatar de um usuário, ou `null` se ele não tem foto. */
 export function avatarUrlFor(userId: string, avatarPath: string | null | undefined): string | null {
   return imageUrl('avatar', userId, avatarPath);
-}
-
-/** URL da foto de um membro do álbum, ou `null`. */
-export function albumPhotoUrlFor(
-  memberId: string,
-  photoPath: string | null | undefined,
-): string | null {
-  return imageUrl('album', memberId, photoPath);
 }
 
 /** URL da foto de um destaque (identificado pelo slot), ou `null`. */

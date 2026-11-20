@@ -113,7 +113,7 @@ export function HighlightsCarousel() {
   const [loading, setLoading] = useState(true);
   const [editingSlot, setEditingSlot] = useState<string | null>(null);
 
-  const { allowed: canManage } = usePermission('album:manage');
+  const { allowed: canManage } = usePermission('highlight:manage');
 
   const fetchHighlights = useCallback(async () => {
     try {

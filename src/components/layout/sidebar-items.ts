@@ -117,7 +117,7 @@ export const MENU_ITEMS: readonly SidebarItem[] = [
   { label: 'Cronograma', href: '/cronograma', icon: 'calendar', group: 1 },
   { label: 'Metas', href: '/metas', icon: 'target', group: 1 },
   { label: 'KPIs', href: '/kpis', icon: 'chart', group: 1 },
-  { label: 'Membros', href: '/membros', icon: 'users', group: 2 },
+  { label: 'Estrutura', href: '/estrutura', icon: 'users', group: 2 },
   { label: 'Portfólio', href: '/portfolio', icon: 'briefcase', group: 2 },
   { label: 'Projetos', href: '/projetos', icon: 'folder', group: 2 },
   { label: 'Comunicados', href: '/comunicados', icon: 'megaphone', group: 3 },

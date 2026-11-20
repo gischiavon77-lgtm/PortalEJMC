@@ -139,7 +139,7 @@ describe('Property 8: Visibilidade do menu', () => {
     { label: 'Cronograma', href: '/cronograma' },
     { label: 'Metas', href: '/metas' },
     { label: 'KPIs', href: '/kpis' },
-    { label: 'Membros', href: '/membros' },
+    { label: 'Estrutura', href: '/estrutura' },
     { label: 'Portfólio', href: '/portfolio' },
     { label: 'Projetos', href: '/projetos' },
     { label: 'Comunicados', href: '/comunicados' },

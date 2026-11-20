@@ -1,6 +1,6 @@
 # CLAUDE.md — Portal Interno EJMC
 
-Portal web interno da empresa júnior EJMC (até ~80 usuários): dashboard, cronograma, metas, KPIs, membros/álbum, perfil, portfólio, projetos, comunicados, enquetes, pontuação (infrações), reserva de computadores, configurações e admin. Interface, mensagens, comentários e commits em **pt-BR**.
+Portal web interno da empresa júnior EJMC (até ~80 usuários): dashboard, cronograma, metas, KPIs, estrutura (organograma), perfil, portfólio, projetos, comunicados, enquetes, pontuação (infrações), reserva de computadores, configurações e admin. Interface, mensagens, comentários e commits em **pt-BR**.
 
 ## Regras de trabalho
 
@@ -40,7 +40,7 @@ O escopo detalhado está em `docs/ROADMAP-REDESIGN.md`; em caso de conflito com 
 2. ~~Página inicial em feed.~~ **Concluída** na Fase 2 da reforma.
 3. ~~Projetos com imagem, descrição, status, contadores e equipe ligada a usuários.~~ **Concluída** na Fase 3 da reforma.
 4. ~~Categorias nos eventos do calendário.~~ **Concluída** na Fase 4 da reforma.
-5. Organograma por área gerado a partir dos usuários, com data de entrada. O álbum continua como histórico por gestão.
+5. ~~Organograma por área gerado a partir dos usuários.~~ **Concluída** na Fase 5 da reforma (sem data de entrada; o álbum por gestão foi removido).
 
 ## Identidade visual (reforma em fases)
 
@@ -189,18 +189,18 @@ Fonte única: `src/lib/permissions.ts`.
 ### Banco de dados
 
 - Client singleton em `src/lib/prisma.ts` (`import { prisma } from '@/lib/prisma'`); força `sslmode=require`.
-- Modelos: `User`, `Event`, `Goal`, `GoalUpdate`, `Kpi`, `KpiValue`, `Project`, `Announcement`, `Poll`, `PollOption`, `PollVote`, `Infraction`, `InfractionConfig`, `Reservation`, `Service`, `Highlight`, `AlbumMember`, `Post`, `PostLike`, `ProjectMember`.
-- Imagens e PDFs ficam no Supabase Storage; o banco guarda só o caminho (`User.avatarPath`, `AlbumMember.photoPath`, `Highlight.photoPath`, `Project.proposalPath`). Ver "Arquivos (Supabase Storage)".
+- Modelos: `User`, `Event`, `Goal`, `GoalUpdate`, `Kpi`, `KpiValue`, `Project`, `Announcement`, `Poll`, `PollOption`, `PollVote`, `Infraction`, `InfractionConfig`, `Reservation`, `Service`, `Highlight`, `Post`, `PostLike`, `ProjectMember`.
+- Imagens e PDFs ficam no Supabase Storage; o banco guarda só o caminho (`User.avatarPath`, `Highlight.photoPath`, `Post.imagePath`, `Project.bannerPath`, `Project.proposalPath`). Ver "Arquivos (Supabase Storage)".
 - O schema do banco é atualizado por `prisma migrate deploy` no build. `prisma/migrations/` cobre o schema atual. A migração `20260612000000_redesign_project` é idempotente porque a mudança tinha sido aplicada no banco antigo via `db push`; num banco novo ela aplica o redesenho normalmente.
 
 ### Arquivos (Supabase Storage)
 
-- Dois buckets **privados**, sem policies: `portal-imagens` (`avatars/`, `album/`, `destaques/`, `posts/`, `projetos/`) e `portal-propostas` (`propostas/`).
+- Dois buckets **privados**, sem policies: `portal-imagens` (`avatars/`, `destaques/`, `posts/`, `projetos/`) e `portal-propostas` (`propostas/`).
 - `src/lib/storage.ts` é o único módulo que conhece a chave de serviço. Só pode ser importado por route handlers e Server Components.
 - O navegador nunca acessa o Storage. Upload e download passam pelas rotas do portal, que conferem login/permissão antes.
 - **Upload**: a rota chama `storeUpload` (`src/lib/upload-handler.ts`), que valida e envia; depois grava o caminho no banco e remove o arquivo anterior com `deleteFile`. Se o banco falhar, o arquivo recém-enviado é removido.
 - **Validação** (`src/lib/validators/upload.ts`): tipo decidido pelo conteúdo do arquivo (assinatura), nunca por `file.type`; limite de 4 MB por causa do teto de ~4,5 MB por requisição na Vercel.
-- **Download**: `GET /api/files/{avatar|album|destaque|post|projeto}/:id` (qualquer usuário logado) e `GET /api/projects/:id/proposal` (`project:readProposal`, Admin e Diretor). O caminho do arquivo é sempre lido do banco; o cliente só informa o id.
+- **Download**: `GET /api/files/{avatar|destaque|post|projeto}/:id` (qualquer usuário logado) e `GET /api/projects/:id/proposal` (`project:readProposal`, Admin e Diretor). O caminho do arquivo é sempre lido do banco; o cliente só informa o id.
 - **URLs para a tela**: as APIs devolvem `avatarUrl`/`photoUrl` já apontando para as rotas de download (`src/lib/file-urls.ts`). O caminho do bucket nunca vai ao cliente.
 - **Projetos**: a listagem nunca envia preço nem proposta; os detalhes trazem `management` só para `project:write` (`src/lib/projects.ts`).
 - O login Google não copia mais a foto do Google para o avatar.
@@ -219,13 +219,20 @@ Fonte única: `src/lib/permissions.ts`.
 - Criar/editar: `src/lib/project-form-handler.ts` valida os campos (`src/lib/validators/project.ts`, com a lista `PROJECT_TOOLS`), confere a equipe (só usuários ativos) e só então envia banner e proposta ao Storage.
 - A equipe de um projeto vem do vínculo `ProjectMember`; só usuários ativos aparecem.
 
+### Estrutura (organograma)
+
+- `/estrutura`: números (membros, áreas) e um card por área; `/estrutura/<slug>` mostra o organograma da área (Diretoria > Gerência > Coordenação > Membros). `/membros` redireciona para `/estrutura`. Detalhes em `docs/ROADMAP-REDESIGN.md` (Fase 5).
+- Fonte: usuários ativos com área (`src/lib/structure.ts`); camadas e contagens em `src/lib/org-chart.ts` (puro). Sem área, a pessoa não aparece.
+- Destaques do mês usam a permissão `highlight:manage` (antes `album:manage`).
+
 ### Regras de domínio que vivem em `src/lib`
 
 - `goals.ts`: visibilidade por área e meta vencida. `kpis.ts`, `dashboard.ts`: agregações.
 - `calendar-sync.ts` + `google-calendar.ts`: sync com retry (3 tentativas, 60s), campo `Event.syncStatus`. Sincronização só de ida (portal → Google).
 - `event-categories.ts`: categorias de evento (nome, dica, cor) e `filterByCategory`. A categoria (`Event.category`) não vai para o Google.
-- `position.ts`: `MEMBRO` tem cargo fixo "Trainee"; demais papéis editam o próprio cargo.
-- `area-theme.ts`: cor e mascote de cada área (álbum e banner do perfil).
+- `position.ts`: `MEMBRO` escolhe o cargo entre "Trainee" e "Assessor(a)" (`MEMBER_POSITIONS`; outro valor aparece como "Trainee"); demais papéis editam o próprio cargo livremente.
+- `area-theme.ts`: cor e mascote de cada área (Estrutura e banner do perfil).
+- `org-chart.ts`: camadas do organograma e números da Estrutura (funções puras).
 - `email.ts`: emails de aprovação/rejeição via Resend.
 
 ## Specs (`.kiro/specs/portal-interno-ejmc/`)
@@ -239,7 +246,7 @@ O código evoluiu depois das specs. **Em caso de conflito, o código vale.** Dif
 - `Project` foi redesenhado (Fase 3 da reforma): `ferramenta`, `description`, `status` (`EM_ANDAMENTO`/`CONCLUIDO`, enum `ProjectStatus` novo), `bannerPath`, `price`, `proposalPath`, equipe em `ProjectMember` (ligada a usuários). Não existe mais `ProjectStatusHistory`.
 - Nomes de campo: `Event.startsAt/endsAt` (e `Event.category`, Fase 4), `Reservation.reservedDate`, `Infraction.userId/occurredAt/semester`, `KpiValue.recordedAt/recordedById`, `GoalUpdate.oldProgress/newProgress`.
 - A matriz RBAC usa lista explícita de papéis + predicados em OU, não `minLevel` + `customCheck`. As ações são `recurso:verbo`, não `recurso.verbo`.
-- Módulos fora das specs: álbum de figurinhas (`AlbumMember`, `/api/album`), destaques do dashboard (`Highlight`, `/api/highlights`), sino de notificações (`/api/notifications`), exclusão de comunicados/enquetes/metas.
+- Módulos fora das specs: Estrutura/organograma (`/estrutura`), destaques do dashboard (`Highlight`, `/api/highlights`), sino de notificações (`/api/notifications`), exclusão de comunicados/enquetes/metas.
 - Validadores ficam em `src/lib/validators/*.ts` (não em um `validators.ts` único). Não há `src/utils` nem `tests/integration`.
 - Os testes de propriedade estão agrupados por domínio (`auth`, `rbac`, `goals`, `cpf`, ...), e não um arquivo por propriedade como dizem `design.md` e `tests/property/README.md`.
 
