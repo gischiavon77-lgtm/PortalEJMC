@@ -26,6 +26,7 @@ const PRIVATE_PREFIXES = [
   '/reservas',
   '/configuracoes',
   '/admin',
+  '/destaques',
 ] as const;
 
 function isPrivateRoute(pathname: string): boolean {

@@ -37,7 +37,7 @@ Ainda não implementadas:
 O escopo detalhado está em `docs/ROADMAP-REDESIGN.md`; em caso de conflito com a lista abaixo, vale o roteiro.
 
 1. ~~Sidebar fixa.~~ **Concluída** na Fase 1 da reforma visual.
-2. Página inicial em feed: posts com foto e curtidas, e coluna lateral com mural de avisos, destaque do mês e próximos eventos. Substitui a página inicial atual.
+2. ~~Página inicial em feed.~~ **Concluída** na Fase 2 da reforma.
 3. Projetos com imagem, descrição, status, contadores e equipe ligada a usuários.
 4. Categorias nos eventos do calendário.
 5. Organograma por área gerado a partir dos usuários, com data de entrada. O álbum continua como histórico por gestão.
@@ -188,21 +188,28 @@ Fonte única: `src/lib/permissions.ts`.
 ### Banco de dados
 
 - Client singleton em `src/lib/prisma.ts` (`import { prisma } from '@/lib/prisma'`); força `sslmode=require`.
-- Modelos: `User`, `Event`, `Goal`, `GoalUpdate`, `Kpi`, `KpiValue`, `Project`, `Announcement`, `Poll`, `PollOption`, `PollVote`, `Infraction`, `InfractionConfig`, `Reservation`, `Service`, `Highlight`, `AlbumMember`.
+- Modelos: `User`, `Event`, `Goal`, `GoalUpdate`, `Kpi`, `KpiValue`, `Project`, `Announcement`, `Poll`, `PollOption`, `PollVote`, `Infraction`, `InfractionConfig`, `Reservation`, `Service`, `Highlight`, `AlbumMember`, `Post`, `PostLike`.
 - Imagens e PDFs ficam no Supabase Storage; o banco guarda só o caminho (`User.avatarPath`, `AlbumMember.photoPath`, `Highlight.photoPath`, `Project.proposalPath`). Ver "Arquivos (Supabase Storage)".
 - O schema do banco é atualizado por `prisma migrate deploy` no build. `prisma/migrations/` cobre o schema atual. A migração `20260612000000_redesign_project` é idempotente porque a mudança tinha sido aplicada no banco antigo via `db push`; num banco novo ela aplica o redesenho normalmente.
 
 ### Arquivos (Supabase Storage)
 
-- Dois buckets **privados**, sem policies: `portal-imagens` (`avatars/`, `album/`, `destaques/`) e `portal-propostas` (`propostas/`).
+- Dois buckets **privados**, sem policies: `portal-imagens` (`avatars/`, `album/`, `destaques/`, `posts/`) e `portal-propostas` (`propostas/`).
 - `src/lib/storage.ts` é o único módulo que conhece a chave de serviço. Só pode ser importado por route handlers e Server Components.
 - O navegador nunca acessa o Storage. Upload e download passam pelas rotas do portal, que conferem login/permissão antes.
 - **Upload**: a rota chama `storeUpload` (`src/lib/upload-handler.ts`), que valida e envia; depois grava o caminho no banco e remove o arquivo anterior com `deleteFile`. Se o banco falhar, o arquivo recém-enviado é removido.
 - **Validação** (`src/lib/validators/upload.ts`): tipo decidido pelo conteúdo do arquivo (assinatura), nunca por `file.type`; limite de 4 MB por causa do teto de ~4,5 MB por requisição na Vercel.
-- **Download**: `GET /api/files/{avatar|album|destaque}/:id` (qualquer usuário logado) e `GET /api/projects/:id/proposal` (`project:readProposal`, Admin e Diretor). O caminho do arquivo é sempre lido do banco; o cliente só informa o id.
+- **Download**: `GET /api/files/{avatar|album|destaque|post}/:id` (qualquer usuário logado) e `GET /api/projects/:id/proposal` (`project:readProposal`, Admin e Diretor). O caminho do arquivo é sempre lido do banco; o cliente só informa o id.
 - **URLs para a tela**: as APIs devolvem `avatarUrl`/`photoUrl` já apontando para as rotas de download (`src/lib/file-urls.ts`). O caminho do bucket nunca vai ao cliente.
 - **Projetos**: a listagem envia só `hasProposal` (`src/lib/projects.ts`). Escrita em projetos usa `project:write`.
 - O login Google não copia mais a foto do Google para o avatar.
+
+### Página inicial (feed)
+
+- `/dashboard`: feed de publicações (`Post`, curtidas em `PostLike`) e coluna direita com Mural de Avisos, Destaque do Mês e Próximos Eventos. Detalhes e decisões em `docs/ROADMAP-REDESIGN.md` (Fase 2).
+- Leitura e formato público em `src/lib/posts.ts` (paginação por cursor, `canDelete` calculado pela matriz) e `src/lib/home.ts` (coluna direita, datas no fuso de São Paulo).
+- Publicar: `post:create`. Apagar: `post:delete`, com `context.ownerId` = autor. Curtir: qualquer usuário logado.
+- O carrossel completo de destaques fica em `/destaques` (sem item no menu).
 
 ### Regras de domínio que vivem em `src/lib`
 

@@ -165,7 +165,11 @@ export type Action =
   // e pela visibilidade do menu (Property 8 / Req 5.3).
   | 'admin:access'
   // Álbum de figurinhas — Diretor+ pode adicionar/remover membros do álbum.
-  | 'album:manage';
+  | 'album:manage'
+  // Feed da página inicial (Fase 2 da reforma). `post:create` publica;
+  // `post:delete` apaga — Diretor/Admin pela matriz, autor pelo predicado.
+  | 'post:create'
+  | 'post:delete';
 
 /**
  * Lista de papéis autorizados por ação. A presença de um papel aqui
@@ -245,6 +249,13 @@ export const PERMISSION_MATRIX: Record<Action, UserRole[]> = {
 
   // ─── Álbum de figurinhas (Admin/Diretor) ───────────────────────────
   'album:manage': ['ADMIN', 'DIRETOR'],
+
+  // ─── Feed da página inicial (Fase 2 da reforma) ────────────────────
+  // Quem publica: Coordenador+. Para mudar, basta editar esta lista.
+  'post:create': ['ADMIN', 'DIRETOR', 'GERENTE', 'COORDENADOR'],
+  // Quem apaga qualquer publicação: Diretor e Admin. O autor apaga a
+  // própria publicação pelo predicado (`context.ownerId`).
+  'post:delete': ['ADMIN', 'DIRETOR'],
 };
 
 /**
@@ -253,6 +264,8 @@ export const PERMISSION_MATRIX: Record<Action, UserRole[]> = {
  * tanto à `Session.user` (cliente) quanto a registros do banco (servidor).
  */
 export interface PermissionUser {
+  /** Necessário só para predicados de autoria (ex.: `post:delete`). */
+  id?: string;
   role: UserRole;
   area?: Area | null;
 }
@@ -264,6 +277,8 @@ export interface PermissionUser {
  */
 export interface PermissionContext {
   area?: Area | null;
+  /** Id do dono do recurso (ex.: autor da publicação), para regras "o próprio autor pode". */
+  ownerId?: string | null;
 }
 
 /**
@@ -292,6 +307,13 @@ export const PERMISSION_PREDICATES: Partial<
   'kpi:writeValue': (user, context) => {
     if (!context?.area) return false;
     return user.area === context.area;
+  },
+
+  // Fase 2 — o autor pode apagar a própria publicação. O chamador
+  // informa `context.ownerId` (autor do post) e o usuário precisa ter `id`.
+  'post:delete': (user, context) => {
+    if (!user.id || !context?.ownerId) return false;
+    return user.id === context.ownerId;
   },
 };
 

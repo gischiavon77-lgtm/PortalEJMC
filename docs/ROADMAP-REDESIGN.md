@@ -7,7 +7,7 @@ Reforma visual e funcional do portal, feita em fases na branch `redesign`.
 | ---- | ------------------------- | ------------ |
 | 0    | Pré-requisito: Storage    | ✅ Concluída |
 | 1    | Base visual               | ✅ Concluída |
-| 2    | Página inicial em feed    | ⏳ Pendente  |
+| 2    | Página inicial em feed    | ✅ Concluída |
 | 3    | Projetos (estilo "Radar") | ⏳ Pendente  |
 | 4    | Calendário                | ⏳ Pendente  |
 | 5    | Estrutura (organograma)   | ⏳ Pendente  |
@@ -41,7 +41,21 @@ Pendente fora do código: criar os buckets no Supabase real e definir as variáv
 - Sidebar fixa na altura toda, com logo, etiqueta de cargo e sino no topo, grupos com divisórias e avatar/nome/área/sair no rodapé. No celular vira menu recolhível. Sem barra superior a partir de 768px.
 - Destaque ao passar o mouse (`hover-card`): a caixa escurece e a borda fica em `#87000a`.
 
-## Fase 2 — Página inicial em feed ⏳
+## Fase 2 — Página inicial em feed ✅
+
+**Situação:** concluída (commit da Fase 2). Migração `20261120000000_feed_posts` (tabelas `Post` e `PostLike`): rodar `npx prisma migrate deploy` em cada banco.
+
+O que foi feito e decisões aprovadas:
+
+- Storage real conferido antes de começar: os dois buckets existem e são privados; envio, download e remoção testados nos dois.
+- `/dashboard` virou o feed: `HomeFeed`, `PostCard`, `PostComposer` e `HomeSidebar` em `src/components/home/`; leitura em `src/lib/posts.ts` e `src/lib/home.ts`.
+- API: `GET/POST /api/posts` (paginação por cursor, 10 por página), `DELETE /api/posts/:id`, `POST/DELETE /api/posts/:id/like`, imagem em `GET /api/files/post/:id` (pasta `posts/` do bucket de imagens).
+- Permissões: `post:create` (Coordenador+) e `post:delete` (Diretor e Admin pela matriz; autor pelo predicado com `context.ownerId`). `PermissionUser` ganhou `id` opcional.
+- Mural de Avisos: comunicados dos últimos 30 dias, os 3 mais recentes (comunicados não têm data de validade).
+- Destaque do Mês: os cinco destaques principais; o carrossel completo (com Referências e Prêmio Cultura) foi para `/destaques`, aberto pelo link do card. A permissão dos destaques continua `album:manage`; renomear para `highlight:manage` na Fase 5.
+- Responsivo: três colunas a partir de 1280px; abaixo disso a coluna direita vem antes do feed.
+
+Escopo original:
 
 **Pré-requisito:** verificar se o Supabase Storage real está configurado (buckets criados e variáveis no `.env`). Se não estiver, dar o passo a passo e testar o upload de um avatar antes de seguir.
 

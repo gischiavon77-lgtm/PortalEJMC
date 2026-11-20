@@ -103,6 +103,8 @@ model User {
   infractions   Infraction[]   @relation("InfractionTarget")
   infractionsBy Infraction[]   @relation("InfractionCreator")
   reservations  Reservation[]
+  posts         Post[]
+  postLikes     PostLike[]
 
   @@index([email])
   @@index([status])
@@ -363,4 +365,33 @@ model AlbumMember {
 
   @@index([gestao, area])
   @@index([gestao])
+}
+
+// Fase 2 da reforma — feed da página inicial.
+
+// Publicação do feed. Texto obrigatório; imagem opcional no Storage.
+model Post {
+  id        String     @id @default(cuid())
+  content   String     @db.VarChar(2000)
+  imagePath String?    @db.VarChar(300) // caminho da imagem no bucket de imagens (posts/)
+  authorId  String
+  author    User       @relation(fields: [authorId], references: [id])
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  likes     PostLike[]
+
+  @@index([createdAt, id])
+  @@index([authorId])
+}
+
+// Curtida: no máximo uma por usuário em cada publicação.
+model PostLike {
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([postId, userId])
+  @@index([userId])
 }
