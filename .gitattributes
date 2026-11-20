@@ -1,0 +1,13 @@
+# Fins de linha: LF em todos os arquivos de texto (igual ao Prettier),
+# independentemente do core.autocrlf de cada máquina.
+* text=auto eol=lf
+
+# Binários: nunca converter.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.ico   binary
+*.pdf   binary
+*.woff  binary
+*.woff2 binary
