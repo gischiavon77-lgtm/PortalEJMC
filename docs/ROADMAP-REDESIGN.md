@@ -9,7 +9,7 @@ Reforma visual e funcional do portal, feita em fases na branch `redesign`.
 | 1    | Base visual               | ✅ Concluída |
 | 2    | Página inicial em feed    | ✅ Concluída |
 | 3    | Projetos (estilo "Radar") | ✅ Concluída |
-| 4    | Calendário                | ⏳ Pendente  |
+| 4    | Calendário                | ✅ Concluída |
 | 5    | Estrutura (organograma)   | ⏳ Pendente  |
 
 Ao concluir uma fase, atualize a tabela acima e a seção da fase (situação e commit).
@@ -97,7 +97,20 @@ Escopo original:
 - Botão "Novo projeto" abrindo formulário com banner, ferramenta, descrição e equipe.
 - **Preço e proposta em PDF:** visíveis apenas para quem já tem permissão de gestão de projetos, nunca na listagem geral.
 
-## Fase 4 — Calendário ⏳
+## Fase 4 — Calendário ✅
+
+**Situação:** concluída (commit da Fase 4). Migração `20261122000000_event_categories`: rodar `npx prisma migrate deploy` em cada banco.
+
+O que foi feito e decisões aprovadas:
+
+- Enum `EventCategory` e campo `Event.category`. Categorias: Institucional, Reunião de área, Projetos e clientes, Comercial, Capacitação, Processo seletivo, Eventos e integração, Outros. Nomes, dicas e cores em `src/lib/event-categories.ts`; tokens `cat-*` (tons apagados, sem o vermelho da marca).
+- Eventos que já existiam ficaram em "Outros"; eventos novos sugerem "Institucional". Na API a categoria é opcional (padrão do banco: "Outros").
+- Tela: cabeçalho "Cronograma" (`PageHeader`) com "Novo evento"; filtros por categoria (uma por vez; no celular, linha rolável); navegação de mês no topo do calendário; eventos com ponto e fundo leve da categoria; legenda embaixo.
+- Formulário e detalhes do evento mostram a categoria; "Próximos Eventos" da página inicial também.
+- A categoria fica só no portal: a sincronização com o Google é só de ida e não envia a categoria.
+- Testes: integração com banco em memória (`tests/unit/calendar-home-integration.test.ts`, roda em `npm test`) e E2E (`tests/e2e/calendar.spec.ts`, exige banco com seed e o usuário de teste "coordenador").
+
+Escopo original:
 
 - Manter o funcionamento atual, com o visual novo.
 - Adicionar categoria ao evento, com cor, legenda e filtros no topo. Propor as categorias adequadas a uma empresa júnior.

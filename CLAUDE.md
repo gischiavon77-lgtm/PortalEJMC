@@ -39,7 +39,7 @@ O escopo detalhado está em `docs/ROADMAP-REDESIGN.md`; em caso de conflito com 
 1. ~~Sidebar fixa.~~ **Concluída** na Fase 1 da reforma visual.
 2. ~~Página inicial em feed.~~ **Concluída** na Fase 2 da reforma.
 3. ~~Projetos com imagem, descrição, status, contadores e equipe ligada a usuários.~~ **Concluída** na Fase 3 da reforma.
-4. Categorias nos eventos do calendário.
+4. ~~Categorias nos eventos do calendário.~~ **Concluída** na Fase 4 da reforma.
 5. Organograma por área gerado a partir dos usuários, com data de entrada. O álbum continua como histórico por gestão.
 
 ## Identidade visual (reforma em fases)
@@ -60,16 +60,17 @@ Regras da marca, válidas para qualquer tela nova:
 
 Tokens (definidos em `tailwind.config.ts`, espelhados como CSS variables em `src/app/globals.css`):
 
-| Grupo       | Tokens                                                                                                                 |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Superfícies | `bg` #0a0a0b · `surface` #141416 · `surface-raised` #1c1c1f · `surface-hover` #0c0c0e · `border` #26262a               |
-| Texto       | `text` #ffffff · `text-soft` #a1a1aa · `text-faint` #71717a                                                            |
-| Marca       | `brand` #87000a · `brand-hover` #a1000c                                                                                |
-| Auxiliares  | `danger` #e0545c · `ok` #5fb38a · `warn` #c9a24a · `info` #6f9bd1                                                      |
-| Áreas       | `area-vendas` · `area-presidencia` · `area-projetos` · `area-marketing` · `area-gp` · `area-admfin` (só em fios finos) |
-| Fontes      | `font-heading` (League Spartan) · `font-body` (Montserrat), via `next/font/google` em `src/app/layout.tsx`             |
-| Cantos      | `rounded-sm` 6px · `rounded-md` 8px (controles) · `rounded-lg` 10px (cards) · `rounded-xl` 12px                        |
-| Layout      | `w-sidebar`/`pl-sidebar` 16rem · `h-topbar`/`pt-topbar` 3.5rem                                                         |
+| Grupo       | Tokens                                                                                                                                                                                       |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Superfícies | `bg` #0a0a0b · `surface` #141416 · `surface-raised` #1c1c1f · `surface-hover` #0c0c0e · `border` #26262a                                                                                     |
+| Texto       | `text` #ffffff · `text-soft` #a1a1aa · `text-faint` #71717a                                                                                                                                  |
+| Marca       | `brand` #87000a · `brand-hover` #a1000c                                                                                                                                                      |
+| Auxiliares  | `danger` #e0545c · `ok` #5fb38a · `warn` #c9a24a · `info` #6f9bd1                                                                                                                            |
+| Categorias  | `cat-institucional` · `cat-area` · `cat-projetos` · `cat-comercial` · `cat-capacitacao` · `cat-ps` · `cat-eventos` · `cat-outros` (eventos do calendário; ver `src/lib/event-categories.ts`) |
+| Áreas       | `area-vendas` · `area-presidencia` · `area-projetos` · `area-marketing` · `area-gp` · `area-admfin` (só em fios finos)                                                                       |
+| Fontes      | `font-heading` (League Spartan) · `font-body` (Montserrat), via `next/font/google` em `src/app/layout.tsx`                                                                                   |
+| Cantos      | `rounded-sm` 6px · `rounded-md` 8px (controles) · `rounded-lg` 10px (cards) · `rounded-xl` 12px                                                                                              |
+| Layout      | `w-sidebar`/`pl-sidebar` 16rem · `h-topbar`/`pt-topbar` 3.5rem                                                                                                                               |
 
 Componentes reutilizáveis em `@/components/ui`: `PageHeader`, `StatCard` (número grande + rótulo), `StatusBadge`, `EmptyState`, além de `Button` (`primary` em `brand`), `Card`, `Input`, `Modal`, `DataTable`, `Badge`, `Pagination`, `Toast`.
 
@@ -221,7 +222,8 @@ Fonte única: `src/lib/permissions.ts`.
 ### Regras de domínio que vivem em `src/lib`
 
 - `goals.ts`: visibilidade por área e meta vencida. `kpis.ts`, `dashboard.ts`: agregações.
-- `calendar-sync.ts` + `google-calendar.ts`: sync com retry (3 tentativas, 60s), campo `Event.syncStatus`.
+- `calendar-sync.ts` + `google-calendar.ts`: sync com retry (3 tentativas, 60s), campo `Event.syncStatus`. Sincronização só de ida (portal → Google).
+- `event-categories.ts`: categorias de evento (nome, dica, cor) e `filterByCategory`. A categoria (`Event.category`) não vai para o Google.
 - `position.ts`: `MEMBRO` tem cargo fixo "Trainee"; demais papéis editam o próprio cargo.
 - `area-theme.ts`: cor e mascote de cada área (álbum e banner do perfil).
 - `email.ts`: emails de aprovação/rejeição via Resend.
@@ -235,7 +237,7 @@ Fonte única: `src/lib/permissions.ts`.
 O código evoluiu depois das specs. **Em caso de conflito, o código vale.** Diferenças conhecidas:
 
 - `Project` foi redesenhado (Fase 3 da reforma): `ferramenta`, `description`, `status` (`EM_ANDAMENTO`/`CONCLUIDO`, enum `ProjectStatus` novo), `bannerPath`, `price`, `proposalPath`, equipe em `ProjectMember` (ligada a usuários). Não existe mais `ProjectStatusHistory`.
-- Nomes de campo: `Event.startsAt/endsAt`, `Reservation.reservedDate`, `Infraction.userId/occurredAt/semester`, `KpiValue.recordedAt/recordedById`, `GoalUpdate.oldProgress/newProgress`.
+- Nomes de campo: `Event.startsAt/endsAt` (e `Event.category`, Fase 4), `Reservation.reservedDate`, `Infraction.userId/occurredAt/semester`, `KpiValue.recordedAt/recordedById`, `GoalUpdate.oldProgress/newProgress`.
 - A matriz RBAC usa lista explícita de papéis + predicados em OU, não `minLevel` + `customCheck`. As ações são `recurso:verbo`, não `recurso.verbo`.
 - Módulos fora das specs: álbum de figurinhas (`AlbumMember`, `/api/album`), destaques do dashboard (`Highlight`, `/api/highlights`), sino de notificações (`/api/notifications`), exclusão de comunicados/enquetes/metas.
 - Validadores ficam em `src/lib/validators/*.ts` (não em um `validators.ts` único). Não há `src/utils` nem `tests/integration`.

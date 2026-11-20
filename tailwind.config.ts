@@ -51,6 +51,17 @@ const config: Config = {
         'area-marketing': '#9a7bc4',
         'area-gp': '#6f9bd1',
         'area-admfin': '#c9a24a',
+
+        // ─── Categorias de evento do calendário (Fase 4) ───
+        // Tons apagados; ver src/lib/event-categories.ts.
+        'cat-institucional': '#6f9bd1',
+        'cat-area': '#4fa39a',
+        'cat-projetos': '#c98a4a',
+        'cat-comercial': '#c9a24a',
+        'cat-capacitacao': '#9a7bc4',
+        'cat-ps': '#c47a96',
+        'cat-eventos': '#5fb38a',
+        'cat-outros': '#71717a',
       },
       fontFamily: {
         // As variáveis são definidas por `next/font/google` em `src/app/layout.tsx`.

@@ -14,6 +14,7 @@ import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { EmptyState } from '@/components/ui';
+import { getEventCategory } from '@/lib/event-categories';
 import type { HomeSidebarData } from '@/lib/home';
 
 function SidebarCard({
@@ -192,11 +193,17 @@ export function HomeSidebar({ data }: { data: HomeSidebarData }) {
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-text">{event.title}</p>
-                  <p className="text-xs text-text-faint">
+                  <p className="flex items-center gap-1.5 text-xs text-text-faint">
                     <span className="sr-only">
                       {event.day} de {event.month},{' '}
                     </span>
                     {event.time}
+                    <span aria-hidden="true">·</span>
+                    <span
+                      aria-hidden="true"
+                      className={`inline-flex h-2 w-2 shrink-0 rounded-full ${getEventCategory(event.category).dot}`}
+                    />
+                    <span className="truncate">{getEventCategory(event.category).label}</span>
                   </p>
                 </div>
               </li>

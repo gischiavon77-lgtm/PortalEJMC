@@ -9,6 +9,8 @@
  */
 
 import { Modal, Button } from '@/components/ui';
+import { getEventCategory } from '@/lib/event-categories';
+
 import type { CalendarEvent } from './calendar-utils';
 
 export interface EventDetailModalProps {
@@ -63,6 +65,17 @@ export function EventDetailModal({ open, onClose, event }: EventDetailModalProps
     >
       {event && (
         <div className="flex flex-col gap-4">
+          {/* Categoria (Fase 4) */}
+          <div className="flex items-center gap-2" data-testid="event-detail-category">
+            <span
+              aria-hidden="true"
+              className={`inline-flex h-2.5 w-2.5 rounded-full ${getEventCategory(event.category).dot}`}
+            />
+            <span className="text-sm font-medium text-text">
+              {getEventCategory(event.category).label}
+            </span>
+          </div>
+
           {/* Data */}
           <div className="flex items-start gap-3">
             <span aria-hidden="true" className="text-xl">

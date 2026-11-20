@@ -97,6 +97,7 @@ export default async function CronogramaPage({ searchParams }: CronogramaPagePro
       select: {
         id: true,
         title: true,
+        category: true,
         startsAt: true,
         endsAt: true,
         syncStatus: true,
@@ -110,6 +111,7 @@ export default async function CronogramaPage({ searchParams }: CronogramaPagePro
     events = dbEvents.map((e) => ({
       id: e.id,
       title: e.title,
+      category: e.category,
       startsAt: e.startsAt.toISOString(),
       endsAt: e.endsAt.toISOString(),
       syncStatus: e.syncStatus,

@@ -24,15 +24,13 @@
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
+import type { EventCategory } from '@prisma/client';
 import { ZodError } from 'zod';
 
 import { withAuth } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
 import { syncCreatedEvent } from '@/lib/calendar-sync';
-import {
-  createEventSchema,
-  listEventsQuerySchema,
-} from '@/lib/validators/calendar';
+import { createEventSchema, listEventsQuerySchema } from '@/lib/validators/calendar';
 
 export const runtime = 'nodejs';
 
@@ -57,6 +55,7 @@ function getCurrentMonthRange(now: Date = new Date()): { start: Date; end: Date 
 function serializeEvent(event: {
   id: string;
   title: string;
+  category: string;
   startsAt: Date;
   endsAt: Date;
   googleEventId: string | null;
@@ -69,6 +68,7 @@ function serializeEvent(event: {
   return {
     id: event.id,
     title: event.title,
+    category: event.category,
     startsAt: event.startsAt.toISOString(),
     endsAt: event.endsAt.toISOString(),
     googleEventId: event.googleEventId,
@@ -116,18 +116,12 @@ async function listHandler(req: NextRequest): Promise<Response> {
     where: {
       // Eventos cujo INTERVALO intersecta a janela.
       // (startsAt < end) AND (endsAt > start).
-      AND: [
-        { startsAt: { lt: end } },
-        { endsAt: { gt: start } },
-      ],
+      AND: [{ startsAt: { lt: end } }, { endsAt: { gt: start } }],
     },
     orderBy: { startsAt: 'asc' },
   });
 
-  return NextResponse.json(
-    { events: events.map(serializeEvent) },
-    { status: 200 },
-  );
+  return NextResponse.json({ events: events.map(serializeEvent) }, { status: 200 });
 }
 
 export const GET = withAuth(null, listHandler);
@@ -152,7 +146,13 @@ async function createHandler(
     );
   }
 
-  let payload: { title: string; startsAt: Date; endsAt: Date; description?: string };
+  let payload: {
+    title: string;
+    startsAt: Date;
+    endsAt: Date;
+    description?: string;
+    category?: EventCategory;
+  };
   try {
     payload = createEventSchema.parse(rawBody);
   } catch (err) {
@@ -178,6 +178,7 @@ async function createHandler(
   const created = await prisma.event.create({
     data: {
       title: payload.title,
+      ...(payload.category ? { category: payload.category } : {}),
       startsAt: payload.startsAt,
       endsAt: payload.endsAt,
       syncStatus: 'pending',

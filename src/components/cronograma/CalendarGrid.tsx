@@ -37,6 +37,7 @@
 import { Fragment } from 'react';
 
 import { cn } from '@/components/ui/cn';
+import { getEventCategory } from '@/lib/event-categories';
 import {
   formatEventTime,
   WEEKDAY_LABELS,
@@ -168,6 +169,8 @@ interface EventItemProps {
 function EventItem({ event, onClick }: EventItemProps) {
   const hasFailedSync = event.syncStatus === 'failed';
   const isPendingSync = event.syncStatus === 'pending';
+  // Fase 4: cor e nome da categoria (ponto + fundo leve).
+  const category = getEventCategory(event.category);
 
   const content = (
     <span className="flex min-w-0 items-center gap-1">
@@ -187,6 +190,13 @@ function EventItem({ event, onClick }: EventItemProps) {
           className="inline-flex h-2 w-2 shrink-0 rounded-full bg-warn"
         />
       )}
+      {!hasFailedSync && !isPendingSync && (
+        <span
+          aria-hidden="true"
+          className={cn('inline-flex h-2 w-2 shrink-0 rounded-full', category.dot)}
+        />
+      )}
+      <span className="sr-only">{category.label}:</span>
       <span className="shrink-0 text-[10px] font-semibold text-text-faint">
         {formatEventTime(event)}
       </span>
@@ -199,10 +209,9 @@ function EventItem({ event, onClick }: EventItemProps) {
       <div
         data-testid="calendar-event"
         data-sync-status={event.syncStatus}
-        className={cn(
-          'block rounded px-1.5 py-0.5 text-left',
-          hasFailedSync ? 'bg-brand/20' : 'bg-brand/20',
-        )}
+        data-category={category.value}
+        title={`${category.label} · ${event.title}`}
+        className={cn('block rounded border px-1.5 py-0.5 text-left', category.chip)}
       >
         {content}
       </div>
@@ -214,11 +223,13 @@ function EventItem({ event, onClick }: EventItemProps) {
       type="button"
       data-testid="calendar-event"
       data-sync-status={event.syncStatus}
+      data-category={category.value}
+      title={`${category.label} · ${event.title}`}
       onClick={() => onClick(event)}
       className={cn(
-        'block w-full rounded px-1.5 py-0.5 text-left transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
-        hasFailedSync ? 'bg-brand/20 hover:bg-brand/20' : 'bg-brand/20 hover:bg-brand/20',
+        'block w-full rounded border px-1.5 py-0.5 text-left transition-[filter]',
+        'hover:brightness-125 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30',
+        category.chip,
       )}
     >
       {content}

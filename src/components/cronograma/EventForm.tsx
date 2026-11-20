@@ -54,6 +54,12 @@
  */
 
 import { useEffect, useState, type FormEvent } from 'react';
+
+import {
+  DEFAULT_NEW_EVENT_CATEGORY,
+  EVENT_CATEGORIES,
+  getEventCategory,
+} from '@/lib/event-categories';
 import { z } from 'zod';
 
 import { Button, Input, Modal } from '@/components/ui';
@@ -143,6 +149,7 @@ function buildInitialState(event?: CalendarEvent | null, defaultDate?: Date | nu
   if (isEditingMode(event)) {
     return {
       title: event.title,
+      category: getEventCategory(event.category).value as string,
       startsAt: toDatetimeLocal(new Date(event.startsAt)),
       endsAt: toDatetimeLocal(new Date(event.endsAt)),
     };
@@ -157,6 +164,7 @@ function buildInitialState(event?: CalendarEvent | null, defaultDate?: Date | nu
   const end = new Date(start.getTime() + 60 * 60 * 1000);
   return {
     title: '',
+    category: DEFAULT_NEW_EVENT_CATEGORY as string,
     startsAt: toDatetimeLocal(start),
     endsAt: toDatetimeLocal(end),
   };
@@ -215,6 +223,7 @@ export function EventForm({
     // assume fuso local; `.toISOString()` converte para UTC.
     const payload = {
       title: parsed.data.title,
+      category: values.category,
       startsAt: new Date(parsed.data.startsAt).toISOString(),
       endsAt: new Date(parsed.data.endsAt).toISOString(),
     };
@@ -392,6 +401,29 @@ export function EventForm({
           helperText={`${values.title.trim().length}/${EVENT_TITLE_MAX_LENGTH} caracteres`}
           disabled={submitting || deleting}
         />
+
+        <div className="flex w-full flex-col gap-1.5">
+          <label htmlFor="event-category" className="text-sm font-medium text-text">
+            Categoria
+          </label>
+          <select
+            id="event-category"
+            name="category"
+            value={values.category}
+            onChange={(e) => setField('category', e.target.value)}
+            disabled={submitting || deleting}
+            required
+            className="h-10 w-full rounded-md border border-border bg-surface-raised px-3 text-sm text-text focus-visible:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            data-testid="event-category"
+          >
+            {EVENT_CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-text-faint">{getEventCategory(values.category).hint}</p>
+        </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input

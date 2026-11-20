@@ -32,15 +32,7 @@
  */
 
 /** Rótulos curtos dos dias da semana, com domingo na posição 0. */
-export const WEEKDAY_LABELS = [
-  'Dom',
-  'Seg',
-  'Ter',
-  'Qua',
-  'Qui',
-  'Sex',
-  'Sáb',
-] as const;
+export const WEEKDAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'] as const;
 
 /** Nomes dos meses em pt-BR para o cabeçalho da página. */
 export const MONTH_NAMES = [
@@ -150,7 +142,10 @@ export function buildMonthMatrix(year: number, month: number): MonthCell[] {
  * `CalendarGrid` (que usa `Date` local). Esse "split" mantém a API
  * consistente em qualquer fuso.
  */
-export function monthRangeISO(year: number, month: number): {
+export function monthRangeISO(
+  year: number,
+  month: number,
+): {
   startISO: string;
   endISO: string;
 } {
@@ -184,6 +179,8 @@ export function shiftMonth(
 export interface CalendarEvent {
   id: string;
   title: string;
+  /** Categoria (Fase 4); ver `@/lib/event-categories`. */
+  category: string;
   startsAt: string; // ISO
   endsAt: string; // ISO
   syncStatus: string;
@@ -198,9 +195,7 @@ export interface CalendarEvent {
  * A função usa o fuso local — eventos que cruzam meia-noite UTC mas
  * pertencem ao mesmo dia local ainda são agrupados corretamente.
  */
-export function groupEventsByDay(
-  events: CalendarEvent[],
-): Map<string, CalendarEvent[]> {
+export function groupEventsByDay(events: CalendarEvent[]): Map<string, CalendarEvent[]> {
   const map = new Map<string, CalendarEvent[]>();
 
   for (const event of events) {
@@ -232,9 +227,7 @@ export function groupEventsByDay(
   // (em vez de `for…of`) por compatibilidade com o target ES5 do
   // tsconfig — `for…of` sobre `Map` exigiria `downlevelIteration`.
   map.forEach((list) => {
-    list.sort(
-      (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
-    );
+    list.sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
   });
 
   return map;

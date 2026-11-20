@@ -257,17 +257,13 @@ describe('POST /api/calendar/events', () => {
   it('retorna 400 VALIDATION_ERROR quando o título é vazio', async () => {
     authMock.mockResolvedValueOnce(buildSession('COORDENADOR'));
 
-    const response = await POST(
-      buildRequest({ ...validBody, title: '' }),
-    );
+    const response = await POST(buildRequest({ ...validBody, title: '' }));
     const payload = await response.json();
 
     expect(response.status).toBe(400);
     expect(payload.code).toBe('VALIDATION_ERROR');
     expect(payload.fields).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ path: 'title' }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ path: 'title' })]),
     );
     expect(eventCreateMock).not.toHaveBeenCalled();
   });
@@ -286,9 +282,7 @@ describe('POST /api/calendar/events', () => {
     expect(response.status).toBe(400);
     expect(payload.code).toBe('VALIDATION_ERROR');
     expect(payload.fields).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ path: 'endsAt' }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ path: 'endsAt' })]),
     );
   });
 
@@ -316,5 +310,55 @@ describe('POST /api/calendar/events', () => {
       status: 'synced',
       googleEventId: null,
     });
+  });
+});
+
+// ─── Categoria do evento (Fase 4 da reforma) ─────────────────────────
+
+describe('POST /api/calendar/events — categoria', () => {
+  beforeEach(() => {
+    // Modo no-op do Google: o foco aqui é a categoria, não a sincronização.
+    delete process.env.GOOGLE_CALENDAR_ID;
+    delete process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+    __resetGoogleCalendarClientForTests();
+  });
+
+  it('grava a categoria enviada e a devolve na resposta', async () => {
+    authMock.mockResolvedValueOnce(buildSession('COORDENADOR'));
+    const created = { ...persistedEvent, category: 'CAPACITACAO' };
+    eventCreateMock.mockResolvedValueOnce(created);
+    eventFindUniqueMock.mockResolvedValueOnce(created);
+    eventUpdateMock.mockResolvedValueOnce({});
+    eventFindUniqueOrThrowMock.mockResolvedValueOnce({ ...created, syncStatus: 'synced' });
+
+    const response = await POST(buildRequest({ ...validBody, category: 'CAPACITACAO' }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(eventCreateMock.mock.calls[0]?.[0].data.category).toBe('CAPACITACAO');
+    expect(payload.event.category).toBe('CAPACITACAO');
+  });
+
+  it('sem categoria, não envia o campo (o banco aplica "OUTROS")', async () => {
+    authMock.mockResolvedValueOnce(buildSession('COORDENADOR'));
+    eventCreateMock.mockResolvedValueOnce(persistedEvent);
+    eventFindUniqueMock.mockResolvedValueOnce(persistedEvent);
+    eventUpdateMock.mockResolvedValueOnce({});
+    eventFindUniqueOrThrowMock.mockResolvedValueOnce(persistedEvent);
+
+    await POST(buildRequest(validBody));
+
+    expect(eventCreateMock.mock.calls[0]?.[0].data).not.toHaveProperty('category');
+  });
+
+  it('categoria fora da lista → 400, nada é criado', async () => {
+    authMock.mockResolvedValueOnce(buildSession('COORDENADOR'));
+
+    const response = await POST(buildRequest({ ...validBody, category: 'FESTA' }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload.fields.some((f: { path: string }) => f.path === 'category')).toBe(true);
+    expect(eventCreateMock).not.toHaveBeenCalled();
   });
 });

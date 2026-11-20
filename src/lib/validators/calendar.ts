@@ -20,6 +20,8 @@
 
 import { z } from 'zod';
 
+import { EVENT_CATEGORY_VALUES } from '@/lib/event-categories';
+
 export const EVENT_TITLE_MIN_LENGTH = 1;
 export const EVENT_TITLE_MAX_LENGTH = 100;
 export const EVENT_DESCRIPTION_MAX_LENGTH = 2000;
@@ -76,6 +78,9 @@ const eventBase = z.object({
     }),
   startsAt: isoDateTime(EVENT_VALIDATION_MESSAGES.startsAt),
   endsAt: isoDateTime(EVENT_VALIDATION_MESSAGES.endsAt),
+  // Fase 4: categoria. Opcional na API (padrão "OUTROS" no banco); o
+  // formulário sempre envia uma, sugerindo "INSTITUCIONAL".
+  category: z.enum(EVENT_CATEGORY_VALUES, { error: 'Categoria inválida.' }).optional(),
   description: z
     .string()
     .trim()

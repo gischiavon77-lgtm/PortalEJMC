@@ -48,6 +48,8 @@ export interface HomeHighlight {
 export interface HomeEvent {
   id: string;
   title: string;
+  /** Categoria do evento (Fase 4); ver `@/lib/event-categories`. */
+  category: string;
   /** Dia do mês, ex.: "25". */
   day: string;
   /** Mês abreviado em caixa normal, ex.: "nov". */
@@ -132,12 +134,13 @@ export async function getHomeSidebar(now: Date = new Date()): Promise<HomeSideba
         where: { startsAt: { gte: now } },
         orderBy: { startsAt: 'asc' },
         take: UPCOMING_EVENTS_LIMIT,
-        select: { id: true, title: true, startsAt: true },
+        select: { id: true, title: true, category: true, startsAt: true },
       })
       .then((rows) =>
         rows.map((r) => ({
           id: r.id,
           title: r.title,
+          category: r.category,
           startsAt: r.startsAt.toISOString(),
           ...eventDateParts(r.startsAt),
         })),

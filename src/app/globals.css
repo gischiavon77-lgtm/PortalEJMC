@@ -47,6 +47,16 @@
   --warn: #c9a24a;
   --info: #6f9bd1;
 
+  /* Categorias de evento do calendário (Fase 4) */
+  --cat-institucional: #6f9bd1;
+  --cat-area: #4fa39a;
+  --cat-projetos: #c98a4a;
+  --cat-comercial: #c9a24a;
+  --cat-capacitacao: #9a7bc4;
+  --cat-ps: #c47a96;
+  --cat-eventos: #5fb38a;
+  --cat-outros: #71717a;
+
   /* Cantos */
   --radius-control: 8px;
   --radius-card: 10px;

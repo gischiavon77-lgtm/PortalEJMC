@@ -22,6 +22,7 @@
  */
 
 import { NextResponse, type NextRequest } from 'next/server';
+import type { EventCategory } from '@prisma/client';
 import { ZodError } from 'zod';
 
 import { withAuth } from '@/lib/api-auth';
@@ -38,6 +39,7 @@ interface EventRouteParams {
 function serializeEvent(event: {
   id: string;
   title: string;
+  category: string;
   startsAt: Date;
   endsAt: Date;
   googleEventId: string | null;
@@ -50,6 +52,7 @@ function serializeEvent(event: {
   return {
     id: event.id,
     title: event.title,
+    category: event.category,
     startsAt: event.startsAt.toISOString(),
     endsAt: event.endsAt.toISOString(),
     googleEventId: event.googleEventId,
@@ -102,7 +105,13 @@ async function patchHandler(
     );
   }
 
-  let payload: Partial<{ title: string; startsAt: Date; endsAt: Date; description?: string }>;
+  let payload: Partial<{
+    title: string;
+    startsAt: Date;
+    endsAt: Date;
+    description?: string;
+    category?: EventCategory;
+  }>;
   try {
     payload = updateEventSchema.parse(rawBody);
   } catch (err) {
@@ -149,6 +158,7 @@ async function patchHandler(
     where: { id },
     data: {
       ...(payload.title !== undefined ? { title: payload.title } : {}),
+      ...(payload.category !== undefined ? { category: payload.category } : {}),
       ...(payload.startsAt !== undefined ? { startsAt: payload.startsAt } : {}),
       ...(payload.endsAt !== undefined ? { endsAt: payload.endsAt } : {}),
       // Reseta para 'pending' enquanto a sincronização não confirma.
