@@ -34,6 +34,8 @@ Nesta ordem:
 
 Ainda não implementadas:
 
+O escopo detalhado está em `docs/ROADMAP-REDESIGN.md`; em caso de conflito com a lista abaixo, vale o roteiro.
+
 1. ~~Sidebar fixa.~~ **Concluída** na Fase 1 da reforma visual.
 2. Página inicial em feed: posts com foto e curtidas, e coluna lateral com mural de avisos, destaque do mês e próximos eventos. Substitui a página inicial atual.
 3. Projetos com imagem, descrição, status, contadores e equipe ligada a usuários.
@@ -43,6 +45,8 @@ Ainda não implementadas:
 ## Identidade visual (reforma em fases)
 
 Reforma visual e funcional em fases, na branch `redesign`. Um commit por fase; antes de cada fase, apresentar o plano e aguardar aprovação. **Fase 1 (base visual) concluída.**
+
+**Roteiro das fases e o que falta:** [`docs/ROADMAP-REDESIGN.md`](docs/ROADMAP-REDESIGN.md). Leia esse arquivo no início de cada sessão.
 
 Regras da marca, válidas para qualquer tela nova:
 
